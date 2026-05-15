@@ -1,0 +1,380 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum MemberRole {
+  admin
+  manager
+  technician
+  requester
+  viewer
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  canceled
+  unpaid
+}
+
+enum SubscriptionPlan {
+  starter
+  growth
+  enterprise
+}
+
+enum WorkOrderType {
+  corrective
+  preventive
+  inspection
+  service_request
+}
+
+enum WorkOrderStatus {
+  open
+  in_progress
+  on_hold
+  resolved
+  closed
+}
+
+enum WorkOrderPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum MaintenanceTriggerType {
+  time_based
+  meter_based
+}
+
+enum MaintenanceFrequency {
+  daily
+  weekly
+  biweekly
+  monthly
+  quarterly
+  semi_annual
+  annual
+  custom
+}
+
+// ─── Organization (tenant) ───────────────────────────────────────────────────
+
+model Organization {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  name      String
+  industry  String?
+  size      String?
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members          Membership[]
+  sites            Site[]
+  assetCategories  AssetCategory[]
+  assets           Asset[]
+  workOrders       WorkOrder[]
+  maintenancePlans MaintenancePlan[]
+  subscription     Subscription?
+
+  @@index([clerkId])
+}
+
+// ─── Membership ───────────────────────────────────────────────────────────────
+
+model Membership {
+  id             String       @id @default(cuid())
+  organizationId String
+  clerkUserId    String
+  email          String
+  firstName      String?
+  lastName       String?
+  avatarUrl      String?
+  role           MemberRole   @default(technician)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignedOrders   WorkOrderAssignee[]
+  timeLogs         WorkOrderTimeLog[]
+  comments         WorkOrderComment[]
+
+  @@unique([organizationId, clerkUserId])
+  @@index([organizationId])
+  @@index([clerkUserId])
+}
+
+// ─── Subscription ─────────────────────────────────────────────────────────────
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  organizationId       String             @unique
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  plan                 SubscriptionPlan   @default(starter)
+  status               SubscriptionStatus @default(trialing)
+  trialEndsAt          DateTime?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+// ─── Site & Location ──────────────────────────────────────────────────────────
+
+model Site {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  address        String?
+  city           String?
+  province       String?
+  postalCode     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  locations    Location[]
+  assets       Asset[]
+  workOrders   WorkOrder[]
+
+  @@index([organizationId])
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  siteId    String
+  parentId  String?
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site      Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parent    Location?  @relation("LocationTree", fields: [parentId], references: [id])
+  children  Location[] @relation("LocationTree")
+  assets    Asset[]
+
+  @@index([siteId])
+  @@index([parentId])
+}
+
+// ─── Asset ────────────────────────────────────────────────────────────────────
+
+model AssetCategory {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  icon           String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assets       Asset[]
+
+  @@index([organizationId])
+}
+
+model Asset {
+  id             String   @id @default(cuid())
+  organizationId String
+  categoryId     String?
+  siteId         String?
+  locationId     String?
+  name           String
+  description    String?
+  serialNumber   String?
+  model          String?
+  manufacturer   String?
+  purchaseDate   DateTime?
+  warrantyExpiry DateTime?
+  imageUrl       String?
+  qrCode         String?  @unique
+  isActive       Boolean  @default(true)
+  specs          Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  category         AssetCategory?    @relation(fields: [categoryId], references: [id])
+  site             Site?             @relation(fields: [siteId], references: [id])
+  location         Location?         @relation(fields: [locationId], references: [id])
+  workOrders       WorkOrder[]
+  maintenancePlans MaintenancePlan[]
+  meters           AssetMeter[]
+  history          AssetHistory[]
+
+  @@index([organizationId])
+  @@index([siteId])
+  @@index([qrCode])
+}
+
+model AssetMeter {
+  id        String   @id @default(cuid())
+  assetId   String
+  name      String
+  unit      String
+  value     Float    @default(0)
+  updatedAt DateTime @updatedAt
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+}
+
+model AssetHistory {
+  id          String   @id @default(cuid())
+  assetId     String
+  eventType   String
+  description String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+}
+
+// ─── Work Orders ──────────────────────────────────────────────────────────────
+
+model WorkOrder {
+  id             String            @id @default(cuid())
+  organizationId String
+  siteId         String?
+  assetId        String?
+  number         Int
+  title          String
+  description    String?
+  type           WorkOrderType     @default(corrective)
+  status         WorkOrderStatus   @default(open)
+  priority       WorkOrderPriority @default(medium)
+  dueDate        DateTime?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  estimatedHours Float?
+  closureNotes   String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site         Site?               @relation(fields: [siteId], references: [id])
+  asset        Asset?              @relation(fields: [assetId], references: [id])
+  assignees    WorkOrderAssignee[]
+  comments     WorkOrderComment[]
+  attachments  WorkOrderAttachment[]
+  timeLogs     WorkOrderTimeLog[]
+
+  @@unique([organizationId, number])
+  @@index([organizationId])
+  @@index([assetId])
+  @@index([status])
+}
+
+model WorkOrderAssignee {
+  id           String @id @default(cuid())
+  workOrderId  String
+  membershipId String
+
+  workOrder  WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@unique([workOrderId, membershipId])
+}
+
+model WorkOrderComment {
+  id           String   @id @default(cuid())
+  workOrderId  String
+  membershipId String
+  content      String
+  createdAt    DateTime @default(now())
+
+  workOrder  WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  membership Membership @relation(fields: [membershipId], references: [id])
+
+  @@index([workOrderId])
+}
+
+model WorkOrderAttachment {
+  id          String   @id @default(cuid())
+  workOrderId String
+  name        String
+  url         String
+  mimeType    String?
+  size        Int?
+  createdAt   DateTime @default(now())
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([workOrderId])
+}
+
+model WorkOrderTimeLog {
+  id           String    @id @default(cuid())
+  workOrderId  String
+  membershipId String
+  startedAt    DateTime
+  endedAt      DateTime?
+  minutes      Int?
+  notes        String?
+  createdAt    DateTime  @default(now())
+
+  workOrder  WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  membership Membership @relation(fields: [membershipId], references: [id])
+
+  @@index([workOrderId])
+}
+
+// ─── Maintenance Plans ────────────────────────────────────────────────────────
+
+model MaintenancePlan {
+  id              String                 @id @default(cuid())
+  organizationId  String
+  assetId         String?
+  categoryId      String?
+  name            String
+  description     String?
+  triggerType     MaintenanceTriggerType @default(time_based)
+  frequency       MaintenanceFrequency?
+  customDays      Int?
+  meterThreshold  Float?
+  estimatedHours  Float?
+  priority        WorkOrderPriority      @default(medium)
+  isActive        Boolean                @default(true)
+  lastGeneratedAt DateTime?
+  nextDueAt       DateTime?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  asset        Asset?            @relation(fields: [assetId], references: [id])
+  tasks        MaintenanceTask[]
+
+  @@index([organizationId])
+  @@index([assetId])
+  @@index([nextDueAt])
+}
+
+model MaintenanceTask {
+  id                String   @id @default(cuid())
+  maintenancePlanId String
+  order             Int
+  description       String
+  createdAt         DateTime @default(now())
+
+  maintenancePlan MaintenancePlan @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
+
+  @@index([maintenancePlanId])
+}
