@@ -1,0 +1,65 @@
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import { db } from '@/lib/db'
+import { OrgSettingsForm } from '@/components/settings/org-settings-form'
+import { TeamTable } from '@/components/settings/team-table'
+import { Building2, Users } from 'lucide-react'
+
+export default async function ParametresPage() {
+  const { orgId, userId } = await auth()
+  if (!orgId || !userId) redirect('/sign-in')
+
+  const org = await db.organization.findUnique({
+    where: { clerkId: orgId },
+    select: { id: true, name: true, industry: true, size: true },
+  })
+  if (!org) redirect('/onboarding')
+
+  const members = await db.membership.findMany({
+    where: { organizationId: org.id },
+    orderBy: [{ role: 'asc' }, { firstName: 'asc' }],
+  })
+
+  const currentMembership = members.find(m => m.clerkUserId === userId)
+
+  return (
+    <div className="p-6 max-w-3xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">Paramètres</h1>
+        <p className="text-muted-foreground text-sm mt-1">Gérez votre organisation et votre équipe</p>
+      </div>
+
+      {/* Organisation */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-muted-foreground" />
+          <h2 className="font-semibold">Organisation</h2>
+        </div>
+        <div className="border rounded-lg p-5 bg-card">
+          <OrgSettingsForm org={org} />
+        </div>
+      </section>
+
+      {/* Équipe */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-semibold">Équipe</h2>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {members.length} membre{members.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        <TeamTable
+          members={members}
+          currentMembershipId={currentMembership?.id ?? ''}
+          currentRole={currentMembership?.role ?? 'viewer'}
+        />
+        <p className="text-xs text-muted-foreground">
+          Pour inviter des membres, utilisez le tableau de bord Clerk de votre organisation.
+        </p>
+      </section>
+    </div>
+  )
+}
