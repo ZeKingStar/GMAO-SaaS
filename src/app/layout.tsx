@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider localization={frFR}>
+    <ClerkProvider localization={frFR} afterSignOutUrl="/sign-in">
       <html lang="fr" className={`${geistSans.variable} h-full antialiased`}>
         <body className="min-h-full bg-background text-foreground">
           {children}

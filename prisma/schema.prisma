@@ -189,8 +189,9 @@ model AssetCategory {
 }
 
 model Asset {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   organizationId String
+  parentId       String?
   categoryId     String?
   siteId         String?
   locationId     String?
@@ -202,24 +203,44 @@ model Asset {
   purchaseDate   DateTime?
   warrantyExpiry DateTime?
   imageUrl       String?
-  qrCode         String?  @unique
-  isActive       Boolean  @default(true)
+  qrCode         String?   @unique
+  isActive       Boolean   @default(true)
   specs          Json?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parent           Asset?            @relation("AssetTree", fields: [parentId], references: [id])
+  children         Asset[]           @relation("AssetTree")
   category         AssetCategory?    @relation(fields: [categoryId], references: [id])
   site             Site?             @relation(fields: [siteId], references: [id])
   location         Location?         @relation(fields: [locationId], references: [id])
+  parts            AssetPart[]
   workOrders       WorkOrder[]
   maintenancePlans MaintenancePlan[]
   meters           AssetMeter[]
   history          AssetHistory[]
 
   @@index([organizationId])
+  @@index([parentId])
   @@index([siteId])
   @@index([qrCode])
+}
+
+model AssetPart {
+  id         String   @id @default(cuid())
+  assetId    String
+  partNumber String?
+  name       String
+  quantity   Float    @default(1)
+  unit       String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
 }
 
 model AssetMeter {
