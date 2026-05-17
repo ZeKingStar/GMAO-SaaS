@@ -85,3 +85,15 @@ export async function deleteAsset(id: string) {
   await db.asset.delete({ where: { id, organizationId } })
   revalidatePath('/actifs')
 }
+
+export async function generateAssetQrCode(id: string) {
+  const organizationId = await getOrganizationId()
+  const { randomUUID } = await import('crypto')
+  const qrCode = randomUUID()
+  await db.asset.update({
+    where: { id, organizationId },
+    data: { qrCode },
+  })
+  revalidatePath('/actifs')
+  return qrCode
+}

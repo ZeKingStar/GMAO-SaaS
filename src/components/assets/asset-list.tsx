@@ -1,19 +1,20 @@
 'use client'
 
 import { useTransition } from 'react'
-import { Plus, Pencil, Trash2, Cpu, MapPin, Tag } from 'lucide-react'
+import { Plus, Pencil, Trash2, Cpu, MapPin, QrCode } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { deleteAsset } from '@/actions/assets'
 import { AssetFormDialog } from './asset-form-dialog'
+import { AssetQrDialog } from './asset-qr-dialog'
 
 type Category = { id: string; name: string; icon: string | null }
 type Location = { id: string; name: string; parentId: string | null }
 type Site = { id: string; name: string; locations: Location[] }
 type Asset = {
   id: string; name: string; description: string | null; serialNumber: string | null
-  model: string | null; manufacturer: string | null; isActive: boolean
+  model: string | null; manufacturer: string | null; isActive: boolean; qrCode: string | null
   categoryId: string | null; siteId: string | null; locationId: string | null; parentId: string | null
   category: Category | null
   site: Site | null
@@ -107,6 +108,11 @@ export function AssetList({ assets, categories, sites }: Props) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="hidden group-hover:flex items-center gap-0.5 justify-end">
+                    <AssetQrDialog assetId={asset.id} assetName={asset.name} qrCode={asset.qrCode}>
+                      <Button variant="ghost" size="icon-sm" title="QR Code">
+                        <QrCode className="h-3.5 w-3.5" />
+                      </Button>
+                    </AssetQrDialog>
                     <AssetFormDialog asset={asset} categories={categories} sites={sites}>
                       <Button variant="ghost" size="icon-sm"><Pencil className="h-3.5 w-3.5" /></Button>
                     </AssetFormDialog>
