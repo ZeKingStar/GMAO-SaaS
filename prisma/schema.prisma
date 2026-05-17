@@ -87,6 +87,7 @@ model Organization {
   assets           Asset[]
   workOrders       WorkOrder[]
   maintenancePlans MaintenancePlan[]
+  spareParts       SparePart[]
   subscription     Subscription?
 
   @@index([clerkId])
@@ -398,4 +399,27 @@ model MaintenanceTask {
   maintenancePlan MaintenancePlan @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
 
   @@index([maintenancePlanId])
+}
+
+// ─── Inventaire ───────────────────────────────────────────────────────────────
+
+model SparePart {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  partNumber     String?
+  description    String?
+  unit           String?
+  quantityOnHand Float    @default(0)
+  quantityMin    Float?
+  unitCost       Float?
+  supplier       String?
+  storageLocation String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([partNumber])
 }
