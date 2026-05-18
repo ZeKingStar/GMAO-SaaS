@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { OrgSettingsForm } from '@/components/settings/org-settings-form'
 import { TeamTable } from '@/components/settings/team-table'
-import { Building2, Users } from 'lucide-react'
+import { BillingSection } from '@/components/settings/billing-section'
+import { Building2, Users, CreditCard } from 'lucide-react'
 
 export default async function ParametresPage() {
   const { orgId, userId } = await auth()
@@ -15,10 +16,16 @@ export default async function ParametresPage() {
   })
   if (!org) redirect('/onboarding')
 
-  const members = await db.membership.findMany({
-    where: { organizationId: org.id },
-    orderBy: [{ role: 'asc' }, { firstName: 'asc' }],
-  })
+  const [members, subscription] = await Promise.all([
+    db.membership.findMany({
+      where: { organizationId: org.id },
+      orderBy: [{ role: 'asc' }, { firstName: 'asc' }],
+    }),
+    db.subscription.findUnique({
+      where: { organizationId: org.id },
+      select: { plan: true, status: true, trialEndsAt: true, currentPeriodEnd: true },
+    }),
+  ])
 
   const currentMembership = members.find(m => m.clerkUserId === userId)
 
@@ -37,6 +44,17 @@ export default async function ParametresPage() {
         </div>
         <div className="border rounded-lg p-5 bg-card">
           <OrgSettingsForm org={org} />
+        </div>
+      </section>
+
+      {/* Abonnement */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <CreditCard className="h-4 w-4 text-muted-foreground" />
+          <h2 className="font-semibold">Abonnement</h2>
+        </div>
+        <div className="border rounded-lg p-5 bg-card">
+          <BillingSection subscription={subscription} />
         </div>
       </section>
 
