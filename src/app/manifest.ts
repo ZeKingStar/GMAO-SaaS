@@ -2,13 +2,13 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'GMAO — Gestion de Maintenance',
-    short_name: 'GMAO',
-    description: 'Logiciel de gestion de maintenance assistée par ordinateur pour PME québécoises',
+    name: 'Korvia — GMAO pour PME québécoises',
+    short_name: 'Korvia',
+    description: 'Gérez vos actifs, bons de travail et maintenance préventive en français.',
     start_url: '/dashboard',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#09090b',
+    background_color: '#0F1C2E',
+    theme_color: '#0F1C2E',
     orientation: 'portrait-primary',
     icons: [
       {

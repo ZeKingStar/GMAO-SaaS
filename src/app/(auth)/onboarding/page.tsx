@@ -73,7 +73,7 @@ export default function OnboardingPage() {
       <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 text-4xl">🔧</div>
-          <CardTitle className="text-2xl">Bienvenue dans votre GMAO</CardTitle>
+          <CardTitle className="text-2xl">Bienvenue dans Korvia</CardTitle>
           <CardDescription>
             Configurons votre organisation en quelques étapes
           </CardDescription>
