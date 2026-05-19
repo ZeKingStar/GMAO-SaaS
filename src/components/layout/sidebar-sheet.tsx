@@ -3,7 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, Wrench, LayoutDashboard, ClipboardList, Cpu, Calendar, Package, BarChart2, Settings } from "lucide-react"
+import { Menu, LayoutDashboard, ClipboardList, Cpu, Calendar, Package, BarChart2, Settings } from "lucide-react"
+import { KorviaLogo } from "@/components/brand/korvia-logo"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -29,11 +30,8 @@ export function SidebarSheet() {
         <span className="sr-only">Menu</span>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0">
-        <div className="flex items-center gap-2 px-6 py-5 border-b">
-          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary text-primary-foreground">
-            <Wrench className="h-4 w-4" />
-          </div>
-          <span className="font-bold text-lg tracking-tight">GMAO</span>
+        <div className="flex items-center px-6 py-5 border-b text-sidebar-foreground">
+          <KorviaLogo variant="color" size={32} showWordmark />
         </div>
         <nav className="py-4 px-3">
           <ul className="space-y-1">
