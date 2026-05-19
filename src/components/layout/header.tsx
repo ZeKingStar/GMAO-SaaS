@@ -20,7 +20,7 @@ function getTitle(pathname: string): string {
   for (const [path, title] of Object.entries(PAGE_TITLES)) {
     if (pathname === path || pathname.startsWith(path + "/")) return title
   }
-  return "GMAO"
+  return "Korvia"
 }
 
 export function Header() {

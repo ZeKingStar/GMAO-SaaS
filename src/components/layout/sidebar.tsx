@@ -10,8 +10,8 @@ import {
   Package,
   BarChart2,
   Settings,
-  Wrench,
 } from "lucide-react"
+import { KorviaLogo } from "@/components/brand/korvia-logo"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -32,11 +32,8 @@ export function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-64 border-r bg-card h-screen sticky top-0">
-      <div className="flex items-center gap-2 px-6 py-5 border-b">
-        <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary text-primary-foreground">
-          <Wrench className="h-4 w-4" />
-        </div>
-        <span className="font-bold text-lg tracking-tight">GMAO</span>
+      <div className="flex items-center px-6 py-5 border-b text-sidebar-foreground">
+        <KorviaLogo variant="color" size={32} showWordmark />
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 px-3">
