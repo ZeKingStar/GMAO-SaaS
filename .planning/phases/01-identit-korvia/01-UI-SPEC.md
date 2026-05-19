@@ -52,17 +52,15 @@ Exceptions: cible tactile minimale 44px pour tous les éléments interactifs tou
 | Rôle | Taille | Poids | Line Height | Usage concret |
 |------|--------|-------|-------------|---------------|
 | Display | 48px (3rem) | 700 | 1.15 | H1 landing hero uniquement |
-| Heading | 28px (1.75rem) | 700 | 1.2 | H2 de section (Features, Pricing) |
-| Subheading | 20px (1.25rem) | 600 | 1.3 | H3 cartes, titres panel |
+| Heading | 28px (1.75rem) | 700 | 1.2 | H2 de section (Features, Pricing) — weight 400 pour variante sous-titre de section |
 | Body | 16px (1rem) | 400 | 1.5 | Corps de texte principal |
-| Label | 14px (0.875rem) | 500 | 1.4 | Labels formulaires, nav items, badges, captions |
-| Micro | 12px (0.75rem) | 400 | 1.4 | Texte footer, métadonnées, horodatages |
+| Label | 14px (0.875rem) | 400 | 1.4 | Labels formulaires, nav items, badges, captions, métadonnées, horodatages, texte footer — `text-muted-foreground` pour les variantes discrètes |
 
 **Polices:**
-- `--font-heading`: Inter, weight 700/600 — pour Display, Heading, Subheading
-- `--font-sans`: Geist Sans, weight 400/500 — pour Body, Label, Micro
+- `--font-heading`: Inter, weight 700 — pour Display, Heading
+- `--font-sans`: Geist Sans, weight 400 — pour Body, Label
 
-**Règle:** 6 tailles maximum dans la phase. Aucune taille hors de ce tableau autorisée sans décision explicite.
+**Règle:** 4 tailles exactement dans la phase. Aucune taille hors de ce tableau autorisée sans décision explicite. Aucun poids intermédiaire (500 ou 600) — uniquement 400 et 700.
 
 ---
 
