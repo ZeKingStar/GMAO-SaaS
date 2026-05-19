@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <title>Korvia</title>
+  <rect width="32" height="32" rx="6" fill="#E8830C"/>
+  <rect x="9" y="7" width="5" height="18" fill="#FFFFFF"/>
+  <polygon points="14,15 22,7 26,7 16,17" fill="#FFFFFF"/>
+  <polygon points="14,15 16,14 26,25 22,25" fill="#FFFFFF"/>
+</svg>
