@@ -30,7 +30,37 @@
 - [ ] **API-03**: La documentation API est accessible publiquement (Swagger/OpenAPI)
 - [ ] **API-04**: Les clés API sont gérables depuis les paramètres organisation
 
-## v2 Requirements (Milestone 3 — Croissance)
+## v2 Requirements (Milestone 3 — Compétitivité & Données)
+
+### Portail de demandes (Phase 5)
+
+- [ ] **PORTAL-01**: Une URL publique par site permet à n'importe qui de soumettre une demande de maintenance sans compte Korvia
+- [ ] **PORTAL-02**: La soumission crée automatiquement un BT et envoie une confirmation email au demandeur avec le numéro de BT
+
+### Données terrain (Phase 6)
+
+- [ ] **TERRAIN-01**: Les champs requis à la clôture d'un BT sont configurables par l'admin (code de panne, temps passé, pièces)
+- [ ] **TERRAIN-02**: Le technicien peut démarrer/arrêter une minuterie sur un BT; les heures réelles et le coût (heures × taux horaire) sont calculés automatiquement
+
+### Analytique de fiabilité (Phase 7)
+
+- [ ] **FIAB-01**: Les codes de panne (Problème / Cause / Remède) sont saisis à la clôture et disponibles dans un rapport "Top pannes récurrentes"
+- [ ] **FIAB-02**: Le journal de panne calcule automatiquement le MTTR par actif à partir des heures d'arrêt saisies sur les BTs correctifs
+- [ ] **FIAB-03**: Le rapport "Coût de maintenance par actif" affiche (main-d'œuvre + pièces) par actif sur une période choisie, trié par coût décroissant
+- [ ] **FIAB-04**: Le rapport "Planifié vs Réel" compare durée estimée vs réelle par BT, par technicien et par type d'actif
+
+### Productivité technicien (Phase 8)
+
+- [ ] **PROD-01**: Les plans de travail (job plans) définissent étapes, pièces requises et durée estimée; attachés à un PM, ils pré-remplissent le BT généré
+- [ ] **PROD-02**: Les checklists PM permettent des étapes numérotées avec cases à cocher, champs de mesure et photos sur mobile
+- [ ] **PROD-03**: Un BT de priorité "Urgente" non résolu après un délai configurable déclenche une notification au superviseur
+
+### Maintenance conditionnelle (Phase 9)
+
+- [ ] **COND-01**: Un technicien peut saisir un relevé de compteur (heures moteur, cycles, km) à la clôture d'un BT ou directement sur un actif
+- [ ] **COND-02**: Un PM configuré avec un seuil de compteur génère automatiquement un BT lorsque l'actif atteint ce seuil
+
+## v3 Requirements (Milestone 4 — Croissance multi-marchés)
 
 ### Multi-langue
 
@@ -61,25 +91,38 @@
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| BRAND-01 | Phase 1 | Pending |
-| BRAND-02 | Phase 1 | Pending |
-| BRAND-03 | Phase 1 | Pending |
-| GATE-01 | Phase 2 | Pending |
-| GATE-02 | Phase 2 | Pending |
-| GATE-03 | Phase 2 | Pending |
-| NOTIF-01 | Phase 3 | Pending |
-| NOTIF-02 | Phase 3 | Pending |
-| NOTIF-03 | Phase 3 | Pending |
-| API-01 | Phase 4 | Pending |
-| API-02 | Phase 4 | Pending |
-| API-03 | Phase 4 | Pending |
-| API-04 | Phase 4 | Pending |
+| Requirement | Phase | Milestone | Status |
+|-------------|-------|-----------|--------|
+| BRAND-01 | Phase 1 | M2 | Pending |
+| BRAND-02 | Phase 1 | M2 | Pending |
+| BRAND-03 | Phase 1 | M2 | Pending |
+| GATE-01 | Phase 2 | M2 | Pending |
+| GATE-02 | Phase 2 | M2 | Pending |
+| GATE-03 | Phase 2 | M2 | Pending |
+| NOTIF-01 | Phase 3 | M2 | Pending |
+| NOTIF-02 | Phase 3 | M2 | Pending |
+| NOTIF-03 | Phase 3 | M2 | Pending |
+| API-01 | Phase 4 | M2 | Pending |
+| API-02 | Phase 4 | M2 | Pending |
+| API-03 | Phase 4 | M2 | Pending |
+| API-04 | Phase 4 | M2 | Pending |
+| PORTAL-01 | Phase 5 | M3 | Pending |
+| PORTAL-02 | Phase 5 | M3 | Pending |
+| TERRAIN-01 | Phase 6 | M3 | Pending |
+| TERRAIN-02 | Phase 6 | M3 | Pending |
+| FIAB-01 | Phase 7 | M3 | Pending |
+| FIAB-02 | Phase 7 | M3 | Pending |
+| FIAB-03 | Phase 7 | M3 | Pending |
+| FIAB-04 | Phase 7 | M3 | Pending |
+| PROD-01 | Phase 8 | M3 | Pending |
+| PROD-02 | Phase 8 | M3 | Pending |
+| PROD-03 | Phase 8 | M3 | Pending |
+| COND-01 | Phase 9 | M3 | Pending |
+| COND-02 | Phase 9 | M3 | Pending |
 
 **Coverage:**
-- v1 requirements: 13 total
-- Mapped to phases: 13
+- M2 requirements: 13 total — Mapped: 13 ✓
+- M3 requirements: 13 total — Mapped: 13 ✓
 - Unmapped: 0 ✓
 
 ---
