@@ -47,6 +47,13 @@ Plans:
 2. Un banner "Upgrader pour accéder" s'affiche sur les features bloquées
 3. Le dashboard affiche clairement le plan actif et sa date de renouvellement
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — requirePlan() helper + composant UpgradeGate (fondations Wave 1)
+- [ ] 02-02-PLAN.md — Gate pages rapports/inventaire/scan + cadenas sidebar (Wave 2)
+- [ ] 02-03-PLAN.md — Widget abonnement dashboard + checkpoint visuel humain (Wave 2)
+
 ---
 
 ## Phase 3: Notifications Email
@@ -141,7 +148,7 @@ Plans:
 
 **Success criteria:**
 1. Un plan de travail (job plan) définit les étapes, pièces requises et durée estimée — attaché à un PM, il pré-remplit le BT généré
-2. Les checklists PM permettent des étapes numérotées avec cases à cocher, champs de mesure et photos sur mobile
+2. Les checklists PM permettent des étapes numérotées avec cases à cocher, champs de mobile
 3. Un BT de priorité "Urgente" non résolu après X heures (configurable) déclenche une notification au superviseur
 
 ---
