@@ -3,9 +3,11 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { ClipboardList, Cpu, AlertTriangle, Clock, Calendar } from "lucide-react"
 import { db } from "@/lib/db"
 import { WorkOrderStatusBadge } from "@/components/work-orders/work-order-status-badge"
+import { createBillingPortalSession } from "@/actions/billing"
 import type { WorkOrderPriority, MaintenanceFrequency } from "@/generated/prisma/enums"
 
 export const metadata: Metadata = { title: "Tableau de bord" }
@@ -28,13 +30,45 @@ const FREQUENCY_LABELS: Record<MaintenanceFrequency, string> = {
   custom: "Personnalisé",
 }
 
+const PLAN_NAMES: Record<string, string> = {
+  starter: 'Démarrage',
+  growth: 'Croissance',
+  enterprise: 'Entreprise',
+}
+
+const STATUS_LABELS: Record<string, { label: string; className: string }> = {
+  trialing: { label: 'Essai gratuit',       className: 'bg-blue-100 text-blue-700' },
+  active:   { label: 'Actif',               className: 'bg-green-100 text-green-700' },
+  past_due: { label: 'Paiement en retard',  className: 'bg-yellow-100 text-yellow-700' },
+  canceled: { label: 'Annulé',              className: 'bg-red-100 text-red-700' },
+  unpaid:   { label: 'Non payé',            className: 'bg-red-100 text-red-700' },
+}
+
+function formatRenewalDate(date: Date): string {
+  return date.toLocaleDateString('fr-CA', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 export default async function DashboardPage() {
   const { orgId } = await auth()
   if (!orgId) redirect("/sign-in")
 
   const org = await db.organization.findUnique({
     where: { clerkId: orgId },
-    select: { id: true },
+    select: {
+      id: true,
+      subscription: {
+        select: {
+          plan: true,
+          status: true,
+          currentPeriodEnd: true,
+          trialEndsAt: true,
+        },
+      },
+    },
   })
   if (!org) redirect("/onboarding")
 
@@ -100,6 +134,8 @@ export default async function DashboardPage() {
       include: { asset: { select: { name: true } } },
     }),
   ])
+
+  const subscription = org?.subscription ?? null
 
   // Calcul MTTR
   let mttrDisplay = "—h"
@@ -236,6 +272,108 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Widget Abonnement — D-12, D-13, D-14, GATE-03 */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-normal">Votre abonnement</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {subscription === null ? (
+            /* Cas 4 — Aucun abonnement */
+            <div className="space-y-3">
+              <p className="text-sm font-bold">Aucun abonnement actif</p>
+              <p className="text-sm text-muted-foreground">
+                Débloquez les rapports, l&apos;inventaire et le scan QR.
+              </p>
+              <Link
+                href="/parametres/organisation"
+                className="inline-flex h-7 items-center justify-center rounded-[min(var(--radius-md),12px)] border border-transparent bg-primary px-2.5 text-[0.8rem] font-medium text-primary-foreground whitespace-nowrap transition-all"
+              >
+                Choisir un plan
+              </Link>
+            </div>
+          ) : subscription.status === 'canceled' ? (
+            /* Cas 3 — Annulé */
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_LABELS.canceled.className}`}
+                >
+                  {STATUS_LABELS.canceled.label}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Votre accès aux fonctionnalités avancées a été suspendu
+              </p>
+              <Link
+                href="/parametres/organisation"
+                className="inline-flex h-7 items-center justify-center rounded-[min(var(--radius-md),12px)] border border-transparent bg-primary px-2.5 text-[0.8rem] font-medium text-primary-foreground whitespace-nowrap transition-all"
+              >
+                Choisir un plan
+              </Link>
+            </div>
+          ) : subscription.status === 'past_due' || subscription.status === 'unpaid' ? (
+            /* Cas 2 — Paiement en retard */
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-bold">
+                  Plan {PLAN_NAMES[subscription.plan] ?? subscription.plan}
+                </span>
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_LABELS[subscription.status].className}`}
+                >
+                  {STATUS_LABELS[subscription.status].label}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Mettre à jour vos informations de paiement
+              </p>
+              <form
+                action={async () => {
+                  'use server'
+                  const { url } = await createBillingPortalSession()
+                  redirect(url)
+                }}
+              >
+                <Button type="submit" variant="outline" size="sm">
+                  Mettre à jour la facturation
+                </Button>
+              </form>
+            </div>
+          ) : (
+            /* Cas 1 — active / trialing */
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-bold">
+                  Plan {PLAN_NAMES[subscription.plan] ?? subscription.plan}
+                </span>
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_LABELS[subscription.status]?.className ?? 'bg-gray-100 text-gray-700'}`}
+                >
+                  {STATUS_LABELS[subscription.status]?.label ?? subscription.status}
+                </span>
+              </div>
+              {subscription.currentPeriodEnd && (
+                <p className="text-sm text-muted-foreground">
+                  Renouvellement le {formatRenewalDate(subscription.currentPeriodEnd)}
+                </p>
+              )}
+              {subscription.status === 'trialing' && subscription.trialEndsAt && (
+                <p className="text-sm text-muted-foreground">
+                  Essai gratuit jusqu&apos;au {formatRenewalDate(subscription.trialEndsAt)}
+                </p>
+              )}
+              <Link
+                href="/parametres/organisation"
+                className="inline-flex h-7 items-center justify-center rounded-[min(var(--radius-md),12px)] border border-border bg-background px-2.5 text-[0.8rem] font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground"
+              >
+                Gérer l&apos;abonnement
+              </Link>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }
