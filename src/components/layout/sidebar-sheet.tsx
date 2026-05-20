@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, LayoutDashboard, ClipboardList, Cpu, Calendar, Package, BarChart2, Settings } from "lucide-react"
+import { Menu, LayoutDashboard, ClipboardList, Cpu, Calendar, Package, BarChart2, Settings, Lock } from "lucide-react"
 import { KorviaLogo } from "@/components/brand/korvia-logo"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
@@ -19,7 +19,13 @@ const navItems = [
   { href: "/parametres/organisation", label: "Paramètres", icon: Settings },
 ]
 
-export function SidebarSheet() {
+const GATED_HREFS = new Set(['/inventaire', '/rapports'])
+
+interface SidebarSheetProps {
+  userPlan?: 'starter' | 'growth' | 'enterprise'
+}
+
+export function SidebarSheet({ userPlan = 'starter' }: SidebarSheetProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
@@ -49,6 +55,12 @@ export function SidebarSheet() {
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                   {label}
+                  {GATED_HREFS.has(href) && userPlan === 'starter' && (
+                    <Lock
+                      className="h-3 w-3 ml-auto text-muted-foreground/60"
+                      aria-label="Fonctionnalité verrouillée"
+                    />
+                  )}
                 </Link>
               </li>
             ))}

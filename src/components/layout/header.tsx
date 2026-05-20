@@ -23,13 +23,17 @@ function getTitle(pathname: string): string {
   return "Korvia"
 }
 
-export function Header() {
+interface HeaderProps {
+  userPlan?: 'starter' | 'growth' | 'enterprise'
+}
+
+export function Header({ userPlan = 'starter' }: HeaderProps) {
   const pathname = usePathname()
 
   return (
     <header className="h-14 border-b bg-card flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
       <div className="flex items-center gap-3">
-        <SidebarSheet />
+        <SidebarSheet userPlan={userPlan} />
         <h1 className="font-semibold text-sm hidden sm:block">
           {getTitle(pathname)}
         </h1>

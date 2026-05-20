@@ -10,6 +10,7 @@ import {
   Package,
   BarChart2,
   Settings,
+  Lock,
 } from "lucide-react"
 import { KorviaLogo } from "@/components/brand/korvia-logo"
 import { cn } from "@/lib/utils"
@@ -27,7 +28,13 @@ const bottomItems = [
   { href: "/parametres/organisation", label: "Paramètres", icon: Settings },
 ]
 
-export function Sidebar() {
+const GATED_HREFS = new Set(['/inventaire', '/rapports'])
+
+interface SidebarProps {
+  userPlan?: 'starter' | 'growth' | 'enterprise'
+}
+
+export function Sidebar({ userPlan = 'starter' }: SidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -51,6 +58,12 @@ export function Sidebar() {
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 {label}
+                {GATED_HREFS.has(href) && userPlan === 'starter' && (
+                  <Lock
+                    className="h-3 w-3 ml-auto text-muted-foreground/60"
+                    aria-label="Fonctionnalité verrouillée"
+                  />
+                )}
               </Link>
             </li>
           ))}

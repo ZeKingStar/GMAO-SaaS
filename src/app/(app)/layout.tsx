@@ -1,12 +1,24 @@
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
+import { getOrganizationMembership } from "@/lib/auth"
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+const ACTIVE_STATUSES = ['active', 'trialing'] as const
+
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const membership = await getOrganizationMembership()
+
+  // Derive effective plan — null sub or inactive status = 'starter' (fail-safe)
+  const sub = membership?.organization?.subscription
+  const effectivePlan: 'starter' | 'growth' | 'enterprise' =
+    sub && ACTIVE_STATUSES.includes(sub.status as (typeof ACTIVE_STATUSES)[number])
+      ? (sub.plan as 'starter' | 'growth' | 'enterprise')
+      : 'starter'
+
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+      <Sidebar userPlan={effectivePlan} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Header userPlan={effectivePlan} />
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           {children}
         </main>
