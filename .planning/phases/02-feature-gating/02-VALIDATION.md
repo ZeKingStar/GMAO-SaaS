@@ -2,8 +2,8 @@
 phase: 2
 slug: feature-gating
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-05-19
 ---
 
@@ -55,10 +55,10 @@ created: 2026-05-19
 
 ## Wave 0 Requirements
 
-- [ ] `npm install -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom jsdom` — no test runner detected
-- [ ] `vitest.config.ts` — configure jsdom environment and React plugin
-- [ ] `src/lib/auth.test.ts` — stubs for GATE-01 (requirePlan unit tests)
-- [ ] `src/components/upgrade-gate/upgrade-gate.test.tsx` — stubs for GATE-02 (RTL render tests)
+- [x] `npm install -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom jsdom` — installed in 02-00 Task 1
+- [x] `vitest.config.ts` — created in 02-00 Task 1
+- [x] `src/lib/auth.test.ts` — created in 02-00 Task 2 (RED state, 9 test cases)
+- [x] `src/components/upgrade-gate/upgrade-gate.test.tsx` — created in 02-00 Task 2 (RED state, 6 test cases)
 
 ---
 
@@ -90,9 +90,9 @@ created: 2026-05-19
 
 - [ ] All tasks have `<automated>` verify or Wave 0 dependencies
 - [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
+- [x] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending

@@ -421,17 +421,17 @@ const STATUS_LABELS: Record<SubscriptionStatus, { label: string; class: string }
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Layout file structure**
+1. **Layout file structure** — RESOLVED
    - What we know: Standard App Router convention has `src/app/(app)/layout.tsx` as a Server Component
    - What's unclear: Whether the current layout already calls `getOrganizationMembership()` or `requireOrgAccess()` for auth
-   - Recommendation: Planner should read `src/app/(app)/layout.tsx` in Wave 1 before writing sidebar tasks
+   - **Resolution:** `(app)/layout.tsx` IS a Server Component. Plan 02-02 Task 2 reads it first (`read_first` directive) and the plan action shows the layout is a simple Server Component with no auth call currently — it just imports `Sidebar` and `Header`. `getOrganizationMembership()` is safe to call from it. This assumption is confirmed by the interface block in 02-02 which shows the current layout as `async function AppLayout` with no prior auth.
 
-2. **`SubscriptionPlan` enum import path**
+2. **`SubscriptionPlan` enum import path** — RESOLVED
    - What we know: `billing-section.tsx` uses local string types `'starter' | 'growth' | 'enterprise'`; the Prisma generated enum is at `@/generated/prisma/enums`
    - What's unclear: Whether `$Enums.SubscriptionPlan` is re-exported from a barrel or must be imported from `@/generated/prisma/enums` directly
-   - Recommendation: Import from `@/generated/prisma/enums` directly (safe); if there's a barrel, it's a bonus
+   - **Resolution:** Import directly from `@/generated/prisma/enums`. Plan 02-01 Task 1 action specifies `import type { SubscriptionPlan } from '@/generated/prisma/enums'` and instructs the executor to verify the exact barrel path by reading the generated file. Direct import is always safe; any barrel is a convenience alias pointing to the same source.
 
 ---
 
