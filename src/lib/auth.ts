@@ -1,6 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { db } from "@/lib/db"
-import type { MemberRole } from "@/generated/prisma/enums"
+import type { MemberRole, SubscriptionPlan } from "@/generated/prisma/enums"
 
 export async function getOrganizationMembership() {
   const { userId, orgId } = await auth()
@@ -22,6 +22,27 @@ export async function requireRole(roles: MemberRole[]) {
   const membership = await requireOrgAccess()
   if (!roles.includes(membership.role)) throw new Error("Forbidden")
   return membership
+}
+
+const ACTIVE_STATUSES = ['active', 'trialing'] as const
+
+export async function requirePlan(plans: SubscriptionPlan[]) {
+  const membership = await getOrganizationMembership()
+  if (!membership) throw new Error('Unauthorized')
+
+  const sub = membership.organization.subscription
+  // null subscription OR non-active status → effective plan is 'starter'
+  const effectivePlan: SubscriptionPlan =
+    sub && ACTIVE_STATUSES.includes(sub.status as (typeof ACTIVE_STATUSES)[number])
+      ? sub.plan
+      : 'starter'
+
+  return {
+    membership,
+    subscription: sub,
+    effectivePlan,
+    hasAccess: plans.includes(effectivePlan),
+  }
 }
 
 export async function syncUserToDb() {
