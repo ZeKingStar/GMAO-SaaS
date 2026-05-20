@@ -23,13 +23,13 @@ Un technicien de maintenance peut créer un bon de travail, scanner un actif QR 
 - ✓ Abonnements Stripe avec 3 tiers (Démarrage/Croissance/Entreprise) — Phase 2 (existant)
 - ✓ PWA avec support hors-ligne — Phase 2 (existant)
 - ✓ Onboarding organisation multi-étapes — Phase 1 (existant)
+- ✓ Feature gating selon tier d'abonnement Stripe — Validé en Phase 2 : requirePlan(), UpgradeGate, sidebar lock icons, dashboard widget
 
 ### Active
 
 - [ ] Rebrand complet vers Korvia (nom, logo SVG, couleurs de marque)
 - [ ] Landing page distinctive avec identité visuelle Korvia
 - [ ] Logo SVG dans l'interface et les emails
-- [ ] Feature gating selon tier d'abonnement Stripe
 - [ ] API publique avec documentation
 - [ ] Notifications email (bons de travail assignés, maintenance due)
 - [ ] Multi-langue (FR/EN)
@@ -83,4 +83,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-19 after initialization (brownfield — codebase existant)*
+*Last updated: 2026-05-20 — Phase 02 (Feature Gating) complete*
