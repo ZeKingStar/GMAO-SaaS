@@ -17,7 +17,7 @@ export function UpgradeGate({ hasAccess, requiredPlan = 'growth', children }: Up
       {/* Amber upgrade banner — per D-09, UI-SPEC §UpgradeGate banner */}
       <div className="flex items-center justify-between gap-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 mb-4 dark:bg-amber-950/20 dark:border-amber-800">
         <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
-          <Lock className="h-4 w-4 shrink-0 text-amber-600" aria-hidden="true" />
+          <Lock className="h-4 w-4 shrink-0 text-amber-600" role="presentation" />
           <span className="text-sm">
             Passez au plan {planName} pour accéder à cette fonctionnalité
           </span>
