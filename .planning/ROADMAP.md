@@ -50,9 +50,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — requirePlan() helper + composant UpgradeGate (fondations Wave 1)
-- [ ] 02-02-PLAN.md — Gate pages rapports/inventaire/scan + cadenas sidebar (Wave 2)
-- [ ] 02-03-PLAN.md — Widget abonnement dashboard + checkpoint visuel humain (Wave 2)
+- [x] 02-01-PLAN.md — requirePlan() helper + composant UpgradeGate (fondations Wave 1)
+- [x] 02-02-PLAN.md — Gate pages rapports/inventaire/scan + cadenas sidebar (Wave 2)
+- [x] 02-03-PLAN.md — Widget abonnement dashboard + checkpoint visuel humain (Wave 2)
 
 ---
 
