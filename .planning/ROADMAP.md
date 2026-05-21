@@ -67,6 +67,14 @@ Plans:
 2. Un rappel email est envoyé 48h avant chaque maintenance préventive due
 3. L'admin reçoit une alerte quand le stock d'une pièce passe sous son seuil minimum
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Infrastructure email : client Resend + 3 templates HTML en français (Wave 1)
+- [ ] 03-02-PLAN.md — NOTIF-01 : email d'assignation bon de travail (Wave 2)
+- [ ] 03-03-PLAN.md — NOTIF-02 : rappel maintenance 48h via Vercel Cron (Wave 2)
+- [ ] 03-04-PLAN.md — NOTIF-03 : alerte stock faible (Wave 2)
+
 ---
 
 ## Phase 4: API Publique
