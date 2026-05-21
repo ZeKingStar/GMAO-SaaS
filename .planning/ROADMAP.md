@@ -70,10 +70,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Infrastructure email : client Resend + 3 templates HTML en français (Wave 1)
-- [ ] 03-02-PLAN.md — NOTIF-01 : email d'assignation bon de travail (Wave 2)
-- [ ] 03-03-PLAN.md — NOTIF-02 : rappel maintenance 48h via Vercel Cron (Wave 2)
-- [ ] 03-04-PLAN.md — NOTIF-03 : alerte stock faible (Wave 2)
+- [x] 03-01-PLAN.md — Infrastructure email : client Resend + 3 templates HTML en français (Wave 1)
+- [x] 03-02-PLAN.md — NOTIF-01 : email d'assignation bon de travail (Wave 2)
+- [x] 03-03-PLAN.md — NOTIF-02 : rappel maintenance 48h via Vercel Cron (Wave 2)
+- [x] 03-04-PLAN.md — NOTIF-03 : alerte stock faible (Wave 2)
 
 ---
 
