@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import type { WorkOrderType, WorkOrderStatus, WorkOrderPriority } from '@/generated/prisma/enums'
+import { sendWorkOrderAssignedEmail } from '@/lib/email'
 
 async function getOrgAndMembership() {
   const { orgId, userId } = await auth()
@@ -11,7 +12,7 @@ async function getOrgAndMembership() {
 
   const org = await db.organization.findUnique({
     where: { clerkId: orgId },
-    select: { id: true },
+    select: { id: true, name: true },
   })
   if (!org) throw new Error('Organisation introuvable')
 
@@ -21,7 +22,7 @@ async function getOrgAndMembership() {
   })
   if (!membership) throw new Error('Membre introuvable')
 
-  return { organizationId: org.id, membershipId: membership.id }
+  return { organizationId: org.id, membershipId: membership.id, organizationName: org.name }
 }
 
 export async function createWorkOrder(data: {
@@ -35,7 +36,7 @@ export async function createWorkOrder(data: {
   estimatedHours?: number
   assigneeIds?: string[]
 }) {
-  const { organizationId } = await getOrgAndMembership()
+  const { organizationId, organizationName } = await getOrgAndMembership()
 
   const last = await db.workOrder.findFirst({
     where: { organizationId },
@@ -56,6 +57,33 @@ export async function createWorkOrder(data: {
         : undefined,
     },
   })
+
+  // NOTIF-01: notify assignees — fire-and-forget, must not block or throw
+  if (assigneeIds?.length) {
+    const assignees = await db.workOrderAssignee.findMany({
+      where: { workOrderId: wo.id },
+      include: {
+        membership: {
+          select: { email: true, firstName: true, lastName: true },
+        },
+      },
+    })
+    Promise.allSettled(
+      assignees
+        .filter(a => a.membership.email)
+        .map(a =>
+          sendWorkOrderAssignedEmail({
+            to: a.membership.email,
+            recipientName: [a.membership.firstName, a.membership.lastName].filter(Boolean).join(' ') || a.membership.email,
+            workOrderNumber: wo.number,
+            workOrderTitle: wo.title,
+            workOrderPriority: wo.priority,
+            dueDate: wo.dueDate ?? null,
+            organizationName,
+          }).catch(err => console.error('[email] createWorkOrder notification failed:', err))
+        )
+    )
+  }
 
   revalidatePath('/bons-de-travail')
   return wo
@@ -117,12 +145,38 @@ export async function deleteWorkOrder(id: string) {
 }
 
 export async function assignMember(workOrderId: string, membershipId: string) {
-  await getOrgAndMembership()
+  const { organizationName } = await getOrgAndMembership()
+
   await db.workOrderAssignee.upsert({
     where: { workOrderId_membershipId: { workOrderId, membershipId } },
     create: { workOrderId, membershipId },
     update: {},
   })
+
+  // NOTIF-01: notify newly assigned member — fire-and-forget
+  const [member, workOrder] = await Promise.all([
+    db.membership.findUnique({
+      where: { id: membershipId },
+      select: { email: true, firstName: true, lastName: true },
+    }),
+    db.workOrder.findUnique({
+      where: { id: workOrderId },
+      select: { number: true, title: true, priority: true, dueDate: true },
+    }),
+  ])
+
+  if (member?.email && workOrder) {
+    sendWorkOrderAssignedEmail({
+      to: member.email,
+      recipientName: [member.firstName, member.lastName].filter(Boolean).join(' ') || member.email,
+      workOrderNumber: workOrder.number,
+      workOrderTitle: workOrder.title,
+      workOrderPriority: workOrder.priority,
+      dueDate: workOrder.dueDate ?? null,
+      organizationName,
+    }).catch(err => console.error('[email] assignMember notification failed:', err))
+  }
+
   revalidatePath(`/bons-de-travail/${workOrderId}`)
 }
 
