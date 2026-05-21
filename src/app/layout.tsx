@@ -1,20 +1,30 @@
 import type { Metadata, Viewport } from "next"
-import { Geist, Inter } from "next/font/google"
+import { IBM_Plex_Sans, IBM_Plex_Mono, Newsreader } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 import { frFR } from "@clerk/localizations"
 import { Toaster } from "sonner"
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register"
 import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: "--font-ibm-plex-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
   display: "swap",
 })
 
-const inter = Inter({
-  variable: "--font-inter",
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+})
+
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
   display: "swap",
 })
 
@@ -29,7 +39,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0F1C2E",
+  themeColor: "#ECE7D8",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -39,7 +49,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider localization={frFR} afterSignOutUrl="/sign-in">
-      <html lang="fr" className={`${geistSans.variable} ${inter.variable} h-full antialiased`}>
+      <html lang="fr" className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${newsreader.variable} h-full antialiased`}>
         <body className="min-h-full bg-background text-foreground">
           {children}
           <Toaster richColors position="top-right" />
