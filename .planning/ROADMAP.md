@@ -31,8 +31,8 @@
 
 Plans:
 - [x] 01-01-PLAN.md — Fondations brand : tokens CSS Korvia (oklch) + composant KorviaLogo + favicon SVG App Router
-- [ ] 01-02-PLAN.md — Rebrand layout authentifié : layout.tsx (Inter + metadata), sidebar/header/sidebar-sheet, onboarding, manifest PWA
-- [ ] 01-03-PLAN.md — Landing page Korvia dark navy + checkpoint visuel humain
+- [x] 01-02-PLAN.md — Rebrand layout authentifié : layout.tsx (Inter + metadata), sidebar/header/sidebar-sheet, onboarding, manifest PWA
+- [x] 01-03-PLAN.md — Landing page Korvia dark navy + checkpoint visuel humain
 
 ---
 
@@ -88,6 +88,13 @@ Plans:
 2. Un bon de travail peut être créé via l'API depuis un système externe (ex: formulaire web)
 3. La documentation Swagger est accessible publiquement sans authentification
 4. Les clés API sont générables et révocables depuis les paramètres organisation
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Fondations API : modèle ApiKey + helpers api-auth (validateApiKey, requireApiPlan) + Server Actions clés (Wave 1)
+- [ ] 04-02-PLAN.md — Endpoints REST : GET + POST /api/v1/work-orders + whitelist proxy Clerk (Wave 2)
+- [ ] 04-03-PLAN.md — Documentation Swagger publique (/api/docs) + UI gestion clés API + checkpoint visuel humain (Wave 2)
 
 ---
 
