@@ -89,6 +89,7 @@ model Organization {
   maintenancePlans MaintenancePlan[]
   spareParts       SparePart[]
   subscription     Subscription?
+  apiKeys          ApiKey[]
 
   @@index([clerkId])
 }
@@ -422,4 +423,23 @@ model SparePart {
 
   @@index([organizationId])
   @@index([partNumber])
+}
+
+// ─── API Keys ─────────────────────────────────────────────────────────────────
+
+model ApiKey {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  hashedKey      String    @unique
+  isActive       Boolean   @default(true)
+  lastUsedAt     DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([hashedKey])
 }
