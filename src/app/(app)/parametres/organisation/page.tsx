@@ -4,7 +4,9 @@ import { db } from '@/lib/db'
 import { OrgSettingsForm } from '@/components/settings/org-settings-form'
 import { TeamTable } from '@/components/settings/team-table'
 import { BillingSection } from '@/components/settings/billing-section'
-import { Building2, Users, CreditCard } from 'lucide-react'
+import { ApiKeysSection } from '@/components/settings/api-keys-section'
+import { listApiKeys } from '@/actions/api-keys'
+import { Building2, Users, CreditCard, KeyRound } from 'lucide-react'
 
 export default async function ParametresPage() {
   const { orgId, userId } = await auth()
@@ -28,6 +30,11 @@ export default async function ParametresPage() {
   ])
 
   const currentMembership = members.find(m => m.clerkUserId === userId)
+
+  // API Keys section — only visible to admin or manager (role gate, server-side)
+  const canManageApiKeys =
+    currentMembership && ['admin', 'manager'].includes(currentMembership.role)
+  const apiKeys = canManageApiKeys ? await listApiKeys() : []
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-8">
@@ -78,6 +85,17 @@ export default async function ParametresPage() {
           Pour inviter des membres, utilisez le tableau de bord Clerk de votre organisation.
         </p>
       </section>
+
+      {/* Clés API — admin/manager only */}
+      {canManageApiKeys && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-semibold">API</h2>
+          </div>
+          <ApiKeysSection initialKeys={apiKeys} />
+        </section>
+      )}
     </div>
   )
 }
