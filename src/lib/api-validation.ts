@@ -4,7 +4,7 @@ import { WorkOrderType, WorkOrderPriority } from '@/generated/prisma/enums'
 // Pagination shared by GET endpoints
 export const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  limit: z.coerce.number().int().min(1).default(20).transform((v) => Math.min(v, 100)),
 })
 
 export type PaginationInput = z.infer<typeof paginationSchema>
