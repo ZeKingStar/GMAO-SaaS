@@ -69,3 +69,73 @@ export async function deleteLocation(id: string) {
   await db.location.delete({ where: { id } })
   revalidatePath('/actifs/sites')
 }
+
+async function requireAdminOrManager(organizationId: string) {
+  const { userId } = await auth()
+  if (!userId) throw new Error('Non autorisé')
+  const membership = await db.membership.findFirst({
+    where: { organizationId, clerkUserId: userId },
+    select: { role: true },
+  })
+  if (!membership || !['admin', 'manager'].includes(membership.role)) {
+    throw new Error('Permissions insuffisantes')
+  }
+}
+
+export async function enablePortal(siteId: string): Promise<{ portalToken: string }> {
+  const organizationId = await getOrganizationId()
+  await requireAdminOrManager(organizationId)
+  const existing = await db.site.findUnique({
+    where: { id: siteId },
+    select: { organizationId: true, portalToken: true },
+  })
+  if (!existing || existing.organizationId !== organizationId) {
+    throw new Error('Site introuvable')
+  }
+  const portalToken = existing.portalToken ?? crypto.randomUUID()
+  await db.site.update({
+    where: { id: siteId },
+    data: { portalToken, portalEnabled: true },
+  })
+  revalidatePath('/parametres/organisation')
+  revalidatePath('/actifs/sites')
+  return { portalToken }
+}
+
+export async function disablePortal(siteId: string): Promise<void> {
+  const organizationId = await getOrganizationId()
+  await requireAdminOrManager(organizationId)
+  const existing = await db.site.findUnique({
+    where: { id: siteId },
+    select: { organizationId: true },
+  })
+  if (!existing || existing.organizationId !== organizationId) {
+    throw new Error('Site introuvable')
+  }
+  await db.site.update({
+    where: { id: siteId },
+    data: { portalEnabled: false },
+  })
+  revalidatePath('/parametres/organisation')
+  revalidatePath('/actifs/sites')
+}
+
+export async function regeneratePortalToken(siteId: string): Promise<{ portalToken: string }> {
+  const organizationId = await getOrganizationId()
+  await requireAdminOrManager(organizationId)
+  const existing = await db.site.findUnique({
+    where: { id: siteId },
+    select: { organizationId: true },
+  })
+  if (!existing || existing.organizationId !== organizationId) {
+    throw new Error('Site introuvable')
+  }
+  const portalToken = crypto.randomUUID()
+  await db.site.update({
+    where: { id: siteId },
+    data: { portalToken },
+  })
+  revalidatePath('/parametres/organisation')
+  revalidatePath('/actifs/sites')
+  return { portalToken }
+}
