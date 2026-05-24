@@ -1,8 +1,9 @@
 import { Resend } from 'resend'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { render } from '@react-email/render'
 import { WorkOrderAssignedEmail } from '@/emails/work-order-assigned'
 import { MaintenanceReminderEmail } from '@/emails/maintenance-reminder'
 import { LowStockAlertEmail } from '@/emails/low-stock-alert'
+import { PortalConfirmationEmail } from '@/emails/portal-confirmation'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -17,7 +18,7 @@ export async function sendWorkOrderAssignedEmail(params: {
   dueDate?: Date | null
   organizationName: string
 }): Promise<void> {
-  const html = renderToStaticMarkup(WorkOrderAssignedEmail(params))
+  const html = await render(WorkOrderAssignedEmail(params))
   await resend.emails.send({
     from: FROM,
     to: [params.to],
@@ -33,7 +34,7 @@ export async function sendMaintenanceReminderEmail(params: {
   nextDueAt: Date
   organizationName: string
 }): Promise<void> {
-  const html = renderToStaticMarkup(MaintenanceReminderEmail(params))
+  const html = await render(MaintenanceReminderEmail(params))
   await resend.emails.send({
     from: FROM,
     to: params.to,
@@ -50,11 +51,27 @@ export async function sendLowStockAlertEmail(params: {
   quantityMin: number
   organizationName: string
 }): Promise<void> {
-  const html = renderToStaticMarkup(LowStockAlertEmail(params))
+  const html = await render(LowStockAlertEmail(params))
   await resend.emails.send({
     from: FROM,
     to: params.to,
     subject: `[Korvia] Alerte stock faible — ${params.partName}`,
+    html,
+  })
+}
+
+export async function sendPortalConfirmationEmail(params: {
+  to: string
+  requesterName: string
+  workOrderNumber: number
+  siteName: string
+  organizationName: string
+}): Promise<void> {
+  const html = await render(PortalConfirmationEmail(params))
+  await resend.emails.send({
+    from: FROM,
+    to: [params.to],
+    subject: `[Korvia] Votre demande #${params.workOrderNumber} a été reçue`,
     html,
   })
 }
