@@ -149,6 +149,8 @@ model Site {
   postalCode     String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  portalToken    String?  @unique
+  portalEnabled  Boolean  @default(false)
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   locations    Location[]
@@ -156,6 +158,7 @@ model Site {
   workOrders   WorkOrder[]
 
   @@index([organizationId])
+  @@index([portalToken])
 }
 
 model Location {
