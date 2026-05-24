@@ -5,8 +5,9 @@ import { OrgSettingsForm } from '@/components/settings/org-settings-form'
 import { TeamTable } from '@/components/settings/team-table'
 import { BillingSection } from '@/components/settings/billing-section'
 import { ApiKeysSection } from '@/components/settings/api-keys-section'
+import { PortalSitesSection, type PortalSiteRow } from '@/components/settings/portal-sites-section'
 import { listApiKeys } from '@/actions/api-keys'
-import { Building2, Users, CreditCard, KeyRound } from 'lucide-react'
+import { Building2, Users, CreditCard, KeyRound, Globe } from 'lucide-react'
 
 export default async function ParametresPage() {
   const { orgId, userId } = await auth()
@@ -25,16 +26,35 @@ export default async function ParametresPage() {
     }),
     db.subscription.findUnique({
       where: { organizationId: org.id },
-      select: { plan: true, status: true, trialEndsAt: true, currentPeriodEnd: true },
+      select: { plan: true, status: true, trialEndsAt: true, currentPeriodEnd: true, stripeCustomerId: true },
     }),
   ])
 
   const currentMembership = members.find(m => m.clerkUserId === userId)
 
-  // API Keys section — only visible to admin or manager (role gate, server-side)
+  // API Keys section — admin/manager role + Croissance or Entreprise plan
+  const isActivePlan = subscription && ['active', 'trialing'].includes(subscription.status)
+  const hasApiAccess = isActivePlan && ['growth', 'enterprise'].includes(subscription.plan)
   const canManageApiKeys =
-    currentMembership && ['admin', 'manager'].includes(currentMembership.role)
+    hasApiAccess && currentMembership && ['admin', 'manager'].includes(currentMembership.role)
   const apiKeys = canManageApiKeys ? await listApiKeys() : []
+
+  // Portal section — admin/manager role only (no plan gating)
+  const canManagePortals =
+    currentMembership && ['admin', 'manager'].includes(currentMembership.role)
+
+  const portalSites: PortalSiteRow[] = canManagePortals
+    ? await db.site.findMany({
+        where: { organizationId: org.id },
+        orderBy: { name: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          portalToken: true,
+          portalEnabled: true,
+        },
+      })
+    : []
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-8">
@@ -61,7 +81,7 @@ export default async function ParametresPage() {
           <h2 className="font-semibold">Abonnement</h2>
         </div>
         <div className="border rounded-lg p-5 bg-card">
-          <BillingSection subscription={subscription} />
+          <BillingSection subscription={subscription} hasStripeCustomer={!!subscription?.stripeCustomerId} />
         </div>
       </section>
 
@@ -94,6 +114,17 @@ export default async function ParametresPage() {
             <h2 className="font-semibold">API</h2>
           </div>
           <ApiKeysSection initialKeys={apiKeys} />
+        </section>
+      )}
+
+      {/* Portails publics — admin/manager only */}
+      {canManagePortals && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Globe className="h-5 w-5 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">Portails publics</h2>
+          </div>
+          <PortalSitesSection initialSites={portalSites} />
         </section>
       )}
     </div>
