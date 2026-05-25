@@ -33,8 +33,8 @@ decisions:
   - enablePortal reuses existing token if present (Plan 01 decision) — UI always shows current token after enable
 metrics:
   duration: "~10 minutes"
-  completed: "2026-05-24T22:59:44Z"
-  tasks_completed: 2
+  completed: "2026-05-25T00:00:00Z"
+  tasks_completed: 3
   tasks_total: 3
   files_created: 2
   files_modified: 1
@@ -51,10 +51,11 @@ metrics:
 |------|------|--------|-----------|
 | 1 | PortalSitesSection composant client + tests Vitest | 14a7dad | src/components/settings/portal-sites-section.tsx, portal-sites-section.test.tsx |
 | 2 | Intégrer PortalSitesSection dans /parametres/organisation | a55d5b9 | src/app/(app)/parametres/organisation/page.tsx |
+| 3 | Vérification humaine end-to-end | — | 05-HUMAN-UAT.md (10/10 passed) |
 
-## Task 3: Checkpoint Pending
+## Task 3: Checkpoint Approved
 
-Task 3 is a `checkpoint:human-verify` — awaiting human end-to-end verification of the full portal flow (Plans 01 + 02 + 03 together). See checkpoint details below.
+Task 3 was a `checkpoint:human-verify` — human end-to-end verification of the full portal flow (Plans 01 + 02 + 03 together) was completed on 2026-05-25. All 10 steps passed. See 05-HUMAN-UAT.md for full results.
 
 ## Verification Results
 
