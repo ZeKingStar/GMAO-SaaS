@@ -16,11 +16,14 @@ import {
 } from '@/actions/work-orders'
 import { WorkOrderFormDialog } from './work-order-form-dialog'
 import { WorkOrderStatusBadge, WorkOrderPriorityBadge, workOrderTypeLabel } from './work-order-status-badge'
-import type { WorkOrderStatus, WorkOrderType, WorkOrderPriority } from '@/generated/prisma/enums'
+import type { WorkOrderStatus, WorkOrderType, WorkOrderPriority, MemberRole } from '@/generated/prisma/enums'
+import type { ClosureRequirements } from '@/lib/closure-requirements'
 
 type Member = { id: string; firstName: string | null; lastName: string | null; email: string }
 type Site = { id: string; name: string }
 type Asset = { id: string; name: string }
+
+type SparePartLite = { id: string; name: string; partNumber: string | null; quantityOnHand: number; unitCost: number | null }
 
 type WorkOrder = {
   id: string
@@ -38,9 +41,11 @@ type WorkOrder = {
   createdAt: Date
   siteId: string | null
   assetId: string | null
+  faultCategory: string | null
+  faultDescription: string | null
   asset: Asset | null
   site: Site | null
-  assignees: { membershipId: string; membership: Member }[]
+  assignees: { membershipId: string; membership: Member & { hourlyRate: number | null } }[]
   comments: {
     id: string
     content: string
@@ -53,7 +58,15 @@ type WorkOrder = {
     endedAt: Date | null
     minutes: number | null
     notes: string | null
-    membership: { firstName: string | null; lastName: string | null }
+    membership: { id: string; firstName: string | null; lastName: string | null }
+  }[]
+  parts: {
+    id: string
+    sparePartId: string | null
+    name: string
+    quantity: number
+    unitCost: number | null
+    sparePart: SparePartLite | null
   }[]
 }
 
@@ -62,7 +75,10 @@ type Props = {
   allMembers: Member[]
   allSites: Site[]
   allAssets: Asset[]
+  spareParts: SparePartLite[]
   currentMembershipId: string
+  currentRole: MemberRole
+  closureRequirements: ClosureRequirements
 }
 
 const STATUS_TRANSITIONS: Record<WorkOrderStatus, { value: WorkOrderStatus; label: string }[]> = {
@@ -75,7 +91,7 @@ const STATUS_TRANSITIONS: Record<WorkOrderStatus, { value: WorkOrderStatus; labe
 
 const SELECT_CLASS = 'h-9 rounded-lg border border-input bg-background px-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
 
-export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, currentMembershipId }: Props) {
+export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, spareParts, currentMembershipId, currentRole, closureRequirements }: Props) {
   const [, startTransition] = useTransition()
   const [comment, setComment] = useState('')
   const [showTimeLog, setShowTimeLog] = useState(false)
