@@ -146,6 +146,13 @@ Plans:
 2. Un technicien peut démarrer/arrêter une minuterie sur un BT — les heures réelles sont calculées automatiquement
 3. Le coût de main-d'œuvre est calculé automatiquement (heures réelles × taux horaire configuré par technicien)
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Fondations Phase 6 : schema (WorkOrderPart + faultCategory/faultDescription + closureRequirements + hourlyRate) + db push + Server Actions (timer, pièces, validation clôture, config admin) (Wave 1)
+- [ ] 06-02-PLAN.md — UI page BT : timer live, formulaire pièces hybride, fault form, banner closure, coût main-d'œuvre + checkpoint humain (Wave 2)
+- [ ] 06-03-PLAN.md — UI admin /parametres/organisation : section exigences de clôture + colonne taux horaire dans TeamTable (Wave 2)
+
 ---
 
 ## Phase 7: Analytique de fiabilité
