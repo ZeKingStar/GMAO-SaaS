@@ -72,14 +72,15 @@ enum MaintenanceFrequency {
 // ─── Organization (tenant) ───────────────────────────────────────────────────
 
 model Organization {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  name      String
-  industry  String?
-  size      String?
-  logoUrl   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  clerkId             String   @unique
+  name                String
+  industry            String?
+  size                String?
+  logoUrl             String?
+  closureRequirements Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   members          Membership[]
   sites            Site[]
@@ -107,6 +108,8 @@ model Membership {
   role           MemberRole   @default(technician)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  hourlyRate     Float?
 
   organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   assignedOrders   WorkOrderAssignee[]
@@ -290,10 +293,12 @@ model WorkOrder {
   dueDate        DateTime?
   startedAt      DateTime?
   completedAt    DateTime?
-  estimatedHours Float?
-  closureNotes   String?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  estimatedHours   Float?
+  closureNotes     String?
+  faultCategory    String?
+  faultDescription String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   site         Site?               @relation(fields: [siteId], references: [id])
@@ -302,6 +307,7 @@ model WorkOrder {
   comments     WorkOrderComment[]
   attachments  WorkOrderAttachment[]
   timeLogs     WorkOrderTimeLog[]
+  parts        WorkOrderPart[]
 
   @@unique([organizationId, number])
   @@index([organizationId])
@@ -363,6 +369,25 @@ model WorkOrderTimeLog {
   @@index([workOrderId])
 }
 
+// ─── Work Order Parts ─────────────────────────────────────────────────────────
+
+model WorkOrderPart {
+  id          String   @id @default(cuid())
+  workOrderId String
+  sparePartId String?
+  name        String
+  quantity    Float
+  unitCost    Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workOrder WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  sparePart SparePart? @relation(fields: [sparePartId], references: [id], onDelete: SetNull)
+
+  @@index([workOrderId])
+  @@index([sparePartId])
+}
+
 // ─── Maintenance Plans ────────────────────────────────────────────────────────
 
 model MaintenancePlan {
@@ -422,7 +447,8 @@ model SparePart {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  workOrderParts  WorkOrderPart[]
 
   @@index([organizationId])
   @@index([partNumber])
