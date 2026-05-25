@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Phase 6 context gathered
-last_updated: "2026-05-25T13:24:29.068Z"
+status: Executing Phase 06
+stopped_at: Phase 7 context gathered
+last_updated: "2026-05-25T23:46:42.769Z"
 progress:
   total_phases: 9
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 20
-  completed_plans: 17
-  percent: 85
+  completed_plans: 20
+  percent: 100
 ---
 
 # Project State: Korvia
@@ -20,7 +20,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-19)
 
 **Core value:** Un technicien peut créer un bon de travail, scanner un actif QR et accéder à son historique en moins de 60 secondes.
-**Current focus:** Phase 05 — portail-de-demandes-de-travail
+**Current focus:** Phase 06 — int-grit-des-donn-es-terrain
 
 ## Current Status
 
@@ -42,5 +42,5 @@ Phase 04 complete — API publique opérationnelle, clés API avec gating Growth
 
 ## Session Continuity
 
-Last session: 2026-05-25T13:07:51.437Z
-Stopped at: Phase 6 context gathered
+Last session: 2026-05-25T23:46:42.758Z
+Stopped at: Phase 7 context gathered
