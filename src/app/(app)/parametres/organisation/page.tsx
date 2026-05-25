@@ -7,7 +7,9 @@ import { BillingSection } from '@/components/settings/billing-section'
 import { ApiKeysSection } from '@/components/settings/api-keys-section'
 import { PortalSitesSection, type PortalSiteRow } from '@/components/settings/portal-sites-section'
 import { listApiKeys } from '@/actions/api-keys'
-import { Building2, Users, CreditCard, KeyRound, Globe } from 'lucide-react'
+import { ClosureRequirementsSection } from '@/components/settings/closure-requirements-section'
+import { parseClosureRequirements } from '@/lib/closure-requirements'
+import { Building2, Users, CreditCard, KeyRound, Globe, ClipboardCheck } from 'lucide-react'
 
 export default async function ParametresPage() {
   const { orgId, userId } = await auth()
@@ -15,7 +17,7 @@ export default async function ParametresPage() {
 
   const org = await db.organization.findUnique({
     where: { clerkId: orgId },
-    select: { id: true, name: true, industry: true, size: true },
+    select: { id: true, name: true, industry: true, size: true, closureRequirements: true },
   })
   if (!org) redirect('/onboarding')
 
@@ -31,6 +33,7 @@ export default async function ParametresPage() {
   ])
 
   const currentMembership = members.find(m => m.clerkUserId === userId)
+  const closureReq = parseClosureRequirements(org.closureRequirements)
 
   // API Keys section — admin/manager role + Croissance or Entreprise plan
   const isActivePlan = subscription && ['active', 'trialing'].includes(subscription.status)
@@ -105,6 +108,19 @@ export default async function ParametresPage() {
           Pour inviter des membres, utilisez le tableau de bord Clerk de votre organisation.
         </p>
       </section>
+
+      {/* Exigences de clôture — admin/manager only */}
+      {currentMembership && ['admin', 'manager'].includes(currentMembership.role) && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-semibold">Exigences de clôture des bons de travail</h2>
+          </div>
+          <div className="border rounded-lg p-5 bg-card">
+            <ClosureRequirementsSection initial={closureReq} />
+          </div>
+        </section>
+      )}
 
       {/* Clés API — admin/manager only */}
       {canManageApiKeys && (
