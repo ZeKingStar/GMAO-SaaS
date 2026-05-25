@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import type { MemberRole } from '@/generated/prisma/enums'
+import { type ClosureRequirements } from '@/lib/closure-requirements'
 
 async function getAdminOrg() {
   const { orgId, userId } = await auth()
@@ -47,6 +48,39 @@ export async function updateMemberRole(membershipId: string, role: MemberRole) {
   await db.membership.update({
     where: { id: membershipId, organizationId },
     data: { role },
+  })
+  revalidatePath('/parametres/organisation')
+}
+
+export async function updateClosureRequirements(req: ClosureRequirements) {
+  const organizationId = await getAdminOrg()
+
+  // Coerce strict types avant persistance (defense-in-depth — l'UI envoie ces 3 bools)
+  const sanitized: ClosureRequirements = {
+    faultCode: !!req.faultCode,
+    timeSpent: !!req.timeSpent,
+    partsUsed: !!req.partsUsed,
+  }
+
+  await db.organization.update({
+    where: { id: organizationId },
+    data: { closureRequirements: sanitized },
+  })
+  revalidatePath('/parametres/organisation')
+}
+
+export async function updateMemberHourlyRate(membershipId: string, hourlyRate: number | null) {
+  const organizationId = await getAdminOrg()
+
+  if (hourlyRate !== null) {
+    if (!Number.isFinite(hourlyRate) || hourlyRate < 0 || hourlyRate > 10000) {
+      throw new Error('Taux horaire invalide')
+    }
+  }
+
+  await db.membership.update({
+    where: { id: membershipId, organizationId },
+    data: { hourlyRate },
   })
   revalidatePath('/parametres/organisation')
 }
