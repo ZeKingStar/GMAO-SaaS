@@ -16,6 +16,10 @@ import {
 } from '@/actions/work-orders'
 import { WorkOrderFormDialog } from './work-order-form-dialog'
 import { WorkOrderStatusBadge, WorkOrderPriorityBadge, workOrderTypeLabel } from './work-order-status-badge'
+import { WorkOrderTimer } from './work-order-timer'
+import { WorkOrderParts } from './work-order-parts'
+import { WorkOrderFaultForm } from './work-order-fault-form'
+import { WorkOrderClosureBanner, computeMissingForClosure } from './work-order-closure-banner'
 import type { WorkOrderStatus, WorkOrderType, WorkOrderPriority, MemberRole } from '@/generated/prisma/enums'
 import type { ClosureRequirements } from '@/lib/closure-requirements'
 
@@ -101,6 +105,34 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
   const unassignedMembers = allMembers.filter(m => !assignedIds.includes(m.id))
   const totalMinutes = workOrder.timeLogs.reduce((sum, l) => sum + (l.minutes ?? 0), 0)
 
+  const activeSession = workOrder.timeLogs.find(l => l.endedAt === null) ?? null
+
+  const missingForClosure = computeMissingForClosure(
+    {
+      faultCategory: workOrder.faultCategory,
+      faultDescription: workOrder.faultDescription,
+      timeLogsMinutesTotal: totalMinutes,
+      partsCount: workOrder.parts.length,
+    },
+    closureRequirements
+  )
+
+  // Coût main-d'œuvre : (minutes / 60) × hourlyRate du membre assigné
+  const memberRateMap = new Map<string, number>()
+  for (const a of workOrder.assignees) {
+    if (a.membership.hourlyRate != null) memberRateMap.set(a.membership.id, a.membership.hourlyRate)
+  }
+  let laborCost = 0
+  let hasAnyRate = false
+  for (const log of workOrder.timeLogs) {
+    const rate = memberRateMap.get(log.membership.id)
+    if (rate != null && log.minutes != null) {
+      laborCost += (log.minutes / 60) * rate
+      hasAnyRate = true
+    }
+  }
+  const laborCostDisplay = hasAnyRate ? `${laborCost.toFixed(2)} $` : '—'
+
   function handleStatusChange(status: WorkOrderStatus) {
     startTransition(async () => {
       try { await updateWorkOrderStatus(workOrder.id, status); toast.success('Statut mis à jour') }
@@ -182,6 +214,23 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Timer */}
+          <WorkOrderTimer
+            workOrderId={workOrder.id}
+            workOrderStatus={workOrder.status}
+            activeSession={activeSession ? {
+              id: activeSession.id,
+              startedAt: activeSession.startedAt,
+              membership: {
+                id: activeSession.membership.id,
+                firstName: activeSession.membership.firstName,
+                lastName: activeSession.membership.lastName,
+              },
+            } : null}
+            currentMembershipId={currentMembershipId}
+            currentRole={currentRole}
+          />
+
           {/* Description */}
           {workOrder.description && (
             <div className="rounded-xl border bg-card p-4">
@@ -190,14 +239,27 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
             </div>
           )}
 
+          {/* Closure banner */}
+          <WorkOrderClosureBanner missing={missingForClosure} />
+
           {/* Status actions */}
           {STATUS_TRANSITIONS[workOrder.status]?.length > 0 && (
             <div className="flex gap-2 flex-wrap">
-              {STATUS_TRANSITIONS[workOrder.status].map(t => (
-                <Button key={t.value} variant="outline" size="sm" onClick={() => handleStatusChange(t.value)}>
-                  {t.label}
-                </Button>
-              ))}
+              {STATUS_TRANSITIONS[workOrder.status].map(t => {
+                const blocks = (t.value === 'resolved' || t.value === 'closed') && missingForClosure.length > 0
+                return (
+                  <Button
+                    key={t.value}
+                    variant="outline"
+                    size="sm"
+                    disabled={blocks}
+                    onClick={() => handleStatusChange(t.value)}
+                    title={blocks ? `Champs requis manquants : ${missingForClosure.join(', ')}` : undefined}
+                  >
+                    {t.label}
+                  </Button>
+                )
+              })}
             </div>
           )}
 
@@ -243,6 +305,23 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
               <Button type="submit" size="sm" disabled={!comment.trim()}>Envoyer</Button>
             </form>
           </div>
+
+          {/* Fault code form */}
+          {(closureRequirements.faultCode || workOrder.faultCategory || workOrder.faultDescription) && (
+            <WorkOrderFaultForm
+              workOrderId={workOrder.id}
+              faultCategory={workOrder.faultCategory}
+              faultDescription={workOrder.faultDescription}
+              required={closureRequirements.faultCode}
+            />
+          )}
+
+          {/* Parts */}
+          <WorkOrderParts
+            workOrderId={workOrder.id}
+            parts={workOrder.parts}
+            spareParts={spareParts}
+          />
 
           {/* Time logs */}
           <div className="rounded-xl border bg-card p-4 space-y-4">
@@ -340,6 +419,10 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
                 <span>{workOrder.estimatedHours}h</span>
               </div>
             )}
+            <div className="text-sm">
+              <span className="text-muted-foreground text-xs block mb-0.5">Coût main-d&apos;œuvre</span>
+              <span className="font-mono tabular-nums">{laborCostDisplay}</span>
+            </div>
             <div className="text-sm">
               <span className="text-muted-foreground text-xs block mb-0.5">Créé le</span>
               <span>{new Date(workOrder.createdAt).toLocaleDateString('fr-CA', { dateStyle: 'long' })}</span>
