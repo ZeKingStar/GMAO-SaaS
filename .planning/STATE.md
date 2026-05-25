@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to plan
-stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-05-20T19:25:31.597Z"
+stopped_at: Phase 5 planned and verified — ready to execute /gsd-execute-phase 5
+last_updated: "2026-05-25T12:54:23.158Z"
 progress:
   total_phases: 9
-  completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  completed_phases: 5
+  total_plans: 17
+  completed_plans: 17
   percent: 100
 ---
 
@@ -20,26 +20,27 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-19)
 
 **Core value:** Un technicien peut créer un bon de travail, scanner un actif QR et accéder à son historique en moins de 60 secondes.
-**Current focus:** Phase 02 — feature-gating
+**Current focus:** Phase 05 — portail-de-demandes-de-travail
 
 ## Current Status
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 1 — Identité Korvia | ✓ Complete | 3/3 plans executed |
-| 2 — Feature Gating | ◑ Ready to plan | CONTEXT.md exists |
-| 3 — Notifications Email | ○ Pending | — |
-| 4 — API Publique | ○ Pending | — |
+| 1 — Identité Korvia | ✓ Complete | 3/3 plans executed (May 19) |
+| 2 — Feature Gating | ✓ Complete | 3/3 plans executed (May 20) |
+| 3 — Notifications Email | ✓ Complete | 4/4 plans executed + verified (May 21) |
+| 4 — API Publique | ✓ Complete | 3/3 plans executed + verified (May 24) |
+| 5 — Portail de demandes | ○ Planned | 3 plans ready to execute |
 
 ## Last Action
 
-Phase 01 completed (all 3 plans executed) — resumed 2026-05-20
+Phase 04 complete — API publique opérationnelle, clés API avec gating Growth/Enterprise, docs Scalar, vérification UAT passée — 2026-05-24. Phase 05 recherchée et planifiée (05-01, 05-02, 05-03 vérifiés par gsd-plan-checker).
 
 ## Next Step
 
-`/gsd-plan-phase 2` — Planifier la Phase 2: Feature Gating (CONTEXT.md prêt)
+`/gsd-execute-phase 5` — Exécuter la Phase 5: Portail de demandes de travail
 
 ## Session Continuity
 
-Last session: 2026-05-20T11:47:47.886Z
-Stopped at: Phase 2 UI-SPEC approved
+Last session: 2026-05-24T17:00:00.000Z
+Stopped at: Phase 5 planned and verified — ready to execute /gsd-execute-phase 5

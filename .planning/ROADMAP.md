@@ -10,7 +10,7 @@
 | 1 | Identité Korvia | Rebrand complet + logo SVG | BRAND-01, BRAND-02, BRAND-03 | 3 |
 | 2 | Feature Gating | Verrouiller les features par tier | GATE-01, GATE-02, GATE-03 | 3 |
 | 3 | Notifications Email | Alertes automatiques aux bons moments | NOTIF-01, NOTIF-02, NOTIF-03 | 3 |
-| 4 | API Publique | Permettre les intégrations tierces | API-01, API-02, API-03, API-04 | 4 |
+| 4 | API Publique | 2/3 | In Progress|  |
 
 ---
 
@@ -89,11 +89,11 @@ Plans:
 3. La documentation Swagger est accessible publiquement sans authentification
 4. Les clés API sont générables et révocables depuis les paramètres organisation
 
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 
 Plans:
-- [ ] 04-01-PLAN.md — Fondations API : modèle ApiKey + helpers api-auth (validateApiKey, requireApiPlan) + Server Actions clés (Wave 1)
-- [ ] 04-02-PLAN.md — Endpoints REST : GET + POST /api/v1/work-orders + whitelist proxy Clerk (Wave 2)
+- [x] 04-01-PLAN.md — Fondations API : modèle ApiKey + helpers api-auth (validateApiKey, requireApiPlan) + Server Actions clés (Wave 1)
+- [x] 04-02-PLAN.md — Endpoints REST : GET + POST /api/v1/work-orders + whitelist proxy Clerk (Wave 2)
 - [ ] 04-03-PLAN.md — Documentation Swagger publique (/api/docs) + UI gestion clés API + checkpoint visuel humain (Wave 2)
 
 ---
@@ -125,6 +125,13 @@ Plans:
 1. Un employé sans compte ouvre l'URL du portail, remplit un formulaire (description + photo optionnelle + localisation) et soumet
 2. La demande crée automatiquement un bon de travail en statut "Ouvert" dans Korvia, assigné au bon site
 3. Le demandeur reçoit une confirmation par email avec le numéro de BT (sans avoir besoin d'un compte)
+
+**Plans:** 3 plans
+
+Plans:
+- [x] 05-01-PLAN.md — Fondations portail : schema Site (portalToken/portalEnabled) + db push + proxy whitelist + Server Actions sites + helpers BT/email (Wave 1)
+- [x] 05-02-PLAN.md — Route Handler POST /api/portal/[siteToken] + page SSR publique /portail/[siteToken] + formulaire useActionState avec honeypot (Wave 2)
+- [x] 05-03-PLAN.md — UI admin PortalSitesSection dans /parametres/organisation + checkpoint humain end-to-end (Wave 2)
 
 ---
 
