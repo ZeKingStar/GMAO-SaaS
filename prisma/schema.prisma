@@ -98,23 +98,23 @@ model Organization {
 // ─── Membership ───────────────────────────────────────────────────────────────
 
 model Membership {
-  id             String       @id @default(cuid())
+  id             String     @id @default(cuid())
   organizationId String
   clerkUserId    String
   email          String
   firstName      String?
   lastName       String?
   avatarUrl      String?
-  role           MemberRole   @default(technician)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  role           MemberRole @default(technician)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
-  hourlyRate     Float?
+  hourlyRate Float?
 
-  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  assignedOrders   WorkOrderAssignee[]
-  timeLogs         WorkOrderTimeLog[]
-  comments         WorkOrderComment[]
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignedOrders WorkOrderAssignee[]
+  timeLogs       WorkOrderTimeLog[]
+  comments       WorkOrderComment[]
 
   @@unique([organizationId, clerkUserId])
   @@index([organizationId])
@@ -172,10 +172,10 @@ model Location {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  site      Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  parent    Location?  @relation("LocationTree", fields: [parentId], references: [id])
-  children  Location[] @relation("LocationTree")
-  assets    Asset[]
+  site     Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parent   Location?  @relation("LocationTree", fields: [parentId], references: [id])
+  children Location[] @relation("LocationTree")
+  assets   Asset[]
 
   @@index([siteId])
   @@index([parentId])
@@ -280,19 +280,19 @@ model AssetHistory {
 // ─── Work Orders ──────────────────────────────────────────────────────────────
 
 model WorkOrder {
-  id             String            @id @default(cuid())
-  organizationId String
-  siteId         String?
-  assetId        String?
-  number         Int
-  title          String
-  description    String?
-  type           WorkOrderType     @default(corrective)
-  status         WorkOrderStatus   @default(open)
-  priority       WorkOrderPriority @default(medium)
-  dueDate        DateTime?
-  startedAt      DateTime?
-  completedAt    DateTime?
+  id               String            @id @default(cuid())
+  organizationId   String
+  siteId           String?
+  assetId          String?
+  number           Int
+  title            String
+  description      String?
+  type             WorkOrderType     @default(corrective)
+  status           WorkOrderStatus   @default(open)
+  priority         WorkOrderPriority @default(medium)
+  dueDate          DateTime?
+  startedAt        DateTime?
+  completedAt      DateTime?
   estimatedHours   Float?
   closureNotes     String?
   faultCategory    String?
@@ -300,9 +300,9 @@ model WorkOrder {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
-  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  site         Site?               @relation(fields: [siteId], references: [id])
-  asset        Asset?              @relation(fields: [assetId], references: [id])
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  site         Site?                 @relation(fields: [siteId], references: [id])
+  asset        Asset?                @relation(fields: [assetId], references: [id])
   assignees    WorkOrderAssignee[]
   comments     WorkOrderComment[]
   attachments  WorkOrderAttachment[]
@@ -433,22 +433,22 @@ model MaintenanceTask {
 // ─── Inventaire ───────────────────────────────────────────────────────────────
 
 model SparePart {
-  id             String   @id @default(cuid())
-  organizationId String
-  name           String
-  partNumber     String?
-  description    String?
-  unit           String?
-  quantityOnHand Float    @default(0)
-  quantityMin    Float?
-  unitCost       Float?
-  supplier       String?
+  id              String   @id @default(cuid())
+  organizationId  String
+  name            String
+  partNumber      String?
+  description     String?
+  unit            String?
+  quantityOnHand  Float    @default(0)
+  quantityMin     Float?
+  unitCost        Float?
+  supplier        String?
   storageLocation String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  workOrderParts  WorkOrderPart[]
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  workOrderParts WorkOrderPart[]
 
   @@index([organizationId])
   @@index([partNumber])
