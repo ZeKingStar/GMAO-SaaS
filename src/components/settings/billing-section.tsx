@@ -32,7 +32,7 @@ const PLANS: {
     key: 'growth',
     name: 'Croissance',
     price: 149,
-    features: ['200 actifs', '15 utilisateurs', 'Inventaire pièces', 'QR codes', 'Rapports avancés'],
+    features: ['200 actifs', '15 utilisateurs', 'Inventaire pièces', 'QR codes', 'Rapports avancés', 'API publique'],
   },
   {
     key: 'enterprise',
@@ -50,7 +50,7 @@ const STATUS_LABELS: Record<SubscriptionStatus, { label: string; class: string }
   unpaid: { label: 'Non payé', class: 'bg-red-100 text-red-700' },
 }
 
-export function BillingSection({ subscription }: { subscription: Subscription | null }) {
+export function BillingSection({ subscription, hasStripeCustomer }: { subscription: Subscription | null; hasStripeCustomer: boolean }) {
   const [pending, startTransition] = useTransition()
   const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null)
   const [loadingPortal, setLoadingPortal] = useState(false)
@@ -105,7 +105,7 @@ export function BillingSection({ subscription }: { subscription: Subscription | 
             </span>
           )}
         </div>
-        {isActive && (
+        {isActive && hasStripeCustomer && (
           <Button
             variant="outline"
             size="sm"

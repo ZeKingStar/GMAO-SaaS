@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { getOrganizationMembership } from "@/lib/auth"
@@ -5,6 +7,10 @@ import { getOrganizationMembership } from "@/lib/auth"
 const ACTIVE_STATUSES = ['active', 'trialing'] as const
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const { userId, orgId } = await auth()
+  if (!userId) redirect('/sign-in')
+  if (!orgId) redirect('/onboarding')
+
   const membership = await getOrganizationMembership()
 
   // Derive effective plan — null sub or inactive status = 'starter' (fail-safe)
