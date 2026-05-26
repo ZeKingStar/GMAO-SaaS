@@ -132,7 +132,9 @@ export async function updateWorkOrderStatus(
         where: { id, organizationId },
         select: {
           faultCategory: true,
-          faultDescription: true,
+          faultProblem: true,
+          faultCause: true,
+          faultRemedy: true,
           timeLogs: { select: { minutes: true } },
           parts: { select: { id: true } },
         },
@@ -149,7 +151,7 @@ export async function updateWorkOrderStatus(
     const missing = validateClosure(
       {
         faultCategory: wo.faultCategory,
-        faultDescription: wo.faultDescription,
+        faultProblem: wo.faultProblem,
         timeLogsMinutesTotal,
         partsCount: wo.parts.length,
       },
@@ -176,14 +178,21 @@ export async function updateWorkOrderStatus(
 
 export async function setWorkOrderFault(
   workOrderId: string,
-  data: { faultCategory: string | null; faultDescription: string | null }
+  data: {
+    faultCategory: string | null
+    faultProblem: string | null
+    faultCause: string | null
+    faultRemedy: string | null
+  }
 ) {
   const { organizationId } = await getOrgAndMembership()
   await db.workOrder.update({
     where: { id: workOrderId, organizationId },
     data: {
       faultCategory: data.faultCategory?.trim() || null,
-      faultDescription: data.faultDescription?.trim() || null,
+      faultProblem: data.faultProblem?.trim() || null,
+      faultCause: data.faultCause?.trim() || null,
+      faultRemedy: data.faultRemedy?.trim() || null,
     },
   })
   revalidatePath(`/bons-de-travail/${workOrderId}`)
@@ -263,9 +272,10 @@ export async function upsertWorkOrderPart(
   const { organizationId } = await getOrgAndMembership()
   const wo = await db.workOrder.findFirst({
     where: { id: workOrderId, organizationId },
-    select: { id: true },
+    select: { id: true, status: true },
   })
   if (!wo) throw new Error('Bon de travail introuvable')
+  if (wo.status === 'closed' || wo.status === 'resolved') throw new Error('Impossible de modifier les pièces d\'un bon de travail fermé')
   if (!data.name.trim()) throw new Error('Nom de pièce requis')
   if (!Number.isFinite(data.quantity) || data.quantity <= 0) throw new Error('Quantité invalide')
 
@@ -275,9 +285,10 @@ export async function upsertWorkOrderPart(
   if (data.sparePartId) {
     const sp = await db.sparePart.findFirst({
       where: { id: data.sparePartId, organizationId },
-      select: { id: true, name: true, unitCost: true },
+      select: { id: true, name: true, unitCost: true, quantityOnHand: true },
     })
     if (!sp) throw new Error('Pièce inventaire introuvable')
+    if (!data.id && sp.quantityOnHand < data.quantity) throw new Error(`Stock insuffisant — disponible : ${sp.quantityOnHand}`)
     sparePartUnitCost = sp.unitCost ?? null
     resolvedName = sp.name
   }
