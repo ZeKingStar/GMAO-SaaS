@@ -46,7 +46,9 @@ type WorkOrder = {
   siteId: string | null
   assetId: string | null
   faultCategory: string | null
-  faultDescription: string | null
+  faultProblem: string | null
+  faultCause: string | null
+  faultRemedy: string | null
   asset: Asset | null
   site: Site | null
   assignees: { membershipId: string; membership: Member & { hourlyRate: number | null } }[]
@@ -100,6 +102,7 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
   const [comment, setComment] = useState('')
   const [showTimeLog, setShowTimeLog] = useState(false)
   const [timeLog, setTimeLog] = useState({ startedAt: '', endedAt: '', notes: '' })
+  const [reopenNote, setReopenNote] = useState<string | null>(null)
 
   const assignedIds = workOrder.assignees.map(a => a.membershipId)
   const unassignedMembers = allMembers.filter(m => !assignedIds.includes(m.id))
@@ -110,7 +113,7 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
   const missingForClosure = computeMissingForClosure(
     {
       faultCategory: workOrder.faultCategory,
-      faultDescription: workOrder.faultDescription,
+      faultProblem: workOrder.faultProblem,
       timeLogsMinutesTotal: totalMinutes,
       partsCount: workOrder.parts.length,
     },
@@ -134,9 +137,26 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
   const laborCostDisplay = hasAnyRate ? `${laborCost.toFixed(2)} $` : '—'
 
   function handleStatusChange(status: WorkOrderStatus) {
+    if (status === 'open' && workOrder.status === 'closed') {
+      setReopenNote('')
+      return
+    }
+    if (status === 'resolved' && !confirm('Marquer ce bon comme résolu ?')) return
+    if (status === 'closed' && !confirm('Fermer définitivement ce bon de travail ?')) return
     startTransition(async () => {
       try { await updateWorkOrderStatus(workOrder.id, status); toast.success('Statut mis à jour') }
-      catch { toast.error('Erreur') }
+      catch (e) { toast.error(e instanceof Error ? e.message : 'Erreur') }
+    })
+  }
+
+  function handleConfirmReopen() {
+    if (reopenNote === null) return
+    startTransition(async () => {
+      try {
+        await updateWorkOrderStatus(workOrder.id, 'open', reopenNote || undefined)
+        setReopenNote(null)
+        toast.success('Bon de travail rouvert')
+      } catch (e) { toast.error(e instanceof Error ? e.message : 'Erreur') }
     })
   }
 
@@ -239,6 +259,24 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
             </div>
           )}
 
+          {/* Reopen dialog */}
+          {reopenNote !== null && (
+            <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-4 space-y-3">
+              <p className="text-sm font-medium text-amber-900 dark:text-amber-200">Rouvrir ce bon de travail ?</p>
+              <textarea
+                value={reopenNote}
+                onChange={e => setReopenNote(e.target.value)}
+                placeholder="Raison de la réouverture (optionnel)..."
+                rows={2}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring/50"
+              />
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" size="sm" onClick={() => setReopenNote(null)}>Annuler</Button>
+                <Button size="sm" onClick={handleConfirmReopen}>Confirmer la réouverture</Button>
+              </div>
+            </div>
+          )}
+
           {/* Closure banner */}
           <WorkOrderClosureBanner missing={missingForClosure} />
 
@@ -306,12 +344,14 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
             </form>
           </div>
 
-          {/* Fault code form */}
-          {(closureRequirements.faultCode || workOrder.faultCategory || workOrder.faultDescription) && (
+          {/* Fault code form — always visible for active WOs */}
+          {workOrder.status !== 'closed' && (
             <WorkOrderFaultForm
               workOrderId={workOrder.id}
-              faultCategory={workOrder.faultCategory}
-              faultDescription={workOrder.faultDescription}
+              initialCategory={workOrder.faultCategory}
+              initialProblem={workOrder.faultProblem}
+              initialCause={workOrder.faultCause}
+              initialRemedy={workOrder.faultRemedy}
               required={closureRequirements.faultCode}
             />
           )}
@@ -321,6 +361,7 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
             workOrderId={workOrder.id}
             parts={workOrder.parts}
             spareParts={spareParts}
+            status={workOrder.status}
           />
 
           {/* Time logs */}

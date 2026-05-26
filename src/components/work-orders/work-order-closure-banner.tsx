@@ -9,7 +9,7 @@ import {
 
 type Input = {
   faultCategory: string | null
-  faultDescription: string | null
+  faultProblem: string | null
   timeLogsMinutesTotal: number
   partsCount: number
 }
