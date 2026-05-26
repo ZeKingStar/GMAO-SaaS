@@ -8,28 +8,40 @@ import { FAULT_CATEGORIES, FAULT_CATEGORY_LABELS, type FaultCategory } from '@/l
 
 type Props = {
   workOrderId: string
-  faultCategory: string | null
-  faultDescription: string | null
+  initialCategory: string | null
+  initialProblem: string | null
+  initialCause: string | null
+  initialRemedy: string | null
   required: boolean
 }
 
 const SELECT_CLASS = 'h-9 rounded-lg border border-input bg-background px-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
+const TEXTAREA_CLASS = 'w-full rounded-lg border border-input bg-background px-2.5 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring/50'
 
-export function WorkOrderFaultForm({ workOrderId, faultCategory, faultDescription, required }: Props) {
+export function WorkOrderFaultForm({ workOrderId, initialCategory, initialProblem, initialCause, initialRemedy, required }: Props) {
   const [, startTransition] = useTransition()
-  const [form, setForm] = useState({
-    category: faultCategory ?? '',
-    description: faultDescription ?? '',
-  })
+  const [category, setCategory] = useState(initialCategory ?? '')
+  const [problem, setProblem] = useState(initialProblem ?? '')
+  const [cause, setCause] = useState(initialCause ?? '')
+  const [remedy, setRemedy] = useState(initialRemedy ?? '')
   const [dirty, setDirty] = useState(false)
+
+  function handleChange<T extends string>(setter: (v: T) => void) {
+    return (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
+      setter(e.target.value as T)
+      setDirty(true)
+    }
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     startTransition(async () => {
       try {
         await setWorkOrderFault(workOrderId, {
-          faultCategory: form.category || null,
-          faultDescription: form.description.trim() || null,
+          faultCategory: category || null,
+          faultProblem: problem.trim() || null,
+          faultCause: cause.trim() || null,
+          faultRemedy: remedy.trim() || null,
         })
         toast.success('Code de panne enregistré')
         setDirty(false)
@@ -37,11 +49,6 @@ export function WorkOrderFaultForm({ workOrderId, faultCategory, faultDescriptio
         toast.error(e instanceof Error ? e.message : 'Erreur')
       }
     })
-  }
-
-  function set<K extends 'category' | 'description'>(key: K, value: string) {
-    setForm(f => ({ ...f, [key]: value }))
-    setDirty(true)
   }
 
   return (
@@ -54,8 +61,8 @@ export function WorkOrderFaultForm({ workOrderId, faultCategory, faultDescriptio
       <div className="space-y-2">
         <label className="text-xs font-medium block">Catégorie</label>
         <select
-          value={form.category}
-          onChange={e => set('category', e.target.value)}
+          value={category}
+          onChange={handleChange(setCategory)}
           className={`w-full ${SELECT_CLASS}`}
         >
           <option value="">— Sélectionner —</option>
@@ -65,13 +72,33 @@ export function WorkOrderFaultForm({ workOrderId, faultCategory, faultDescriptio
         </select>
       </div>
       <div className="space-y-2">
-        <label className="text-xs font-medium block">Description</label>
+        <label className="text-xs font-medium block">Problème observé</label>
         <textarea
-          value={form.description}
-          onChange={e => set('description', e.target.value)}
-          rows={3}
-          placeholder="Décrire la panne observée…"
-          className="w-full rounded-lg border border-input bg-background px-2.5 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring/50"
+          value={problem}
+          onChange={handleChange(setProblem)}
+          rows={2}
+          placeholder="Décrire le problème observé…"
+          className={TEXTAREA_CLASS}
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-xs font-medium block">Cause identifiée</label>
+        <textarea
+          value={cause}
+          onChange={handleChange(setCause)}
+          rows={2}
+          placeholder="Ex: roulement usé, fusible grillé..."
+          className={TEXTAREA_CLASS}
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-xs font-medium block">Remède appliqué</label>
+        <textarea
+          value={remedy}
+          onChange={handleChange(setRemedy)}
+          rows={2}
+          placeholder="Ex: remplacement roulement, reset disjoncteur..."
+          className={TEXTAREA_CLASS}
         />
       </div>
       {dirty && (
