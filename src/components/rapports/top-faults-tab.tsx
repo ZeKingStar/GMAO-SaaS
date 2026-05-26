@@ -25,13 +25,13 @@ export async function TopFaultsTab({ orgId, period }: Props) {
       faultProblem: { not: null },
       completedAt: { gte: periodStart },
     },
-    _count: { _all: true },
-    orderBy: { _count: { _all: 'desc' } },
+    _count: { faultProblem: true },
+    orderBy: { _count: { faultProblem: 'desc' } },
     take: 10,
   })
 
-  const total = groups.reduce((sum, g) => sum + g._count._all, 0)
-  const maxCount = Math.max(...groups.map(g => g._count._all), 1)
+  const total = groups.reduce((sum, g) => sum + (g._count.faultProblem ?? 0), 0)
+  const maxCount = Math.max(...groups.map(g => g._count.faultProblem ?? 0), 1)
 
   if (groups.length === 0) {
     return (
@@ -53,7 +53,7 @@ export async function TopFaultsTab({ orgId, period }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Top {groups.length} pannes récurrentes — {PERIOD_LABELS[period]}</CardTitle>
-          <p className="text-xs text-muted-foreground mt-1">{total} bon(s) de travail clôturé(s) avec code de panne</p>
+          <p className="text-xs text-muted-foreground mt-1">{total} bon(s) de travail clôturé(s) avec code de panne saisi</p>
         </CardHeader>
         <CardContent className="space-y-3">
           {groups.map((g, i) => {
@@ -67,12 +67,12 @@ export async function TopFaultsTab({ orgId, period }: Props) {
                     <Badge variant="outline" className={`${catColor} text-white border-0 shrink-0`}>{catLabel}</Badge>
                     <span className="truncate font-medium">{g.faultProblem}</span>
                   </div>
-                  <span className="font-bold tabular-nums shrink-0">{g._count._all}</span>
+                  <span className="font-bold tabular-nums shrink-0">{g._count.faultProblem ?? 0}</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${catColor}`}
-                    style={{ width: `${Math.round((g._count._all / maxCount) * 100)}%` }}
+                    style={{ width: `${Math.round(((g._count.faultProblem ?? 0) / maxCount) * 100)}%` }}
                   />
                 </div>
               </div>

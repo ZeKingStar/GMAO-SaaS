@@ -13,7 +13,8 @@ export function PeriodSelector({ value }: Props) {
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
-  function onChange(next: string) {
+  function onChange(next: string | null) {
+    if (!next) return
     const params = new URLSearchParams(searchParams.toString())
     if (next === DEFAULT_PERIOD) {
       params.delete('period')
