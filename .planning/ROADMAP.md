@@ -170,10 +170,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Migration schema P/C/R + utilitaires rapports + fix Phase 6 callers (Wave 1)
-- [ ] 07-02-PLAN.md — Restructuration /rapports en tabs + period-selector + FIAB-01 Top pannes (Wave 2)
-- [ ] 07-03-PLAN.md — FIAB-02 MTTR par actif + FIAB-03 Coût par actif (Wave 3)
-- [ ] 07-04-PLAN.md — FIAB-04 Planifié vs Réel + checkpoint humain (Wave 3)
+- [x] 07-01-PLAN.md — Migration schema P/C/R + utilitaires rapports + fix Phase 6 callers (Wave 1)
+- [x] 07-02-PLAN.md — Restructuration /rapports en tabs + period-selector + FIAB-01 Top pannes (Wave 2)
+- [x] 07-03-PLAN.md — FIAB-02 MTTR par actif + FIAB-03 Coût par actif (Wave 3)
+- [x] 07-04-PLAN.md — FIAB-04 Planifié vs Réel + checkpoint humain (Wave 3)
 
 ---
 
