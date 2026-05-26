@@ -15,7 +15,7 @@ const noReq: ClosureRequirements = { faultCode: false, timeSpent: false, partsUs
 const allReq: ClosureRequirements = { faultCode: true, timeSpent: true, partsUsed: true }
 const emptyInput: ClosureCheckInput = {
   faultCategory: null,
-  faultDescription: null,
+  faultProblem: null,
   timeLogsMinutesTotal: 0,
   partsCount: 0,
 }
@@ -30,27 +30,27 @@ describe('validateClosure', () => {
     const input: ClosureCheckInput = {
       ...emptyInput,
       faultCategory: null,
-      faultDescription: null,
+      faultProblem: null,
     }
     expect(validateClosure(input, req)).toEqual(['faultCode'])
   })
 
-  it('Test 3: retourne [faultCode] si catégorie présente mais description vide', () => {
+  it('Test 3: retourne [faultCode] si catégorie présente mais problème vide', () => {
     const req: ClosureRequirements = { faultCode: true, timeSpent: false, partsUsed: false }
     const input: ClosureCheckInput = {
       ...emptyInput,
       faultCategory: 'mecanique',
-      faultDescription: '',
+      faultProblem: '',
     }
     expect(validateClosure(input, req)).toEqual(['faultCode'])
   })
 
-  it('Test 4: retourne [] si faultCode requis et catégorie + description présentes', () => {
+  it('Test 4: retourne [] si faultCode requis et catégorie + problème présents', () => {
     const req: ClosureRequirements = { faultCode: true, timeSpent: false, partsUsed: false }
     const input: ClosureCheckInput = {
       ...emptyInput,
       faultCategory: 'mecanique',
-      faultDescription: 'roulement HS',
+      faultProblem: 'roulement HS',
     }
     expect(validateClosure(input, req)).toEqual([])
   })
@@ -82,7 +82,7 @@ describe('validateClosure', () => {
   it('Test 9: retourne tous les codes manquants dans le bon ordre si multi-manquants', () => {
     const input: ClosureCheckInput = {
       faultCategory: null,
-      faultDescription: null,
+      faultProblem: null,
       timeLogsMinutesTotal: 0,
       partsCount: 0,
     }

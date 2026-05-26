@@ -21,14 +21,14 @@ export const FAULT_CATEGORY_LABELS: Record<FaultCategory, string> = {
 }
 
 export const CLOSURE_FIELD_LABELS = {
-  faultCode: 'Code de panne (catégorie + description)',
+  faultCode: 'Code de panne (catégorie + problème)',
   timeSpent: 'Temps passé (au moins une session enregistrée)',
   partsUsed: 'Pièces utilisées (au moins une pièce ajoutée)',
 } as const
 
 export type ClosureCheckInput = {
   faultCategory: string | null
-  faultDescription: string | null
+  faultProblem: string | null
   timeLogsMinutesTotal: number
   partsCount: number
 }
@@ -37,8 +37,8 @@ export function validateClosure(input: ClosureCheckInput, req: ClosureRequiremen
   const missing: string[] = []
   if (req.faultCode) {
     const cat = input.faultCategory?.trim()
-    const desc = input.faultDescription?.trim()
-    if (!cat || !desc) missing.push('faultCode')
+    const problem = input.faultProblem?.trim()
+    if (!cat || !problem) missing.push('faultCode')
   }
   if (req.timeSpent && input.timeLogsMinutesTotal <= 0) missing.push('timeSpent')
   if (req.partsUsed && input.partsCount <= 0) missing.push('partsUsed')
