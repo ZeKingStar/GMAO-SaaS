@@ -2,13 +2,13 @@ import type { Metadata } from 'next'
 import { requirePlan } from '@/lib/auth'
 import { UpgradeGate } from '@/components/upgrade-gate/upgrade-gate'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Card, CardContent } from '@/components/ui/card'
 import { OverviewTab } from '@/components/rapports/overview-tab'
 import { TopFaultsTab } from '@/components/rapports/top-faults-tab'
 import { MttrTab } from '@/components/rapports/mttr-tab'
 import { CostTab } from '@/components/rapports/cost-tab'
 import { PeriodSelector } from '@/components/rapports/period-selector'
 import { DEFAULT_PERIOD, isPeriod, type Period } from '@/lib/report-utils'
+import { PlannedVsRealTab, isSubTab, type SubTab } from '@/components/rapports/planned-vs-real-tab'
 
 export const metadata: Metadata = { title: 'Rapports' }
 
@@ -28,6 +28,8 @@ export default async function RapportsPage({ searchParams }: { searchParams: Sea
   const sp = await searchParams
   const tab: TabValue = isTab(sp.tab) ? sp.tab : 'overview'
   const period: Period = isPeriod(sp.period) ? sp.period : DEFAULT_PERIOD
+  const DEFAULT_SUBTAB: SubTab = 'by-wo'
+  const subtab: SubTab = isSubTab(sp.subtab) ? sp.subtab : DEFAULT_SUBTAB
 
   return (
     <UpgradeGate hasAccess={hasAccess} requiredPlan="growth">
@@ -68,7 +70,7 @@ export default async function RapportsPage({ searchParams }: { searchParams: Sea
           </TabsContent>
 
           <TabsContent value="planned-vs-real" className="mt-4">
-            <Card><CardContent className="py-12 text-center text-sm text-muted-foreground">Rapport Planifié vs Réel — disponible après livraison Plan 04</CardContent></Card>
+            <PlannedVsRealTab orgId={orgId} period={period} subtab={subtab} />
           </TabsContent>
         </Tabs>
       </div>
