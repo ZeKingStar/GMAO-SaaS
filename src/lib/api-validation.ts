@@ -13,8 +13,8 @@ export type PaginationInput = z.infer<typeof paginationSchema>
 export const workOrderCreateSchema = z.object({
   title: z.string().trim().min(3).max(200),
   description: z.string().trim().max(5000).optional(),
-  type: z.enum(Object.values(WorkOrderType) as [string, ...string[]]),
-  priority: z.enum(Object.values(WorkOrderPriority) as [string, ...string[]]),
+  type: z.enum(Object.values(WorkOrderType) as [WorkOrderType, ...WorkOrderType[]]),
+  priority: z.enum(Object.values(WorkOrderPriority) as [WorkOrderPriority, ...WorkOrderPriority[]]),
   siteId: z.string().min(1).optional(),
   assetId: z.string().min(1).optional(),
   dueDate: z.iso.datetime().optional(),
