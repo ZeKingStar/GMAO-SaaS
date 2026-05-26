@@ -149,9 +149,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Fondations Phase 6 : schema (WorkOrderPart + faultCategory/faultDescription + closureRequirements + hourlyRate) + db push + Server Actions (timer, pièces, validation clôture, config admin) (Wave 1)
-- [ ] 06-02-PLAN.md — UI page BT : timer live, formulaire pièces hybride, fault form, banner closure, coût main-d'œuvre + checkpoint humain (Wave 2)
-- [ ] 06-03-PLAN.md — UI admin /parametres/organisation : section exigences de clôture + colonne taux horaire dans TeamTable (Wave 2)
+- [x] 06-01-PLAN.md — Fondations Phase 6 : schema (WorkOrderPart + faultCategory/faultDescription + closureRequirements + hourlyRate) + db push + Server Actions (timer, pièces, validation clôture, config admin) (Wave 1)
+- [x] 06-02-PLAN.md — UI page BT : timer live, formulaire pièces hybride, fault form, banner closure, coût main-d'œuvre + checkpoint humain (Wave 2)
+- [x] 06-03-PLAN.md — UI admin /parametres/organisation : section exigences de clôture + colonne taux horaire dans TeamTable (Wave 2)
 
 ---
 
@@ -166,6 +166,14 @@ Plans:
 2. Le journal de panne calcule automatiquement le MTTR par actif à partir des heures d'arrêt saisies
 3. Le rapport "Coût par actif" affiche (main-d'œuvre + pièces) par actif sur une période choisie
 4. Le rapport "Planifié vs Réel" compare la durée estimée vs réelle par BT, technicien et type d'actif
+
+**Plans:** 4 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Migration schema P/C/R + utilitaires rapports + fix Phase 6 callers (Wave 1)
+- [ ] 07-02-PLAN.md — Restructuration /rapports en tabs + period-selector + FIAB-01 Top pannes (Wave 2)
+- [ ] 07-03-PLAN.md — FIAB-02 MTTR par actif + FIAB-03 Coût par actif (Wave 3)
+- [ ] 07-04-PLAN.md — FIAB-04 Planifié vs Réel + checkpoint humain (Wave 3)
 
 ---
 
