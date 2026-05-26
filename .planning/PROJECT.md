@@ -24,6 +24,9 @@ Un technicien de maintenance peut créer un bon de travail, scanner un actif QR 
 - ✓ PWA avec support hors-ligne — Phase 2 (existant)
 - ✓ Onboarding organisation multi-étapes — Phase 1 (existant)
 - ✓ Feature gating selon tier d'abonnement Stripe — Validé en Phase 2 : requirePlan(), UpgradeGate, sidebar lock icons, dashboard widget
+- ✓ Codes de panne Problème/Cause/Remède à la clôture des BTs — Validé en Phase 7 (faultProblem, faultCause, faultRemedy)
+- ✓ Rapports de fiabilité analytique (FIAB-01 à FIAB-04) — Validé en Phase 7 : Top pannes récurrentes, MTTR par actif, Coût par actif, Planifié vs Réel avec 3 sous-onglets
+- ✓ Sélecteur de période pour les rapports (Ce mois / 3 mois / 6 mois / Cette année) — Validé en Phase 7
 
 ### Active
 
@@ -83,4 +86,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-20 — Phase 02 (Feature Gating) complete*
+*Last updated: 2026-05-26 — Phase 07 (Analytique de fiabilité) complete*
