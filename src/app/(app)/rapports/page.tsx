@@ -5,6 +5,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { OverviewTab } from '@/components/rapports/overview-tab'
 import { TopFaultsTab } from '@/components/rapports/top-faults-tab'
+import { MttrTab } from '@/components/rapports/mttr-tab'
+import { CostTab } from '@/components/rapports/cost-tab'
 import { PeriodSelector } from '@/components/rapports/period-selector'
 import { DEFAULT_PERIOD, isPeriod, type Period } from '@/lib/report-utils'
 
@@ -58,11 +60,11 @@ export default async function RapportsPage({ searchParams }: { searchParams: Sea
           </TabsContent>
 
           <TabsContent value="mttr" className="mt-4">
-            <Card><CardContent className="py-12 text-center text-sm text-muted-foreground">Rapport MTTR — disponible après livraison Plan 03</CardContent></Card>
+            <MttrTab orgId={orgId} period={period} />
           </TabsContent>
 
           <TabsContent value="cost" className="mt-4">
-            <Card><CardContent className="py-12 text-center text-sm text-muted-foreground">Rapport Coût par actif — disponible après livraison Plan 03</CardContent></Card>
+            <CostTab orgId={orgId} period={period} />
           </TabsContent>
 
           <TabsContent value="planned-vs-real" className="mt-4">
