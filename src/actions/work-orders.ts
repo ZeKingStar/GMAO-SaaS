@@ -423,3 +423,40 @@ export async function logTime(
   })
   revalidatePath(`/bons-de-travail/${workOrderId}`)
 }
+
+export async function toggleChecklistItem(itemId: string, checked: boolean) {
+  const { organizationId } = await getOrgAndMembership()
+
+  const item = await db.workOrderChecklistItem.findFirst({
+    where: { id: itemId, workOrder: { organizationId } },
+    select: { id: true, workOrderId: true },
+  })
+  if (!item) throw new Error('Item introuvable')
+
+  await db.workOrderChecklistItem.update({
+    where: { id: itemId },
+    data: { checked, checkedAt: checked ? new Date() : null },
+  })
+  revalidatePath(`/bons-de-travail/${item.workOrderId}`)
+}
+
+export async function setChecklistMeasure(itemId: string, measureValue: string | null) {
+  const { organizationId } = await getOrgAndMembership()
+
+  const item = await db.workOrderChecklistItem.findFirst({
+    where: { id: itemId, workOrder: { organizationId } },
+    select: { id: true, workOrderId: true },
+  })
+  if (!item) throw new Error('Item introuvable')
+
+  const cleaned = measureValue?.trim() ?? null
+  if (cleaned && cleaned.length > 200) {
+    throw new Error('Mesure trop longue (max 200 caractères)')
+  }
+
+  await db.workOrderChecklistItem.update({
+    where: { id: itemId },
+    data: { measureValue: cleaned || null },
+  })
+  revalidatePath(`/bons-de-travail/${item.workOrderId}`)
+}
