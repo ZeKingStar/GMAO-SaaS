@@ -1,14 +1,48 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useMemo } from 'react'
 import Link from 'next/link'
-import { Plus, ClipboardList, Calendar, User, Cpu, ArrowRight } from 'lucide-react'
+import { Plus, ClipboardList, Calendar, User, Cpu, ArrowRight, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { deleteWorkOrder } from '@/actions/work-orders'
 import { WorkOrderFormDialog } from './work-order-form-dialog'
 import { WorkOrderStatusBadge, WorkOrderPriorityBadge, workOrderTypeLabel } from './work-order-status-badge'
 import type { WorkOrderStatus, WorkOrderPriority, WorkOrderType } from '@/generated/prisma/enums'
+
+type SortDir = 'asc' | 'desc'
+
+function SortHeader({
+  label,
+  sortKey,
+  activeKey,
+  dir,
+  onSort,
+}: {
+  label: string
+  sortKey: string
+  activeKey: string
+  dir: SortDir
+  onSort: (key: string) => void
+}) {
+  const isActive = sortKey === activeKey
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(sortKey)}
+      className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors group"
+    >
+      {label}
+      <span className="text-muted-foreground/50 group-hover:text-muted-foreground">
+        {isActive ? (
+          dir === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+        ) : (
+          <ChevronsUpDown className="h-3 w-3" />
+        )}
+      </span>
+    </button>
+  )
+}
 
 type Member = { id: string; firstName: string | null; lastName: string | null; email: string }
 type Site = { id: string; name: string }
@@ -49,12 +83,48 @@ export function WorkOrderList({ workOrders, sites, assets, members }: Props) {
   const [, startTransition] = useTransition()
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
+  const [sortKey, setSortKey] = useState<string>('number')
+  const [sortDir, setSortDir] = useState<SortDir>('desc')
 
-  const filtered = workOrders.filter(wo => {
-    if (statusFilter !== 'all' && wo.status !== statusFilter) return false
-    if (typeFilter !== 'all' && wo.type !== typeFilter) return false
-    return true
-  })
+  function handleSort(key: string) {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  const filtered = useMemo(() => {
+    const base = workOrders.filter(wo => {
+      if (statusFilter !== 'all' && wo.status !== statusFilter) return false
+      if (typeFilter !== 'all' && wo.type !== typeFilter) return false
+      return true
+    })
+
+    return [...base].sort((a, b) => {
+      let cmp = 0
+      switch (sortKey) {
+        case 'number': cmp = a.number - b.number; break
+        case 'title': cmp = a.title.localeCompare(b.title, 'fr'); break
+        case 'status': cmp = a.status.localeCompare(b.status); break
+        case 'priority': {
+          const order: Record<string, number> = { low: 0, medium: 1, high: 2, urgent: 3 }
+          cmp = (order[a.priority] ?? 0) - (order[b.priority] ?? 0)
+          break
+        }
+        case 'dueDate': {
+          const da = a.dueDate ? new Date(a.dueDate).getTime() : Infinity
+          const db2 = b.dueDate ? new Date(b.dueDate).getTime() : Infinity
+          cmp = da - db2
+          break
+        }
+        case 'createdAt': cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(); break
+        default: cmp = 0
+      }
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+  }, [workOrders, statusFilter, typeFilter, sortKey, sortDir])
 
   function handleDelete(wo: WorkOrder) {
     if (!confirm(`Supprimer le bon de travail #${wo.number} "${wo.title}" ?`)) return
@@ -93,7 +163,7 @@ export function WorkOrderList({ workOrders, sites, assets, members }: Props) {
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 statusFilter === f.value
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               }`}
             >
               {f.label}
@@ -122,6 +192,18 @@ export function WorkOrderList({ workOrders, sites, assets, members }: Props) {
           </WorkOrderFormDialog>
         </div>
       </div>
+
+      {/* Sort headers */}
+      {filtered.length > 0 && (
+        <div className="hidden sm:grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-3 items-center px-4 py-2 border rounded-lg bg-muted/30 text-xs">
+          <SortHeader label="#" sortKey="number" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+          <SortHeader label="Titre" sortKey="title" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+          <SortHeader label="Statut" sortKey="status" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+          <SortHeader label="Priorité" sortKey="priority" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+          <SortHeader label="Échéance" sortKey="dueDate" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+          <SortHeader label="Créé" sortKey="createdAt" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+        </div>
+      )}
 
       {/* List */}
       <div className="space-y-2">
