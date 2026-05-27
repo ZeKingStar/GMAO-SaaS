@@ -38,7 +38,7 @@ export default async function MaintenancePage() {
     }),
     db.sparePart.findMany({
       where: { organizationId: org.id },
-      select: { id: true, name: true, partNumber: true },
+      select: { id: true, name: true, partNumber: true, description: true, quantityOnHand: true, supplier: true },
       orderBy: { name: 'asc' },
     }),
   ])

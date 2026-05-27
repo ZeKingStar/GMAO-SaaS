@@ -13,14 +13,17 @@ import { PlanPartsSection } from './plan-parts-section'
 
 type Asset = { id: string; name: string }
 type Category = { id: string; name: string }
-type SparePart = { id: string; name: string; partNumber: string | null }
+// SparePart full type — used for the picker prop (description, quantityOnHand, supplier needed)
+type SparePart = { id: string; name: string; partNumber: string | null; description: string | null; quantityOnHand: number; supplier: string | null }
+// SparePartNarrow — used in PlanPart for display only (only id, name, partNumber fetched from DB)
+type SparePartNarrow = { id: string; name: string; partNumber: string | null }
 
 type PlanPart = {
   id: string
   sparePartId: string | null
   name: string
   quantity: number
-  sparePart?: SparePart | null
+  sparePart?: SparePartNarrow | null
 }
 
 type MaintenancePlan = {

@@ -6,15 +6,27 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { addPlanPart, deletePlanPart } from '@/actions/maintenance'
+import { SparePartPickerDialog } from './spare-part-picker-dialog'
 
-type SparePart = { id: string; name: string; partNumber: string | null }
+// SparePart full type — used for the picker (description, quantityOnHand, supplier needed)
+type SparePart = {
+  id: string
+  name: string
+  partNumber: string | null
+  description: string | null
+  quantityOnHand: number
+  supplier: string | null
+}
+
+// SparePartNarrow — used in PlanPart for display only (only id, name, partNumber fetched from DB)
+type SparePartNarrow = { id: string; name: string; partNumber: string | null }
 
 type PlanPart = {
   id: string
   sparePartId: string | null
   name: string
   quantity: number
-  sparePart?: SparePart | null
+  sparePart?: SparePartNarrow | null
 }
 
 type Props = {
@@ -23,8 +35,6 @@ type Props = {
   spareParts: SparePart[]
 }
 
-const SELECT_CLASS =
-  'h-9 rounded-lg border border-input bg-background px-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
 const INPUT_CLASS =
   'h-9 rounded-lg border border-input bg-background px-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
 
@@ -32,13 +42,16 @@ export function PlanPartsSection({ planId, parts, spareParts }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showForm, setShowForm] = useState(false)
   const [selectedSparePartId, setSelectedSparePartId] = useState('')
+  const [selectedPartName, setSelectedPartName] = useState('')
   const [freeName, setFreeName] = useState('')
   const [quantity, setQuantity] = useState('1')
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   const isHorsInventaire = selectedSparePartId === '__free__'
 
   function resetForm() {
     setSelectedSparePartId('')
+    setSelectedPartName('')
     setFreeName('')
     setQuantity('1')
     setShowForm(false)
@@ -72,6 +85,7 @@ export function PlanPartsSection({ planId, parts, spareParts }: Props) {
         toast.success('Pièce ajoutée')
         if (keepFormOpen) {
           setSelectedSparePartId('')
+          setSelectedPartName('')
           setFreeName('')
           setQuantity('1')
         } else {
@@ -117,28 +131,48 @@ export function PlanPartsSection({ planId, parts, spareParts }: Props) {
 
       {showForm && (
         <div className="border rounded-lg p-3 space-y-3 bg-muted/30">
-          <select
-            value={selectedSparePartId}
-            onChange={e => setSelectedSparePartId(e.target.value)}
-            className={`w-full ${SELECT_CLASS}`}
-          >
-            <option value="">— Choisir une pièce inventaire —</option>
-            {spareParts.map(sp => (
-              <option key={sp.id} value={sp.id}>
-                {sp.name}{sp.partNumber ? ` (${sp.partNumber})` : ''}
-              </option>
-            ))}
-            <option value="__free__">— Pièce hors inventaire —</option>
-          </select>
-
-          {isHorsInventaire && (
+          {!isHorsInventaire ? (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPickerOpen(true)}
+                className="flex-1 h-9 rounded-lg border border-input bg-background px-2.5 text-sm text-left focus:outline-none focus:ring-2 focus:ring-ring/50 truncate"
+              >
+                {selectedPartName ? selectedPartName : <span className="text-muted-foreground">— Choisir une pièce inventaire —</span>}
+              </button>
+              {selectedSparePartId && (
+                <button
+                  type="button"
+                  onClick={() => { setSelectedSparePartId(''); setSelectedPartName('') }}
+                  className="h-9 px-2 text-muted-foreground hover:text-foreground"
+                  title="Effacer la sélection"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ) : (
             <input
-              placeholder="Nom de la pièce"
+              placeholder="Nom de la pièce hors inventaire"
               value={freeName}
               onChange={e => setFreeName(e.target.value)}
               className={`w-full ${INPUT_CLASS}`}
             />
           )}
+          <button
+            type="button"
+            onClick={() => {
+              if (isHorsInventaire) {
+                setSelectedSparePartId('')
+              } else {
+                setSelectedSparePartId('__free__')
+                setSelectedPartName('')
+              }
+            }}
+            className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline text-left"
+          >
+            {isHorsInventaire ? "← Choisir depuis l'inventaire" : 'Pièce hors inventaire →'}
+          </button>
 
           <div className="flex gap-2">
             <Input
@@ -209,6 +243,16 @@ export function PlanPartsSection({ planId, parts, spareParts }: Props) {
           ))}
         </div>
       )}
+
+      <SparePartPickerDialog
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        spareParts={spareParts}
+        onSelect={(id, name) => {
+          setSelectedSparePartId(id)
+          setSelectedPartName(name)
+        }}
+      />
     </div>
   )
 }

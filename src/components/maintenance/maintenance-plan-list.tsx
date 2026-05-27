@@ -13,13 +13,16 @@ import type { MaintenanceTriggerType, MaintenanceFrequency, WorkOrderPriority } 
 type Asset = { id: string; name: string }
 type Category = { id: string; name: string }
 type Task = { id: string; description: string; order: number }
+// SparePart full type — for the picker (includes description, quantityOnHand, supplier)
 type SparePart = { id: string; name: string; partNumber: string | null; description: string | null; quantityOnHand: number; supplier: string | null }
+// SparePartNarrow — for display in plan parts list (only fetched fields)
+type SparePartNarrow = { id: string; name: string; partNumber: string | null }
 type PlanPart = {
   id: string
   sparePartId: string | null
   name: string
   quantity: number
-  sparePart?: SparePart | null
+  sparePart?: SparePartNarrow | null
 }
 
 type Plan = {
