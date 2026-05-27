@@ -6,12 +6,21 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { deleteMaintenancePlan, toggleMaintenancePlan, addMaintenanceTask, deleteMaintenanceTask } from '@/actions/maintenance'
 import { MaintenancePlanFormDialog } from './maintenance-plan-form-dialog'
+import { GenerateWorkOrderButton } from './generate-work-order-button'
 import { Plus, Calendar, Gauge, ChevronDown, ChevronRight, Pencil, Trash2, Power, PowerOff, CheckSquare } from 'lucide-react'
 import type { MaintenanceTriggerType, MaintenanceFrequency, WorkOrderPriority } from '@/generated/prisma/enums'
 
 type Asset = { id: string; name: string }
 type Category = { id: string; name: string }
 type Task = { id: string; description: string; order: number }
+type SparePart = { id: string; name: string; partNumber: string | null }
+type PlanPart = {
+  id: string
+  sparePartId: string | null
+  name: string
+  quantity: number
+  sparePart?: SparePart | null
+}
 
 type Plan = {
   id: string
@@ -29,12 +38,14 @@ type Plan = {
   categoryId: string | null
   asset: { id: string; name: string } | null
   tasks: Task[]
+  planParts?: PlanPart[]
 }
 
 type Props = {
   plans: Plan[]
   assets: Asset[]
   categories: Category[]
+  spareParts?: SparePart[]
 }
 
 const FREQUENCY_LABELS: Record<string, string> = {
@@ -72,7 +83,7 @@ function isPastDue(date: Date | null) {
   return new Date(date) < new Date()
 }
 
-function PlanCard({ plan, assets, categories }: { plan: Plan; assets: Asset[]; categories: Category[] }) {
+function PlanCard({ plan, assets, categories, spareParts = [] }: { plan: Plan; assets: Asset[]; categories: Category[]; spareParts?: SparePart[] }) {
   const [expanded, setExpanded] = useState(false)
   const [taskInput, setTaskInput] = useState('')
   const [pending, startTransition] = useTransition()
@@ -190,7 +201,8 @@ function PlanCard({ plan, assets, categories }: { plan: Plan; assets: Asset[]; c
           </div>
 
           <div className="flex items-center gap-1 shrink-0">
-            <MaintenancePlanFormDialog plan={{ ...plan, tasks: plan.tasks }} assets={assets} categories={categories}>
+            <GenerateWorkOrderButton planId={plan.id} planName={plan.name} disabled={!plan.isActive} />
+            <MaintenancePlanFormDialog plan={{ ...plan, tasks: plan.tasks, planParts: plan.planParts }} assets={assets} categories={categories} spareParts={spareParts}>
               <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
@@ -225,6 +237,16 @@ function PlanCard({ plan, assets, categories }: { plan: Plan; assets: Asset[]; c
 
       {expanded && (
         <div className="border-t px-4 py-3 space-y-3">
+          {plan.planParts && plan.planParts.length > 0 && (
+            <div className="mb-1">
+              <p className="text-xs font-medium text-muted-foreground">Pièces requises ({plan.planParts.length}) :</p>
+              <ul className="text-xs text-muted-foreground list-disc list-inside">
+                {plan.planParts.map(p => (
+                  <li key={p.id}>{p.name} × {p.quantity}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tâches</p>
 
           {plan.tasks.length === 0 && (
@@ -265,7 +287,7 @@ function PlanCard({ plan, assets, categories }: { plan: Plan; assets: Asset[]; c
   )
 }
 
-export function MaintenancePlanList({ plans, assets, categories }: Props) {
+export function MaintenancePlanList({ plans, assets, categories, spareParts = [] }: Props) {
   const activePlans = plans.filter(p => p.isActive)
   const inactivePlans = plans.filter(p => !p.isActive)
 
@@ -278,7 +300,7 @@ export function MaintenancePlanList({ plans, assets, categories }: Props) {
             {inactivePlans.length > 0 ? ` · ${inactivePlans.length} inactif${inactivePlans.length !== 1 ? 's' : ''}` : ''}
           </p>
         </div>
-        <MaintenancePlanFormDialog assets={assets} categories={categories}>
+        <MaintenancePlanFormDialog assets={assets} categories={categories} spareParts={spareParts}>
           <Button size="sm">
             <Plus className="h-4 w-4 mr-2" />
             Nouveau plan
@@ -291,7 +313,7 @@ export function MaintenancePlanList({ plans, assets, categories }: Props) {
           <Calendar className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
           <p className="text-sm font-medium">Aucun plan de maintenance</p>
           <p className="text-xs text-muted-foreground mt-1">Créez votre premier plan pour planifier vos interventions préventives.</p>
-          <MaintenancePlanFormDialog assets={assets} categories={categories}>
+          <MaintenancePlanFormDialog assets={assets} categories={categories} spareParts={spareParts}>
             <Button size="sm" className="mt-4">
               <Plus className="h-4 w-4 mr-2" />
               Créer un plan
@@ -303,7 +325,7 @@ export function MaintenancePlanList({ plans, assets, categories }: Props) {
       {activePlans.length > 0 && (
         <div className="space-y-2">
           {activePlans.map(plan => (
-            <PlanCard key={plan.id} plan={plan} assets={assets} categories={categories} />
+            <PlanCard key={plan.id} plan={plan} assets={assets} categories={categories} spareParts={spareParts} />
           ))}
         </div>
       )}
@@ -312,7 +334,7 @@ export function MaintenancePlanList({ plans, assets, categories }: Props) {
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Inactifs</p>
           {inactivePlans.map(plan => (
-            <PlanCard key={plan.id} plan={plan} assets={assets} categories={categories} />
+            <PlanCard key={plan.id} plan={plan} assets={assets} categories={categories} spareParts={spareParts} />
           ))}
         </div>
       )}

@@ -9,9 +9,19 @@ import { toast } from 'sonner'
 import { createMaintenancePlan, updateMaintenancePlan } from '@/actions/maintenance'
 import type { MaintenanceTriggerType, MaintenanceFrequency, WorkOrderPriority } from '@/generated/prisma/enums'
 import { Plus, X } from 'lucide-react'
+import { PlanPartsSection } from './plan-parts-section'
 
 type Asset = { id: string; name: string }
 type Category = { id: string; name: string }
+type SparePart = { id: string; name: string; partNumber: string | null }
+
+type PlanPart = {
+  id: string
+  sparePartId: string | null
+  name: string
+  quantity: number
+  sparePart?: SparePart | null
+}
 
 type MaintenancePlan = {
   id: string
@@ -27,12 +37,14 @@ type MaintenancePlan = {
   categoryId: string | null
   nextDueAt: Date | null
   tasks: { id: string; description: string; order: number }[]
+  planParts?: PlanPart[]
 }
 
 type Props = {
   plan?: MaintenancePlan
   assets: Asset[]
   categories: Category[]
+  spareParts?: SparePart[]
   children: React.ReactElement
 }
 
@@ -49,7 +61,7 @@ const FREQUENCY_LABELS: Record<string, string> = {
   custom: 'Personnalisé',
 }
 
-export function MaintenancePlanFormDialog({ plan, assets, categories, children }: Props) {
+export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts = [], children }: Props) {
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
   const [taskInput, setTaskInput] = useState('')
@@ -321,6 +333,16 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, children }
                     ))}
                   </ul>
                 )}
+              </div>
+            )}
+
+            {plan && (
+              <div className="space-y-3 pt-4 border-t">
+                <PlanPartsSection
+                  planId={plan.id}
+                  parts={plan.planParts ?? []}
+                  spareParts={spareParts}
+                />
               </div>
             )}
 
