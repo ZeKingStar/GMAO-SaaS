@@ -130,3 +130,100 @@ export async function deleteMaintenanceTask(taskId: string) {
   await db.maintenanceTask.delete({ where: { id: taskId } })
   revalidatePath('/maintenance')
 }
+
+export async function generateWorkOrderFromPlan(planId: string) {
+  const { organizationId } = await getOrgAndMembership()
+
+  const plan = await db.maintenancePlan.findFirst({
+    where: { id: planId, organizationId },
+    include: {
+      tasks: { orderBy: { order: 'asc' } },
+      planParts: true,
+    },
+  })
+  if (!plan) throw new Error('Plan introuvable')
+
+  const last = await db.workOrder.findFirst({
+    where: { organizationId },
+    orderBy: { number: 'desc' },
+    select: { number: true },
+  })
+  const number = (last?.number ?? 0) + 1
+
+  const wo = await db.workOrder.create({
+    data: {
+      organizationId,
+      number,
+      title: plan.name,
+      description: plan.description ?? undefined,
+      type: 'preventive',
+      priority: plan.priority,
+      estimatedHours: plan.estimatedHours ?? undefined,
+      assetId: plan.assetId ?? undefined,
+      maintenancePlanId: planId,
+      checklistItems: plan.tasks.length > 0 ? {
+        create: plan.tasks.map(t => ({
+          order: t.order,
+          description: t.description,
+        })),
+      } : undefined,
+      parts: plan.planParts.length > 0 ? {
+        create: plan.planParts.map(p => ({
+          sparePartId: p.sparePartId ?? null,
+          name: p.name,
+          quantity: p.quantity,
+        })),
+      } : undefined,
+    },
+    select: { id: true, number: true },
+  })
+
+  await db.maintenancePlan.update({
+    where: { id: planId },
+    data: { lastGeneratedAt: new Date() },
+  })
+
+  revalidatePath('/bons-de-travail')
+  revalidatePath('/maintenance')
+  return wo
+}
+
+export async function addPlanPart(planId: string, data: {
+  sparePartId?: string | null
+  name: string
+  quantity: number
+}) {
+  const { organizationId } = await getOrgAndMembership()
+
+  const plan = await db.maintenancePlan.findFirst({
+    where: { id: planId, organizationId },
+    select: { id: true },
+  })
+  if (!plan) throw new Error('Plan introuvable')
+
+  if (!data.name.trim()) throw new Error('Nom de pièce requis')
+  if (!Number.isFinite(data.quantity) || data.quantity <= 0) throw new Error('Quantité invalide')
+
+  await db.maintenancePlanPart.create({
+    data: {
+      maintenancePlanId: planId,
+      sparePartId: data.sparePartId || null,
+      name: data.name.trim(),
+      quantity: data.quantity,
+    },
+  })
+  revalidatePath('/maintenance')
+}
+
+export async function deletePlanPart(partId: string) {
+  const { organizationId } = await getOrgAndMembership()
+
+  const part = await db.maintenancePlanPart.findFirst({
+    where: { id: partId, maintenancePlan: { organizationId } },
+    select: { id: true },
+  })
+  if (!part) throw new Error('Pièce introuvable')
+
+  await db.maintenancePlanPart.delete({ where: { id: partId } })
+  revalidatePath('/maintenance')
+}
