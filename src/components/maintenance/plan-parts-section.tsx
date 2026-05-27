@@ -29,7 +29,7 @@ const INPUT_CLASS =
   'h-9 rounded-lg border border-input bg-background px-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
 
 export function PlanPartsSection({ planId, parts, spareParts }: Props) {
-  const [, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition()
   const [showForm, setShowForm] = useState(false)
   const [selectedSparePartId, setSelectedSparePartId] = useState('')
   const [freeName, setFreeName] = useState('')
@@ -44,9 +44,7 @@ export function PlanPartsSection({ planId, parts, spareParts }: Props) {
     setShowForm(false)
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
+  function handleAddPart(keepFormOpen: boolean) {
     const parsedQty = parseFloat(quantity)
     if (!Number.isFinite(parsedQty) || parsedQty <= 0) {
       toast.error('Quantité invalide (doit être > 0)')
@@ -72,7 +70,13 @@ export function PlanPartsSection({ planId, parts, spareParts }: Props) {
       try {
         await addPlanPart(planId, { sparePartId, name, quantity: parsedQty })
         toast.success('Pièce ajoutée')
-        resetForm()
+        if (keepFormOpen) {
+          setSelectedSparePartId('')
+          setFreeName('')
+          setQuantity('1')
+        } else {
+          resetForm()
+        }
       } catch (e) {
         toast.error(e instanceof Error ? e.message : 'Erreur')
       }
@@ -112,7 +116,7 @@ export function PlanPartsSection({ planId, parts, spareParts }: Props) {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="border rounded-lg p-3 space-y-3 bg-muted/30">
+        <div className="border rounded-lg p-3 space-y-3 bg-muted/30">
           <select
             value={selectedSparePartId}
             onChange={e => setSelectedSparePartId(e.target.value)}
@@ -147,10 +151,28 @@ export function PlanPartsSection({ planId, parts, spareParts }: Props) {
               className="w-32"
             />
             <div className="flex-1" />
-            <Button type="button" variant="ghost" size="sm" onClick={resetForm}>Annuler</Button>
-            <Button type="submit" size="sm">Ajouter la pièce</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={resetForm}>
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddPart(true)}
+              disabled={isPending}
+            >
+              + Continuer
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => handleAddPart(false)}
+              disabled={isPending}
+            >
+              Ajouter
+            </Button>
           </div>
-        </form>
+        </div>
       )}
 
       {parts.length === 0 ? (
