@@ -81,7 +81,24 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
   })
 
   function handleOpen(isOpen: boolean) {
-    if (isOpen && !plan) {
+    if (isOpen && plan) {
+      // Forcer re-sync avec les props courantes à chaque ouverture
+      setForm({
+        name: plan.name,
+        description: plan.description ?? '',
+        triggerType: plan.triggerType,
+        frequency: (plan.frequency ?? 'monthly') as MaintenanceFrequency,
+        customDays: plan.customDays?.toString() ?? '',
+        meterThreshold: plan.meterThreshold?.toString() ?? '',
+        estimatedHours: plan.estimatedHours?.toString() ?? '',
+        priority: plan.priority,
+        assetId: plan.assetId ?? '',
+        categoryId: plan.categoryId ?? '',
+        nextDueAt: plan.nextDueAt ? new Date(plan.nextDueAt).toISOString().slice(0, 10) : '',
+        tasks: plan.tasks?.map(t => t.description) ?? [],
+      })
+      setTaskInput('')
+    } else if (isOpen && !plan) {
       setForm({
         name: '',
         description: '',
@@ -176,7 +193,7 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
     <>
       {trigger}
       <Dialog open={open} onOpenChange={handleOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent key={plan?.id ?? 'new'} className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{plan ? 'Modifier le plan' : 'Nouveau plan de maintenance'}</DialogTitle>
           </DialogHeader>
