@@ -4,6 +4,7 @@ import { WorkOrderAssignedEmail } from '@/emails/work-order-assigned'
 import { MaintenanceReminderEmail } from '@/emails/maintenance-reminder'
 import { LowStockAlertEmail } from '@/emails/low-stock-alert'
 import { PortalConfirmationEmail } from '@/emails/portal-confirmation'
+import { UrgentEscalationEmail } from '@/emails/urgent-escalation'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -72,6 +73,29 @@ export async function sendPortalConfirmationEmail(params: {
     from: FROM,
     to: [params.to],
     subject: `[Korvia] Votre demande #${params.workOrderNumber} a été reçue`,
+    html,
+  })
+}
+
+export async function sendUrgentEscalationEmail(params: {
+  to: string[]
+  workOrderNumber: number
+  workOrderTitle: string
+  workOrderId: string
+  createdAt: Date
+  ageHours: number
+  organizationName: string
+}): Promise<void> {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.korvia.ca'
+  const html = await render(UrgentEscalationEmail({
+    ...params,
+    priority: 'urgent',
+    appUrl,
+  }))
+  await resend.emails.send({
+    from: FROM,
+    to: params.to,
+    subject: `[Korvia] BT urgent #${params.workOrderNumber} non résolu — escalade`,
     html,
   })
 }
