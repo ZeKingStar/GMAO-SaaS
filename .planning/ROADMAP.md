@@ -188,12 +188,15 @@ Plans:
 2. Les checklists PM permettent des étapes numérotées avec cases à cocher, champs de mobile
 3. Un BT de priorité "Urgente" non résolu après X heures (configurable) déclenche une notification au superviseur
 
-**Plans:** 3 plans
+**Plans:** 6 plans (3 initiaux + 3 gap closure UAT)
 
 Plans:
-- [ ] 08-01-PLAN.md — Fondations Phase 8 : schema (WorkOrderChecklistItem + MaintenancePlanPart + WorkOrder.maintenancePlanId/escalationSentAt + Organization.escalationConfig) + db push + Server Actions (génération BT, checklist, config escalade) + tests Vitest (Wave 1)
-- [ ] 08-02-PLAN.md — PROD-01 + PROD-02 : UI job plans (pièces requises, bouton Générer BT) + UI checklist BT (cases + champs mesure) (Wave 2)
-- [ ] 08-03-PLAN.md — PROD-03 : template email escalade + cron horaire urgent-escalation + UI config escalade + checkpoint humain end-to-end (Wave 2)
+- [x] 08-01-PLAN.md — Fondations Phase 8 : schema (WorkOrderChecklistItem + MaintenancePlanPart + WorkOrder.maintenancePlanId/escalationSentAt + Organization.escalationConfig) + db push + Server Actions (génération BT, checklist, config escalade) + tests Vitest (Wave 1)
+- [x] 08-02-PLAN.md — PROD-01 + PROD-02 : UI job plans (pièces requises, bouton Générer BT) + UI checklist BT (cases + champs mesure) (Wave 2)
+- [x] 08-03-PLAN.md — PROD-03 : template email escalade + cron horaire urgent-escalation + UI config escalade + checkpoint humain end-to-end (Wave 2)
+- [ ] 08-04-PLAN.md — GAP-1 + GAP-3 : correction bug form imbriqué (submit bubble) + mode ajout séquentiel pièces (Wave 3)
+- [ ] 08-05-PLAN.md — GAP-2 : modal sélecteur de pièces scalable avec recherche full-text + filtre fournisseur (Wave 3)
+- [ ] 08-06-PLAN.md — GAP-4 + GAP-5 : en-têtes de colonnes triables (BT + plans) + état hover boutons filtre (Wave 3)
 
 ---
 
