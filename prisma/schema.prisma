@@ -79,6 +79,7 @@ model Organization {
   size                String?
   logoUrl             String?
   closureRequirements Json?
+  escalationConfig    Json?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -294,12 +295,14 @@ model WorkOrder {
   startedAt        DateTime?
   completedAt      DateTime?
   estimatedHours   Float?
-  closureNotes     String?
-  faultCategory    String?
-  faultProblem     String?
-  faultCause       String?
-  faultRemedy      String?
-  createdAt        DateTime          @default(now())
+  closureNotes      String?
+  faultCategory     String?
+  faultProblem      String?
+  faultCause        String?
+  faultRemedy       String?
+  maintenancePlanId String?
+  escalationSentAt  DateTime?
+  createdAt         DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
   organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -309,12 +312,16 @@ model WorkOrder {
   comments     WorkOrderComment[]
   attachments  WorkOrderAttachment[]
   timeLogs     WorkOrderTimeLog[]
-  parts        WorkOrderPart[]
+  parts           WorkOrderPart[]
+  maintenancePlan MaintenancePlan?         @relation(fields: [maintenancePlanId], references: [id], onDelete: SetNull)
+  checklistItems  WorkOrderChecklistItem[]
 
   @@unique([organizationId, number])
   @@index([organizationId])
   @@index([assetId])
   @@index([status])
+  @@index([maintenancePlanId])
+  @@index([priority, status, escalationSentAt])
 }
 
 model WorkOrderAssignee {
@@ -414,6 +421,8 @@ model MaintenancePlan {
   organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   asset        Asset?            @relation(fields: [assetId], references: [id])
   tasks        MaintenanceTask[]
+  planParts    MaintenancePlanPart[]
+  workOrders   WorkOrder[]
 
   @@index([organizationId])
   @@index([assetId])
@@ -430,6 +439,39 @@ model MaintenanceTask {
   maintenancePlan MaintenancePlan @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
 
   @@index([maintenancePlanId])
+}
+
+model MaintenancePlanPart {
+  id                String   @id @default(cuid())
+  maintenancePlanId String
+  sparePartId       String?
+  name              String
+  quantity          Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  maintenancePlan MaintenancePlan @relation(fields: [maintenancePlanId], references: [id], onDelete: Cascade)
+  sparePart       SparePart?      @relation(fields: [sparePartId], references: [id], onDelete: SetNull)
+
+  @@index([maintenancePlanId])
+  @@index([sparePartId])
+}
+
+model WorkOrderChecklistItem {
+  id           String    @id @default(cuid())
+  workOrderId  String
+  order        Int
+  description  String
+  checked      Boolean   @default(false)
+  checkedAt    DateTime?
+  measureValue String?
+  photoUrl     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([workOrderId])
 }
 
 // ─── Inventaire ───────────────────────────────────────────────────────────────
@@ -449,8 +491,9 @@ model SparePart {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   workOrderParts WorkOrderPart[]
+  planParts      MaintenancePlanPart[]
 
   @@index([organizationId])
   @@index([partNumber])
