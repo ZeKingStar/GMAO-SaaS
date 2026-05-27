@@ -7,13 +7,13 @@ import { toast } from 'sonner'
 import { deleteMaintenancePlan, toggleMaintenancePlan, addMaintenanceTask, deleteMaintenanceTask } from '@/actions/maintenance'
 import { MaintenancePlanFormDialog } from './maintenance-plan-form-dialog'
 import { GenerateWorkOrderButton } from './generate-work-order-button'
-import { Plus, Calendar, Gauge, ChevronDown, ChevronRight, Pencil, Trash2, Power, PowerOff, CheckSquare } from 'lucide-react'
+import { Plus, Calendar, Gauge, ChevronDown, ChevronRight, ChevronUp, ChevronsUpDown, Pencil, Trash2, Power, PowerOff, CheckSquare } from 'lucide-react'
 import type { MaintenanceTriggerType, MaintenanceFrequency, WorkOrderPriority } from '@/generated/prisma/enums'
 
 type Asset = { id: string; name: string }
 type Category = { id: string; name: string }
 type Task = { id: string; description: string; order: number }
-type SparePart = { id: string; name: string; partNumber: string | null }
+type SparePart = { id: string; name: string; partNumber: string | null; description: string | null; quantityOnHand: number; supplier: string | null }
 type PlanPart = {
   id: string
   sparePartId: string | null
@@ -71,6 +71,40 @@ const PRIORITY_VARIANTS: Record<string, 'secondary' | 'outline' | 'destructive' 
   medium: 'outline',
   high: 'default',
   urgent: 'destructive',
+}
+
+type SortDir = 'asc' | 'desc'
+
+function SortHeader({
+  label,
+  sortKey,
+  activeKey,
+  dir,
+  onSort,
+}: {
+  label: string
+  sortKey: string
+  activeKey: string
+  dir: SortDir
+  onSort: (key: string) => void
+}) {
+  const isActive = sortKey === activeKey
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(sortKey)}
+      className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors group"
+    >
+      {label}
+      <span className="text-muted-foreground/50 group-hover:text-muted-foreground">
+        {isActive ? (
+          dir === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+        ) : (
+          <ChevronsUpDown className="h-3 w-3" />
+        )}
+      </span>
+    </button>
+  )
 }
 
 function formatDate(date: Date | null) {
@@ -288,8 +322,43 @@ function PlanCard({ plan, assets, categories, spareParts = [] }: { plan: Plan; a
 }
 
 export function MaintenancePlanList({ plans, assets, categories, spareParts = [] }: Props) {
-  const activePlans = plans.filter(p => p.isActive)
-  const inactivePlans = plans.filter(p => !p.isActive)
+  const [sortKey, setSortKey] = useState<string>('name')
+  const [sortDir, setSortDir] = useState<SortDir>('asc')
+
+  function handleSort(key: string) {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  function sortPlans(arr: Plan[]) {
+    return [...arr].sort((a, b) => {
+      let cmp = 0
+      switch (sortKey) {
+        case 'name': cmp = a.name.localeCompare(b.name, 'fr'); break
+        case 'priority': {
+          const order: Record<string, number> = { low: 0, medium: 1, high: 2, urgent: 3 }
+          cmp = (order[a.priority] ?? 0) - (order[b.priority] ?? 0)
+          break
+        }
+        case 'nextDueAt': {
+          const da = a.nextDueAt ? new Date(a.nextDueAt).getTime() : Infinity
+          const db2 = b.nextDueAt ? new Date(b.nextDueAt).getTime() : Infinity
+          cmp = da - db2
+          break
+        }
+        case 'tasks': cmp = a.tasks.length - b.tasks.length; break
+        default: cmp = 0
+      }
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+  }
+
+  const activePlans = sortPlans(plans.filter(p => p.isActive))
+  const inactivePlans = sortPlans(plans.filter(p => !p.isActive))
 
   return (
     <div className="space-y-4">
@@ -307,6 +376,15 @@ export function MaintenancePlanList({ plans, assets, categories, spareParts = []
           </Button>
         </MaintenancePlanFormDialog>
       </div>
+
+      {plans.length > 0 && (
+        <div className="hidden sm:flex gap-4 items-center px-2 py-1.5 text-xs border-b">
+          <SortHeader label="Nom" sortKey="name" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+          <SortHeader label="Priorité" sortKey="priority" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+          <SortHeader label="Prochaine échéance" sortKey="nextDueAt" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+          <SortHeader label="Tâches" sortKey="tasks" activeKey={sortKey} dir={sortDir} onSort={handleSort} />
+        </div>
+      )}
 
       {plans.length === 0 && (
         <div className="text-center py-12 border rounded-lg bg-muted/30">
