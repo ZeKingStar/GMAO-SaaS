@@ -46,6 +46,10 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ id: 
           },
           orderBy: { createdAt: 'asc' },
         },
+        checklistItems: {
+          select: { id: true, order: true, description: true, checked: true, measureValue: true },
+          orderBy: { order: 'asc' },
+        },
       },
     }),
     db.site.findMany({ where: { organizationId: org.id }, select: { id: true, name: true } }),

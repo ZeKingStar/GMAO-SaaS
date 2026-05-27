@@ -18,6 +18,7 @@ import { WorkOrderFormDialog } from './work-order-form-dialog'
 import { WorkOrderStatusBadge, WorkOrderPriorityBadge, workOrderTypeLabel } from './work-order-status-badge'
 import { WorkOrderTimer } from './work-order-timer'
 import { WorkOrderParts } from './work-order-parts'
+import { WorkOrderChecklist } from './work-order-checklist'
 import { WorkOrderFaultForm } from './work-order-fault-form'
 import { WorkOrderClosureBanner, computeMissingForClosure } from './work-order-closure-banner'
 import type { WorkOrderStatus, WorkOrderType, WorkOrderPriority, MemberRole } from '@/generated/prisma/enums'
@@ -45,6 +46,7 @@ type WorkOrder = {
   createdAt: Date
   siteId: string | null
   assetId: string | null
+  maintenancePlanId: string | null
   faultCategory: string | null
   faultProblem: string | null
   faultCause: string | null
@@ -73,6 +75,13 @@ type WorkOrder = {
     quantity: number
     unitCost: number | null
     sparePart: SparePartLite | null
+  }[]
+  checklistItems: {
+    id: string
+    order: number
+    description: string
+    checked: boolean
+    measureValue: string | null
   }[]
 }
 
@@ -250,6 +259,15 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
             currentMembershipId={currentMembershipId}
             currentRole={currentRole}
           />
+
+          {/* Checklist (BTs issus d'un plan de maintenance) */}
+          {(workOrder.maintenancePlanId || workOrder.checklistItems.length > 0) && (
+            <WorkOrderChecklist
+              workOrderId={workOrder.id}
+              items={workOrder.checklistItems}
+              readOnly={workOrder.status === 'closed' || workOrder.status === 'resolved'}
+            />
+          )}
 
           {/* Description */}
           {workOrder.description && (
