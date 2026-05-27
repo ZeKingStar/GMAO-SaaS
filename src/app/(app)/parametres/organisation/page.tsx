@@ -9,7 +9,9 @@ import { PortalSitesSection, type PortalSiteRow } from '@/components/settings/po
 import { listApiKeys } from '@/actions/api-keys'
 import { ClosureRequirementsSection } from '@/components/settings/closure-requirements-section'
 import { parseClosureRequirements } from '@/lib/closure-requirements'
-import { Building2, Users, CreditCard, KeyRound, Globe, ClipboardCheck } from 'lucide-react'
+import { EscalationConfigSection } from '@/components/settings/escalation-config-section'
+import { parseEscalationConfig } from '@/lib/escalation-config'
+import { Building2, Users, CreditCard, KeyRound, Globe, ClipboardCheck, Bell } from 'lucide-react'
 
 export default async function ParametresPage() {
   const { orgId, userId } = await auth()
@@ -17,7 +19,7 @@ export default async function ParametresPage() {
 
   const org = await db.organization.findUnique({
     where: { clerkId: orgId },
-    select: { id: true, name: true, industry: true, size: true, closureRequirements: true },
+    select: { id: true, name: true, industry: true, size: true, closureRequirements: true, escalationConfig: true },
   })
   if (!org) redirect('/onboarding')
 
@@ -34,6 +36,8 @@ export default async function ParametresPage() {
 
   const currentMembership = members.find(m => m.clerkUserId === userId)
   const closureReq = parseClosureRequirements(org.closureRequirements)
+  const escalationCfg = parseEscalationConfig(org.escalationConfig)
+  const canManageEscalation = currentMembership && ['admin', 'manager'].includes(currentMembership.role)
 
   // API Keys section — admin/manager role + Croissance or Entreprise plan
   const isActivePlan = subscription && ['active', 'trialing'].includes(subscription.status)
@@ -118,6 +122,19 @@ export default async function ParametresPage() {
           </div>
           <div className="border rounded-lg p-5 bg-card">
             <ClosureRequirementsSection initial={closureReq} />
+          </div>
+        </section>
+      )}
+
+      {/* Escalade des bons urgents — admin/manager only */}
+      {canManageEscalation && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">Escalade des bons urgents</h2>
+          </div>
+          <div className="border rounded-lg p-5 bg-card">
+            <EscalationConfigSection initial={escalationCfg} />
           </div>
         </section>
       )}
