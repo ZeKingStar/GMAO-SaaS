@@ -210,6 +210,12 @@ Plans:
 1. Un technicien peut saisir un relevé de compteur (heures moteur, cycles, km) lors de la clôture d'un BT ou directement sur un actif
 2. Un PM configuré avec un seuil de compteur génère automatiquement un BT quand l'actif atteint ce seuil
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — COND-01 : helper updateMeterAndPlans + Server Action recordMeterReadingOnAsset + composant AssetMeterSection sur page /actifs (Wave 1)
+- [ ] 09-02-PLAN.md — COND-02 : refactor generateWorkOrderFromPlanInternal + cron meter-threshold-check (guard idempotence) + vercel.json (Wave 2)
+
 ---
 
 ## Milestone 4 Preview — Croissance multi-marchés
