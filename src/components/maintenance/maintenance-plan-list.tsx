@@ -32,7 +32,9 @@ type Plan = {
   triggerType: MaintenanceTriggerType
   frequency: MaintenanceFrequency | null
   customDays: number | null
+  customHours: number | null
   meterThreshold: number | null
+  nextMeterValue: number | null
   estimatedHours: number | null
   priority: WorkOrderPriority
   isActive: boolean
@@ -212,7 +214,10 @@ function PlanCard({ plan, assets, categories, spareParts = [] }: { plan: Plan; a
               ) : (
                 <span className="flex items-center gap-1">
                   <Gauge className="h-3 w-3" />
-                  Seuil : {plan.meterThreshold ?? '—'}
+                  {plan.nextMeterValue != null
+                    ? <>Prochain BT à <strong>{plan.nextMeterValue} h</strong></>
+                    : <>Seuil : {plan.meterThreshold ?? '—'} h</>
+                  }
                 </span>
               )}
 

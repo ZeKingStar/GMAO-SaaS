@@ -460,3 +460,50 @@ export async function setChecklistMeasure(itemId: string, measureValue: string |
   })
   revalidatePath(`/bons-de-travail/${item.workOrderId}`)
 }
+
+export async function recordMeterReading(workOrderId: string, reading: number) {
+  const { organizationId } = await getOrgAndMembership()
+
+  if (!Number.isFinite(reading) || reading < 0) throw new Error('Valeur de relevé invalide')
+
+  const wo = await db.workOrder.findFirst({
+    where: { id: workOrderId, organizationId },
+    select: { assetId: true },
+  })
+  if (!wo) throw new Error('Bon de travail introuvable')
+  if (!wo.assetId) throw new Error('Ce BT n\'est pas lié à un actif')
+
+  // Enregistrer le relevé sur le BT
+  await db.workOrder.update({
+    where: { id: workOrderId },
+    data: { meterReading: reading },
+  })
+
+  // Mettre à jour le premier compteur de l'actif (heures de fonctionnement)
+  const meter = await db.assetMeter.findFirst({
+    where: { assetId: wo.assetId },
+  })
+  if (meter) {
+    await db.assetMeter.update({
+      where: { id: meter.id },
+      data: { value: reading },
+    })
+
+    // Recalculer nextMeterValue pour tous les plans meter_based liés à cet actif
+    const plans = await db.maintenancePlan.findMany({
+      where: { assetId: wo.assetId, organizationId, triggerType: 'meter_based' },
+      select: { id: true, meterThreshold: true },
+    })
+    for (const plan of plans) {
+      if (plan.meterThreshold) {
+        await db.maintenancePlan.update({
+          where: { id: plan.id },
+          data: { nextMeterValue: reading + plan.meterThreshold },
+        })
+      }
+    }
+  }
+
+  revalidatePath(`/bons-de-travail/${workOrderId}`)
+  revalidatePath('/maintenance')
+}

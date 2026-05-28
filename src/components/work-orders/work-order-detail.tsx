@@ -21,12 +21,14 @@ import { WorkOrderParts } from './work-order-parts'
 import { WorkOrderChecklist } from './work-order-checklist'
 import { WorkOrderFaultForm } from './work-order-fault-form'
 import { WorkOrderClosureBanner, computeMissingForClosure } from './work-order-closure-banner'
+import { WorkOrderMeterReading } from './work-order-meter-reading'
 import type { WorkOrderStatus, WorkOrderType, WorkOrderPriority, MemberRole } from '@/generated/prisma/enums'
 import type { ClosureRequirements } from '@/lib/closure-requirements'
 
 type Member = { id: string; firstName: string | null; lastName: string | null; email: string }
 type Site = { id: string; name: string }
-type Asset = { id: string; name: string }
+type AssetMeter = { id: string; name: string; unit: string; value: number }
+type Asset = { id: string; name: string; meters?: AssetMeter[] }
 
 type SparePartLite = { id: string; name: string; partNumber: string | null; quantityOnHand: number; unitCost: number | null }
 
@@ -51,6 +53,7 @@ type WorkOrder = {
   faultProblem: string | null
   faultCause: string | null
   faultRemedy: string | null
+  meterReading: number | null
   asset: Asset | null
   site: Site | null
   assignees: { membershipId: string; membership: Member & { hourlyRate: number | null } }[]
@@ -381,6 +384,16 @@ export function WorkOrderDetail({ workOrder, allMembers, allSites, allAssets, sp
             spareParts={spareParts}
             status={workOrder.status}
           />
+
+          {/* Relevé compteur */}
+          {workOrder.asset?.meters && workOrder.asset.meters.length > 0 && (
+            <WorkOrderMeterReading
+              workOrderId={workOrder.id}
+              meters={workOrder.asset.meters}
+              currentReading={workOrder.meterReading}
+              isLocked={workOrder.status === 'closed' || workOrder.status === 'resolved'}
+            />
+          )}
 
           {/* Time logs */}
           <div className="rounded-xl border bg-card p-4 space-y-4">

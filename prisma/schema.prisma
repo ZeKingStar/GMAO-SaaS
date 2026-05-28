@@ -302,6 +302,7 @@ model WorkOrder {
   faultRemedy       String?
   maintenancePlanId String?
   escalationSentAt  DateTime?
+  meterReading      Float?
   createdAt         DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
@@ -411,6 +412,7 @@ model MaintenancePlan {
   customDays      Int?
   customHours     Int?
   meterThreshold  Float?
+  nextMeterValue  Float?
   estimatedHours  Float?
   priority        WorkOrderPriority      @default(medium)
   isActive        Boolean                @default(true)

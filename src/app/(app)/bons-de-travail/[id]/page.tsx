@@ -19,7 +19,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ id: 
     db.workOrder.findFirst({
       where: { id, organizationId: org.id },
       include: {
-        asset: { select: { id: true, name: true } },
+        asset: { select: { id: true, name: true, meters: { select: { id: true, name: true, unit: true, value: true } } } },
         site: { select: { id: true, name: true } },
         assignees: {
           include: {
