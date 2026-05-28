@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 status: Ready to plan
 stopped_at: Phase 7 context gathered
-last_updated: "2026-05-26T21:19:29.130Z"
+last_updated: "2026-05-28T18:27:23.496Z"
 progress:
   total_phases: 9
-  completed_phases: 7
-  total_plans: 24
-  completed_plans: 24
+  completed_phases: 8
+  total_plans: 30
+  completed_plans: 30
   percent: 100
 ---
 
@@ -20,7 +20,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-19)
 
 **Core value:** Un technicien peut créer un bon de travail, scanner un actif QR et accéder à son historique en moins de 60 secondes.
-**Current focus:** Phase 07 — analytique-de-fiabilit
+**Current focus:** Phase 08 — productivit-technicien
 
 ## Current Status
 
