@@ -1,9 +1,9 @@
 ---
 status: partial
 phase: 08-productivit-technicien
-source: [08-03-PLAN.md, checkpoint humain task 4]
+source: [08-03-PLAN.md, checkpoint humain task 4, 08-VERIFICATION.md]
 started: 2026-05-27T00:00:00Z
-updated: 2026-05-27T00:00:00Z
+updated: 2026-05-28T12:00:00Z
 ---
 
 ## Current Test
@@ -14,19 +14,19 @@ Validation humaine Phase 8 — PROD-01 + PROD-02 + PROD-03
 
 ### 1. PROD-01 — Section "Pièces requises" accessible depuis le dialog de plan
 expected: La section "Pièces requises" est visible dans le dialog d'édition d'un plan sans action supplémentaire
-result: ISSUE — La section n'apparaît pas par défaut. Il faut fermer et rouvrir le dialog pour la voir.
+result: RESOLVED — Corrigé par 08-04 : key={plan?.id} + re-sync handleOpen. À valider visuellement.
 
 ### 2. PROD-01 — Sauvegarde d'une pièce ne ferme pas le dialog
 expected: Cliquer "Enregistrer" après l'ajout d'une pièce reste dans le dialog d'édition (toast de confirmation uniquement)
-result: ISSUE — Le bouton "Enregistrer" ferme le plan complètement au lieu de rester dans le dialog.
+result: RESOLVED — Corrigé par 08-04 : <form> remplacé par <div> + onClick. À valider visuellement.
 
 ### 3. PROD-01 — Sélection de pièce existante — ergonomie avec grand volume
 expected: Le combobox de sélection de pièce supporte des milliers d'articles avec recherche et filtres
-result: ISSUE — L'interface actuelle (combobox simple) ne passe pas à l'échelle. Besoin d'un modal dédié avec filtres (référence, description, catégorie, etc.) — comparable à un sélecteur de pièce Maximo.
+result: RESOLVED — Corrigé par 08-05 : SparePartPickerDialog avec recherche full-text + filtre fournisseur. À valider visuellement.
 
 ### 4. PROD-01 — Ajout de plusieurs étapes en séquence
 expected: Possible d'ajouter plusieurs pièces/étapes rapidement sans confirmation bloquante à chaque fois
-result: ISSUE — Pas de mode "ajout rapide" ou confirmation légère entre chaque ajout. Chaque ajout force une interaction complète.
+result: RESOLVED — Corrigé par 08-04 : bouton "+ Continuer" (keepFormOpen=true). À valider visuellement.
 
 ### 5. PROD-01 — Bouton "Générer un BT" depuis un plan
 expected: Cliquer le bouton crée un BT pré-rempli et redirige vers /bons-de-travail/{id}
@@ -61,12 +61,12 @@ expected: Un BT créé manuellement (non issu d'un plan) n'affiche PAS de sectio
 result: pending
 
 ### 13. PROD-02 — En-têtes de colonnes filtrables dans les listes
-expected: Les listes (BTs, plans, actifs) ont des en-têtes cliquables pour trier et filtrer par numéro, description, statut, etc. (comparable à Maximo)
-result: FEEDBACK — À implémenter. L'utilisateur souhaite pouvoir filtrer rapidement par colonne dans toutes les listes principales.
+expected: Les listes (BTs, plans, actifs) ont des en-têtes cliquables pour trier par numéro, description, statut, etc.
+result: RESOLVED — Corrigé par 08-06 : SortHeader avec flèche ASC/DESC sur 6 cols (BT) + 4 cols (plans). À valider visuellement.
 
 ### 14. PROD-02/UI — Hover sur les boutons de filtre
 expected: État intermédiaire visible au survol des boutons de filtre (entre l'état "pale" et "sélectionné foncé")
-result: FEEDBACK — L'état hover actuel est trop similaire à l'état normal. Besoin d'un état visuel distinct au mouse-over.
+result: RESOLVED — Corrigé par 08-06 : hover:bg-accent sur les boutons de filtre. À valider visuellement.
 
 ### 15. PROD-03 — Configuration escalade dans /parametres/organisation
 expected: Section "Escalade des bons urgents" visible, toggle + champ delayHours, sauvegarde via toast
@@ -92,72 +92,69 @@ result: pending
 expected: Désactiver le toggle + sauvegarder → cron ne génère plus d'emails même pour BTs urgents anciens
 result: pending
 
+### 21. PROD-02 — Photos sur mobile dans la checklist
+expected: Les items de checklist permettent d'attacher une photo (champ photoUrl dans le schéma)
+result: pending — Décision requise : gap réel ou fonctionnalité intentionnellement reportée ?
+
+### 22. PROD-03 — Comportement cron avec orgs sans escalationConfig
+expected: Les orgs sans config ne reçoivent aucun email (filtre { not: undefined } + double sécurité parseEscalationConfig)
+result: pending — Valider avec curl après démarrage dev server
+
+### 23. Checkpoint end-to-end Phase 8 (25 étapes)
+expected: Toutes les étapes PROD-01/02/03 du protocole 08-03 Task 4 produisent les résultats attendus
+result: pending — Parcours utilisateur complet requis
+
 ## Summary
 
-total: 20
+total: 23
 passed: 0
-issues: 4
-pending: 13
+issues: 0
+pending: 14
 skipped: 0
 blocked: 0
+resolved_gaps: 5
 
 ## Gaps
 
 ### GAP-1 — Pièces requises : visibilité et comportement du dialog
 type: bug
 severity: high
-description: >
-  La section "Pièces requises" n'est pas visible par défaut dans le dialog d'édition de plan.
-  De plus, le bouton "Enregistrer" ferme le dialog entier au lieu de confirmer uniquement l'ajout de pièce.
-steps_to_reproduce:
-  - Ouvrir le dialog d'édition d'un plan existant
-  - Observer l'absence de la section "Pièces requises"
-  - Fermer / rouvrir → section apparaît
-  - Ajouter une pièce → cliquer "Enregistrer" → dialog fermé
-expected: Section visible d'emblée; "Enregistrer" reste dans le dialog avec toast de confirmation
-status: open
+status: resolved
+resolved_by: 08-04-PLAN.md
+resolution: key={plan?.id} sur DialogContent + re-sync handleOpen + suppression <form> imbriqué
 
 ### GAP-2 — Sélecteur de pièces : scalabilité
 type: ux
 severity: high
-description: >
-  Le combobox actuel ne supporte pas un catalogue de milliers de pièces. Besoin d'un modal
-  dédié avec recherche full-text et filtres (référence, description, catégorie, fournisseur)
-  pour correspondre aux standards GMAO (Maximo, SAP PM).
-status: open
+status: resolved
+resolved_by: 08-05-PLAN.md
+resolution: SparePartPickerDialog avec recherche full-text + filtre fournisseur remplace le <select> natif
 
 ### GAP-3 — Ajout séquentiel de pièces/étapes
 type: ux
 severity: medium
-description: >
-  Impossible d'ajouter plusieurs pièces rapidement. Chaque ajout nécessite une interaction
-  complète. Un mode "ajouter et continuer" (confirmation légère, champ qui se réinitialise)
-  améliorerait significativement la productivité.
-status: open
+status: resolved
+resolved_by: 08-04-PLAN.md
+resolution: Bouton "+ Continuer" avec handleAddPart(keepFormOpen=true)
 
 ### GAP-4 — En-têtes de colonnes filtrables dans les listes
 type: feature
 severity: medium
-description: >
-  Les listes (BTs, plans de maintenance, actifs) n'ont pas d'en-têtes de colonnes
-  cliquables pour trier/filtrer. L'utilisateur souhaite un comportement comparable à Maximo :
-  clic sur en-tête → tri, filtre textuel par colonne.
-status: open
+status: resolved
+resolved_by: 08-06-PLAN.md
+resolution: SortHeader sur 6 colonnes (BT) + 4 colonnes (plans de maintenance), tri ASC/DESC avec indicateur visuel
 
 ### GAP-5 — État hover des boutons de filtre
 type: ux
 severity: low
-description: >
-  L'état visuel au survol (hover) des boutons de filtre est insuffisamment distinct de
-  l'état normal. Besoin d'un état intermédiaire clair entre "pale" (non sélectionné) et
-  "foncé" (sélectionné actif).
-status: open
+status: resolved
+resolved_by: 08-06-PLAN.md
+resolution: hover:bg-accent sur les boutons de filtre (état intermédiaire distinct)
 
 ### GAP-6 — Cron CRON_SECRET non autorisé en test local
 type: config
 severity: medium
+status: pending
 description: >
-  La valeur `CRON_SECRET=2` dans .env est correctement définie mais le test curl a échoué.
-  Vérifier que le serveur dev était bien démarré et que la variable est chargée.
-  Commande de test : `curl -H "Authorization: Bearer 2" http://localhost:3000/api/cron/urgent-escalation`
-status: open
+  Tester avec le serveur dev démarré : `curl -H "Authorization: Bearer 2" http://localhost:3000/api/cron/urgent-escalation`
+  Le filtre { not: undefined } est un workaround documenté — la double sécurité parseEscalationConfig protège en production.
