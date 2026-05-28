@@ -409,6 +409,7 @@ model MaintenancePlan {
   triggerType     MaintenanceTriggerType @default(time_based)
   frequency       MaintenanceFrequency?
   customDays      Int?
+  customHours     Int?
   meterThreshold  Float?
   estimatedHours  Float?
   priority        WorkOrderPriority      @default(medium)

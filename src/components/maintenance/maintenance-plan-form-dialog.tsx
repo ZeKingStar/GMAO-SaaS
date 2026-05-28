@@ -34,6 +34,7 @@ type MaintenancePlan = {
   triggerType: MaintenanceTriggerType
   frequency: MaintenanceFrequency | null
   customDays: number | null
+  customHours: number | null
   meterThreshold: number | null
   estimatedHours: number | null
   priority: WorkOrderPriority
@@ -76,12 +77,14 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
   const [partFreeName, setPartFreeName] = useState('')
   const [partQuantity, setPartQuantity] = useState('1')
   const [partPickerOpen, setPartPickerOpen] = useState(false)
+  const [customUnit, setCustomUnit] = useState<'days' | 'hours'>(plan?.customHours ? 'hours' : 'days')
   const [form, setForm] = useState({
     name: plan?.name ?? '',
     description: plan?.description ?? '',
     triggerType: (plan?.triggerType ?? 'time_based') as MaintenanceTriggerType,
     frequency: (plan?.frequency ?? 'monthly') as MaintenanceFrequency,
     customDays: plan?.customDays?.toString() ?? '',
+    customHours: plan?.customHours?.toString() ?? '',
     meterThreshold: plan?.meterThreshold?.toString() ?? '',
     estimatedHours: plan?.estimatedHours?.toString() ?? '',
     priority: (plan?.priority ?? 'medium') as WorkOrderPriority,
@@ -94,12 +97,14 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
   function handleOpen(isOpen: boolean) {
     if (isOpen && plan) {
       // Forcer re-sync avec les props courantes à chaque ouverture
+      setCustomUnit(plan.customHours ? 'hours' : 'days')
       setForm({
         name: plan.name,
         description: plan.description ?? '',
         triggerType: plan.triggerType,
         frequency: (plan.frequency ?? 'monthly') as MaintenanceFrequency,
         customDays: plan.customDays?.toString() ?? '',
+        customHours: plan.customHours?.toString() ?? '',
         meterThreshold: plan.meterThreshold?.toString() ?? '',
         estimatedHours: plan.estimatedHours?.toString() ?? '',
         priority: plan.priority,
@@ -110,12 +115,14 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
       })
       setTaskInput('')
     } else if (isOpen && !plan) {
+      setCustomUnit('days')
       setForm({
         name: '',
         description: '',
         triggerType: 'time_based',
         frequency: 'monthly',
         customDays: '',
+        customHours: '',
         meterThreshold: '',
         estimatedHours: '',
         priority: 'medium',
@@ -193,8 +200,11 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
             : form.triggerType === 'time_based' && form.frequency === 'custom'
             ? ('custom' as MaintenanceFrequency)
             : undefined,
-          customDays: form.frequency === 'custom' && form.customDays
+          customDays: form.frequency === 'custom' && customUnit === 'days' && form.customDays
             ? parseInt(form.customDays)
+            : undefined,
+          customHours: form.frequency === 'custom' && customUnit === 'hours' && form.customHours
+            ? parseInt(form.customHours)
             : undefined,
           meterThreshold: form.triggerType === 'meter_based' && form.meterThreshold
             ? parseFloat(form.meterThreshold)
@@ -211,6 +221,7 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
             ...data,
             frequency: data.frequency ?? null,
             customDays: data.customDays ?? null,
+            customHours: data.customHours ?? null,
             meterThreshold: data.meterThreshold ?? null,
             estimatedHours: data.estimatedHours ?? null,
             assetId: data.assetId ?? null,
@@ -296,15 +307,26 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
                 </div>
                 {form.frequency === 'custom' && (
                   <div className="space-y-2">
-                    <Label htmlFor="mp-days">Tous les N jours</Label>
-                    <Input
-                      id="mp-days"
-                      type="number"
-                      min={1}
-                      value={form.customDays}
-                      onChange={e => set('customDays', e.target.value)}
-                      placeholder="Ex : 45"
-                    />
+                    <Label>Intervalle</Label>
+                    <div className="flex gap-1.5">
+                      <div className="flex rounded-lg border border-input overflow-hidden text-sm shrink-0">
+                        <button type="button" onClick={() => setCustomUnit('days')}
+                          className={`px-2.5 py-1.5 ${customUnit === 'days' ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:text-foreground'}`}>
+                          Jours
+                        </button>
+                        <button type="button" onClick={() => setCustomUnit('hours')}
+                          className={`px-2.5 py-1.5 ${customUnit === 'hours' ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:text-foreground'}`}>
+                          Heures
+                        </button>
+                      </div>
+                      {customUnit === 'days' ? (
+                        <Input id="mp-days" type="number" min={1} value={form.customDays}
+                          onChange={e => set('customDays', e.target.value)} placeholder="Ex : 45" />
+                      ) : (
+                        <Input id="mp-hours-interval" type="number" min={1} value={form.customHours}
+                          onChange={e => set('customHours', e.target.value)} placeholder="Ex : 250" />
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

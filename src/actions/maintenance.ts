@@ -30,6 +30,7 @@ export async function createMaintenancePlan(data: {
   triggerType: MaintenanceTriggerType
   frequency?: MaintenanceFrequency
   customDays?: number
+  customHours?: number
   meterThreshold?: number
   estimatedHours?: number
   priority: WorkOrderPriority
@@ -66,6 +67,7 @@ export async function updateMaintenancePlan(
     triggerType?: MaintenanceTriggerType
     frequency?: MaintenanceFrequency | null
     customDays?: number | null
+    customHours?: number | null
     meterThreshold?: number | null
     estimatedHours?: number | null
     priority?: WorkOrderPriority
