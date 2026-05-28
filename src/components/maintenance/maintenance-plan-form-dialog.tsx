@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { createMaintenancePlan, updateMaintenancePlan } from '@/actions/maintenance'
+import { createMaintenancePlan, updateMaintenancePlan, addPlanPart } from '@/actions/maintenance'
 import type { MaintenanceTriggerType, MaintenanceFrequency, WorkOrderPriority } from '@/generated/prisma/enums'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Package, Trash2 } from 'lucide-react'
 import { PlanPartsSection } from './plan-parts-section'
+import { SparePartPickerDialog } from './spare-part-picker-dialog'
 
 type Asset = { id: string; name: string }
 type Category = { id: string; name: string }
@@ -68,6 +69,13 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
   const [taskInput, setTaskInput] = useState('')
+  const [pendingParts, setPendingParts] = useState<{ sparePartId: string | null; name: string; quantity: number }[]>([])
+  const [partShowForm, setPartShowForm] = useState(false)
+  const [partSparePartId, setPartSparePartId] = useState('')
+  const [partSparePartName, setPartSparePartName] = useState('')
+  const [partFreeName, setPartFreeName] = useState('')
+  const [partQuantity, setPartQuantity] = useState('1')
+  const [partPickerOpen, setPartPickerOpen] = useState(false)
   const [form, setForm] = useState({
     name: plan?.name ?? '',
     description: plan?.description ?? '',
@@ -117,6 +125,12 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
         tasks: [],
       })
       setTaskInput('')
+      setPendingParts([])
+      setPartShowForm(false)
+      setPartSparePartId('')
+      setPartSparePartName('')
+      setPartFreeName('')
+      setPartQuantity('1')
     }
     setOpen(isOpen)
   }
@@ -139,6 +153,29 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
 
   function removeTask(index: number) {
     setForm(f => ({ ...f, tasks: f.tasks.filter((_, i) => i !== index) }))
+  }
+
+  function resetPartForm() {
+    setPartSparePartId('')
+    setPartSparePartName('')
+    setPartFreeName('')
+    setPartQuantity('1')
+    setPartShowForm(false)
+  }
+
+  function addPendingPart() {
+    const qty = parseFloat(partQuantity)
+    if (!Number.isFinite(qty) || qty <= 0) { toast.error('Quantité invalide (doit être > 0)'); return }
+    const isHors = partSparePartId === '__free__'
+    if (isHors && !partFreeName.trim()) { toast.error('Le nom de la pièce est requis'); return }
+    if (!isHors && !partSparePartId) { toast.error('Choisissez une pièce ou sélectionnez "Pièce hors inventaire"'); return }
+    const sparePartId = isHors ? null : partSparePartId
+    const name = isHors ? partFreeName.trim() : (spareParts.find(s => s.id === partSparePartId)?.name ?? '')
+    setPendingParts(ps => [...ps, { sparePartId, name, quantity: qty }])
+    setPartSparePartId('')
+    setPartSparePartName('')
+    setPartFreeName('')
+    setPartQuantity('1')
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -182,7 +219,10 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
           })
           toast.success('Plan mis à jour')
         } else {
-          await createMaintenancePlan({ ...data, tasks: form.tasks.length ? form.tasks : undefined })
+          const newPlan = await createMaintenancePlan({ ...data, tasks: form.tasks.length ? form.tasks : undefined })
+          for (const p of pendingParts) {
+            await addPlanPart(newPlan.id, p)
+          }
           toast.success('Plan créé')
         }
         setOpen(false)
@@ -353,6 +393,116 @@ export function MaintenancePlanFormDialog({ plan, assets, categories, spareParts
                     ))}
                   </ul>
                 )}
+              </div>
+            )}
+
+            {!plan && (
+              <div className="space-y-4 pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-semibold">Pièces requises</h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Ces pièces seront pré-remplies sur les BT générés depuis ce plan.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setPartShowForm(v => !v); if (partShowForm) resetPartForm() }}
+                  >
+                    <Plus className="h-4 w-4 mr-1.5" />Ajouter
+                  </Button>
+                </div>
+
+                {partShowForm && (
+                  <div className="border rounded-lg p-3 space-y-3 bg-muted/30">
+                    {partSparePartId !== '__free__' ? (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPartPickerOpen(true)}
+                          className="flex-1 h-9 rounded-lg border border-input bg-background px-2.5 text-sm text-left focus:outline-none focus:ring-2 focus:ring-ring/50 truncate"
+                        >
+                          {partSparePartName
+                            ? partSparePartName
+                            : <span className="text-muted-foreground">— Choisir une pièce inventaire —</span>}
+                        </button>
+                        {partSparePartId && (
+                          <button
+                            type="button"
+                            onClick={() => { setPartSparePartId(''); setPartSparePartName('') }}
+                            className="h-9 px-2 text-muted-foreground hover:text-foreground"
+                          >×</button>
+                        )}
+                      </div>
+                    ) : (
+                      <input
+                        placeholder="Nom de la pièce hors inventaire"
+                        value={partFreeName}
+                        onChange={e => setPartFreeName(e.target.value)}
+                        className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
+                      />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (partSparePartId === '__free__') { setPartSparePartId('') }
+                        else { setPartSparePartId('__free__'); setPartSparePartName('') }
+                      }}
+                      className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline text-left"
+                    >
+                      {partSparePartId === '__free__' ? "← Choisir depuis l'inventaire" : 'Pièce hors inventaire →'}
+                    </button>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        placeholder="Quantité"
+                        value={partQuantity}
+                        onChange={e => setPartQuantity(e.target.value)}
+                        className="w-32"
+                      />
+                      <div className="flex-1" />
+                      <Button type="button" variant="ghost" size="sm" onClick={resetPartForm}>Annuler</Button>
+                      <Button type="button" size="sm" onClick={addPendingPart}>Ajouter</Button>
+                    </div>
+                  </div>
+                )}
+
+                {pendingParts.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">Aucune pièce requise définie.</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {pendingParts.map((p, i) => (
+                      <div key={i} className="flex items-center justify-between py-1.5 border-b last:border-0">
+                        <div className="flex items-center gap-2 text-sm min-w-0">
+                          <Package className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          <span className="font-medium truncate">{p.name}</span>
+                          {p.sparePartId && <span className="text-xs text-muted-foreground">(inventaire)</span>}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="font-mono tabular-nums">x {p.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPendingParts(ps => ps.filter((_, j) => j !== i))}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <SparePartPickerDialog
+                  open={partPickerOpen}
+                  onOpenChange={setPartPickerOpen}
+                  spareParts={spareParts}
+                  onSelect={(id, name) => { setPartSparePartId(id); setPartSparePartName(name) }}
+                />
               </div>
             )}
 
