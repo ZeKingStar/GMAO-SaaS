@@ -4,8 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import type { WorkOrderType, WorkOrderStatus, WorkOrderPriority } from '@/generated/prisma/enums'
-import { sendWorkOrderAssignedEmail } from '@/lib/email'
-import { validateClosure, parseClosureRequirements } from '@/lib/closure-requirements'
+import { updateMeterAndPlans } from '@/lib/meter-utils'
 
 async function getOrgAndMembership() {
   const { orgId, userId } = await auth()
@@ -13,7 +12,7 @@ async function getOrgAndMembership() {
 
   const org = await db.organization.findUnique({
     where: { clerkId: orgId },
-    select: { id: true, name: true },
+    select: { id: true },
   })
   if (!org) throw new Error('Organisation introuvable')
 
@@ -23,7 +22,7 @@ async function getOrgAndMembership() {
   })
   if (!membership) throw new Error('Membre introuvable')
 
-  return { organizationId: org.id, membershipId: membership.id, organizationName: org.name }
+  return { organizationId: org.id, membershipId: membership.id }
 }
 
 export async function createWorkOrder(data: {
@@ -37,7 +36,7 @@ export async function createWorkOrder(data: {
   estimatedHours?: number
   assigneeIds?: string[]
 }) {
-  const { organizationId, organizationName } = await getOrgAndMembership()
+  const { organizationId } = await getOrgAndMembership()
 
   const last = await db.workOrder.findFirst({
     where: { organizationId },
@@ -58,33 +57,6 @@ export async function createWorkOrder(data: {
         : undefined,
     },
   })
-
-  // NOTIF-01: notify assignees — fire-and-forget, must not block or throw
-  if (assigneeIds?.length) {
-    const assignees = await db.workOrderAssignee.findMany({
-      where: { workOrderId: wo.id },
-      include: {
-        membership: {
-          select: { email: true, firstName: true, lastName: true },
-        },
-      },
-    })
-    Promise.allSettled(
-      assignees
-        .filter(a => a.membership.email)
-        .map(a =>
-          sendWorkOrderAssignedEmail({
-            to: a.membership.email,
-            recipientName: [a.membership.firstName, a.membership.lastName].filter(Boolean).join(' ') || a.membership.email,
-            workOrderNumber: wo.number,
-            workOrderTitle: wo.title,
-            workOrderPriority: wo.priority,
-            dueDate: wo.dueDate ?? null,
-            organizationName,
-          }).catch(err => console.error('[email] createWorkOrder notification failed:', err))
-        )
-    )
-  }
 
   revalidatePath('/bons-de-travail')
   return wo
@@ -125,47 +97,10 @@ export async function updateWorkOrderStatus(
 ) {
   const { organizationId } = await getOrgAndMembership()
 
-  // Validation TERRAIN-01 : si on passe à resolved/closed, vérifier closureRequirements
-  if (status === 'resolved' || status === 'closed') {
-    const [wo, org] = await Promise.all([
-      db.workOrder.findFirst({
-        where: { id, organizationId },
-        select: {
-          faultCategory: true,
-          faultProblem: true,
-          faultCause: true,
-          faultRemedy: true,
-          timeLogs: { select: { minutes: true } },
-          parts: { select: { id: true } },
-        },
-      }),
-      db.organization.findUnique({
-        where: { id: organizationId },
-        select: { closureRequirements: true },
-      }),
-    ])
-    if (!wo) throw new Error('Bon de travail introuvable')
-
-    const req = parseClosureRequirements(org?.closureRequirements)
-    const timeLogsMinutesTotal = wo.timeLogs.reduce((sum, l) => sum + (l.minutes ?? 0), 0)
-    const missing = validateClosure(
-      {
-        faultCategory: wo.faultCategory,
-        faultProblem: wo.faultProblem,
-        timeLogsMinutesTotal,
-        partsCount: wo.parts.length,
-      },
-      req
-    )
-    if (missing.length > 0) {
-      throw new Error(`Champs requis manquants pour clôture: ${missing.join(', ')}`)
-    }
-  }
-
   const extra: Record<string, unknown> = {}
   if (status === 'in_progress') extra.startedAt = new Date()
   if (status === 'resolved' || status === 'closed') extra.completedAt = new Date()
-  if (closureNotes !== undefined) extra.closureNotes = closureNotes
+  if (closureNotes) extra.closureNotes = closureNotes
 
   await db.workOrder.update({
     where: { id, organizationId },
@@ -176,173 +111,6 @@ export async function updateWorkOrderStatus(
   revalidatePath(`/bons-de-travail/${id}`)
 }
 
-export async function setWorkOrderFault(
-  workOrderId: string,
-  data: {
-    faultCategory: string | null
-    faultProblem: string | null
-    faultCause: string | null
-    faultRemedy: string | null
-  }
-) {
-  const { organizationId } = await getOrgAndMembership()
-  await db.workOrder.update({
-    where: { id: workOrderId, organizationId },
-    data: {
-      faultCategory: data.faultCategory?.trim() || null,
-      faultProblem: data.faultProblem?.trim() || null,
-      faultCause: data.faultCause?.trim() || null,
-      faultRemedy: data.faultRemedy?.trim() || null,
-    },
-  })
-  revalidatePath(`/bons-de-travail/${workOrderId}`)
-}
-
-export async function startTimer(workOrderId: string) {
-  const { organizationId, membershipId } = await getOrgAndMembership()
-
-  // Vérifier que le BT appartient à l'org
-  const wo = await db.workOrder.findFirst({
-    where: { id: workOrderId, organizationId },
-    select: { id: true },
-  })
-  if (!wo) throw new Error('Bon de travail introuvable')
-
-  // Refuser si une session ouverte existe déjà pour ce membre sur ce BT
-  const active = await db.workOrderTimeLog.findFirst({
-    where: { workOrderId, membershipId, endedAt: null },
-    select: { id: true },
-  })
-  if (active) throw new Error('Une session est déjà active sur ce bon')
-
-  const log = await db.workOrderTimeLog.create({
-    data: { workOrderId, membershipId, startedAt: new Date() },
-    select: { id: true, startedAt: true },
-  })
-  revalidatePath(`/bons-de-travail/${workOrderId}`)
-  return { timeLogId: log.id, startedAt: log.startedAt }
-}
-
-export async function stopTimer(timeLogId: string) {
-  const { membershipId } = await getOrgAndMembership()
-  const log = await db.workOrderTimeLog.findFirst({
-    where: { id: timeLogId, membershipId, endedAt: null },
-    select: { id: true, workOrderId: true, startedAt: true },
-  })
-  if (!log) throw new Error('Session active introuvable')
-
-  const endedAt = new Date()
-  const minutes = Math.max(0, Math.round((endedAt.getTime() - log.startedAt.getTime()) / 60000))
-
-  await db.workOrderTimeLog.update({
-    where: { id: timeLogId },
-    data: { endedAt, minutes },
-  })
-  revalidatePath(`/bons-de-travail/${log.workOrderId}`)
-  return { minutes }
-}
-
-export async function closeActiveTimer(timeLogId: string) {
-  const { orgId, userId } = await auth()
-  if (!orgId || !userId) throw new Error('Non autorisé')
-  const org = await db.organization.findUnique({ where: { clerkId: orgId }, select: { id: true } })
-  if (!org) throw new Error('Organisation introuvable')
-  const me = await db.membership.findFirst({
-    where: { clerkUserId: userId, organizationId: org.id },
-    select: { role: true },
-  })
-  if (!me || (me.role !== 'admin' && me.role !== 'manager')) throw new Error('Accès refusé')
-
-  const log = await db.workOrderTimeLog.findFirst({
-    where: { id: timeLogId, endedAt: null, workOrder: { organizationId: org.id } },
-    select: { id: true, workOrderId: true, startedAt: true },
-  })
-  if (!log) throw new Error('Session active introuvable')
-
-  const endedAt = new Date()
-  const minutes = Math.max(0, Math.round((endedAt.getTime() - log.startedAt.getTime()) / 60000))
-  await db.workOrderTimeLog.update({ where: { id: timeLogId }, data: { endedAt, minutes } })
-  revalidatePath(`/bons-de-travail/${log.workOrderId}`)
-}
-
-export async function upsertWorkOrderPart(
-  workOrderId: string,
-  data: { id?: string; sparePartId?: string | null; name: string; quantity: number }
-) {
-  const { organizationId } = await getOrgAndMembership()
-  const wo = await db.workOrder.findFirst({
-    where: { id: workOrderId, organizationId },
-    select: { id: true, status: true },
-  })
-  if (!wo) throw new Error('Bon de travail introuvable')
-  if (wo.status === 'closed' || wo.status === 'resolved') throw new Error('Impossible de modifier les pièces d\'un bon de travail fermé')
-  if (!data.name.trim()) throw new Error('Nom de pièce requis')
-  if (!Number.isFinite(data.quantity) || data.quantity <= 0) throw new Error('Quantité invalide')
-
-  // Si lié à inventaire, hydrater name+unitCost+vérifier appartenance org
-  let sparePartUnitCost: number | null = null
-  let resolvedName = data.name.trim()
-  if (data.sparePartId) {
-    const sp = await db.sparePart.findFirst({
-      where: { id: data.sparePartId, organizationId },
-      select: { id: true, name: true, unitCost: true, quantityOnHand: true },
-    })
-    if (!sp) throw new Error('Pièce inventaire introuvable')
-    if (!data.id && sp.quantityOnHand < data.quantity) throw new Error(`Stock insuffisant — disponible : ${sp.quantityOnHand}`)
-    sparePartUnitCost = sp.unitCost ?? null
-    resolvedName = sp.name
-  }
-
-  if (data.id) {
-    // Update : pas de réajustement de stock automatique (compromis de simplicité Phase 6)
-    const existing = await db.workOrderPart.findFirst({
-      where: { id: data.id, workOrderId },
-      select: { id: true },
-    })
-    if (!existing) throw new Error('Pièce de BT introuvable')
-    await db.workOrderPart.update({
-      where: { id: data.id },
-      data: {
-        sparePartId: data.sparePartId ?? null,
-        name: resolvedName,
-        quantity: data.quantity,
-        unitCost: sparePartUnitCost,
-      },
-    })
-  } else {
-    // Create + décrément de stock si lié à inventaire (D-07)
-    await db.$transaction(async tx => {
-      await tx.workOrderPart.create({
-        data: {
-          workOrderId,
-          sparePartId: data.sparePartId ?? null,
-          name: resolvedName,
-          quantity: data.quantity,
-          unitCost: sparePartUnitCost,
-        },
-      })
-      if (data.sparePartId) {
-        await tx.sparePart.update({
-          where: { id: data.sparePartId },
-          data: { quantityOnHand: { decrement: data.quantity } },
-        })
-      }
-    })
-  }
-  revalidatePath(`/bons-de-travail/${workOrderId}`)
-}
-
-export async function deleteWorkOrderPart(workOrderId: string, partId: string) {
-  const { organizationId } = await getOrgAndMembership()
-  const part = await db.workOrderPart.findFirst({
-    where: { id: partId, workOrderId, workOrder: { organizationId } },
-    select: { id: true },
-  })
-  if (!part) throw new Error('Pièce introuvable')
-  await db.workOrderPart.delete({ where: { id: partId } })
-  revalidatePath(`/bons-de-travail/${workOrderId}`)
-}
-
 export async function deleteWorkOrder(id: string) {
   const { organizationId } = await getOrgAndMembership()
   await db.workOrder.delete({ where: { id, organizationId } })
@@ -350,38 +118,12 @@ export async function deleteWorkOrder(id: string) {
 }
 
 export async function assignMember(workOrderId: string, membershipId: string) {
-  const { organizationName } = await getOrgAndMembership()
-
+  await getOrgAndMembership()
   await db.workOrderAssignee.upsert({
     where: { workOrderId_membershipId: { workOrderId, membershipId } },
     create: { workOrderId, membershipId },
     update: {},
   })
-
-  // NOTIF-01: notify newly assigned member — fire-and-forget
-  const [member, workOrder] = await Promise.all([
-    db.membership.findUnique({
-      where: { id: membershipId },
-      select: { email: true, firstName: true, lastName: true },
-    }),
-    db.workOrder.findUnique({
-      where: { id: workOrderId },
-      select: { number: true, title: true, priority: true, dueDate: true },
-    }),
-  ])
-
-  if (member?.email && workOrder) {
-    sendWorkOrderAssignedEmail({
-      to: member.email,
-      recipientName: [member.firstName, member.lastName].filter(Boolean).join(' ') || member.email,
-      workOrderNumber: workOrder.number,
-      workOrderTitle: workOrder.title,
-      workOrderPriority: workOrder.priority,
-      dueDate: workOrder.dueDate ?? null,
-      organizationName,
-    }).catch(err => console.error('[email] assignMember notification failed:', err))
-  }
-
   revalidatePath(`/bons-de-travail/${workOrderId}`)
 }
 
@@ -424,86 +166,23 @@ export async function logTime(
   revalidatePath(`/bons-de-travail/${workOrderId}`)
 }
 
-export async function toggleChecklistItem(itemId: string, checked: boolean) {
+export async function recordMeterReadingOnAsset(assetId: string, reading: number) {
   const { organizationId } = await getOrgAndMembership()
 
-  const item = await db.workOrderChecklistItem.findFirst({
-    where: { id: itemId, workOrder: { organizationId } },
-    select: { id: true, workOrderId: true },
-  })
-  if (!item) throw new Error('Item introuvable')
-
-  await db.workOrderChecklistItem.update({
-    where: { id: itemId },
-    data: { checked, checkedAt: checked ? new Date() : null },
-  })
-  revalidatePath(`/bons-de-travail/${item.workOrderId}`)
-}
-
-export async function setChecklistMeasure(itemId: string, measureValue: string | null) {
-  const { organizationId } = await getOrgAndMembership()
-
-  const item = await db.workOrderChecklistItem.findFirst({
-    where: { id: itemId, workOrder: { organizationId } },
-    select: { id: true, workOrderId: true },
-  })
-  if (!item) throw new Error('Item introuvable')
-
-  const cleaned = measureValue?.trim() ?? null
-  if (cleaned && cleaned.length > 200) {
-    throw new Error('Mesure trop longue (max 200 caractères)')
+  if (!Number.isFinite(reading) || reading < 0) {
+    throw new Error('Valeur de compteur invalide')
   }
 
-  await db.workOrderChecklistItem.update({
-    where: { id: itemId },
-    data: { measureValue: cleaned || null },
+  // Scoping org — bloque le tampering cross-org (T-09-01)
+  const asset = await db.asset.findFirst({
+    where: { id: assetId, organizationId },
+    select: { id: true },
   })
-  revalidatePath(`/bons-de-travail/${item.workOrderId}`)
-}
+  if (!asset) throw new Error('Actif introuvable')
 
-export async function recordMeterReading(workOrderId: string, reading: number) {
-  const { organizationId } = await getOrgAndMembership()
+  const meter = await updateMeterAndPlans(assetId, organizationId, reading)
+  if (!meter) throw new Error('Aucun compteur configuré pour cet actif')
 
-  if (!Number.isFinite(reading) || reading < 0) throw new Error('Valeur de relevé invalide')
-
-  const wo = await db.workOrder.findFirst({
-    where: { id: workOrderId, organizationId },
-    select: { assetId: true },
-  })
-  if (!wo) throw new Error('Bon de travail introuvable')
-  if (!wo.assetId) throw new Error('Ce BT n\'est pas lié à un actif')
-
-  // Enregistrer le relevé sur le BT
-  await db.workOrder.update({
-    where: { id: workOrderId },
-    data: { meterReading: reading },
-  })
-
-  // Mettre à jour le premier compteur de l'actif (heures de fonctionnement)
-  const meter = await db.assetMeter.findFirst({
-    where: { assetId: wo.assetId },
-  })
-  if (meter) {
-    await db.assetMeter.update({
-      where: { id: meter.id },
-      data: { value: reading },
-    })
-
-    // Recalculer nextMeterValue pour tous les plans meter_based liés à cet actif
-    const plans = await db.maintenancePlan.findMany({
-      where: { assetId: wo.assetId, organizationId, triggerType: 'meter_based' },
-      select: { id: true, meterThreshold: true },
-    })
-    for (const plan of plans) {
-      if (plan.meterThreshold) {
-        await db.maintenancePlan.update({
-          where: { id: plan.id },
-          data: { nextMeterValue: reading + plan.meterThreshold },
-        })
-      }
-    }
-  }
-
-  revalidatePath(`/bons-de-travail/${workOrderId}`)
+  revalidatePath('/actifs')
   revalidatePath('/maintenance')
 }
