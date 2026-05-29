@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { NextResponse } from "next/server"
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -20,6 +21,13 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 export const proxy = clerkMiddleware(async (auth, req) => {
+  const host = req.headers.get('host') || ''
+  if (host.startsWith('app.') && req.nextUrl.pathname === '/') {
+    const url = req.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
   if (!isPublicRoute(req)) {
     await auth.protect()
   }
