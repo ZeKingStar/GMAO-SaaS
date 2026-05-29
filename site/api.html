@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Korvia — Référence API</title>
+  <link rel="stylesheet" href="site.css" />
+</head>
+<body data-page="docs">
+  <div id="nav-mount"></div>
+
+  <div class="docs-shell">
+    <aside class="docs-side">
+      <div class="docs-group-title" data-en="Overview">Survol</div>
+      <a class="docs-link" href="#intro" data-en="Introduction">Introduction</a>
+      <a class="docs-link" href="#auth" data-en="Authentication">Authentification</a>
+      <a class="docs-link" href="#errors" data-en="Errors & rate limits">Erreurs & limites</a>
+
+      <div class="docs-group-title" data-en="Endpoints">Endpoints</div>
+      <a class="docs-link" href="#assets" data-en="Assets">Équipements</a>
+      <a class="docs-link" href="#workorders" data-en="Work orders">Ordres de travail</a>
+      <a class="docs-link" href="#parts" data-en="Parts">Pièces</a>
+      <a class="docs-link" href="#webhooks">Webhooks</a>
+
+      <div class="docs-group-title" data-en="Guides">Guides</div>
+      <a class="docs-link" href="docs.html" data-en="Product docs ↗">Docs produit ↗</a>
+    </aside>
+
+    <main class="docs-main">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <span class="pill"><span class="mono">v1</span></span>
+        <span class="pill" data-en="REST · JSON">REST · JSON</span>
+        <span class="pill" data-en="Usine plan">Forfait Usine</span>
+      </div>
+      <h1 id="intro" data-en="API reference">Référence API</h1>
+      <p data-en="The Korvia API is a clean REST interface over HTTPS. All requests and responses are JSON. Use it to sync assets, push work orders from another system, or pull maintenance history into your BI tool.">
+        L'API Korvia est une interface REST propre sur HTTPS. Toutes les requêtes et réponses sont en JSON. Utilisez-la pour synchroniser des actifs, pousser des ordres depuis un autre système, ou tirer l'historique vers votre outil de BI.
+      </p>
+      <div class="endpoint"><span style="color:var(--ink-3)" data-en="Base URL">URL de base</span><span style="margin-left:auto;color:var(--accent-2)">https://api.korvia.ca/v1</span></div>
+
+      <h2 id="auth" data-en="Authentication">Authentification</h2>
+      <p data-en="Authenticate with a bearer token from Settings → API keys. Keep your key secret; it carries the permissions of the role it was created under.">
+        Authentifiez-vous avec un jeton bearer depuis Paramètres → Clés API. Gardez votre clé secrète; elle porte les permissions du rôle sous lequel elle a été créée.
+      </p>
+      <div class="code-head"><span>curl</span></div>
+      <pre class="code">curl https://api.korvia.ca/v1/equipements \
+  -H <span class="tok-str">"Authorization: Bearer kv_live_8f2c…"</span> \
+  -H <span class="tok-str">"Accept-Language: fr-CA"</span></pre>
+      <p style="font-size:15px;color:var(--ink-3)" data-en="Pass Accept-Language to get localized labels (fr-CA or en-CA).">Passez <code class="inline">Accept-Language</code> pour des libellés localisés (<code class="inline">fr-CA</code> ou <code class="inline">en-CA</code>).</p>
+
+      <h2 id="errors" data-en="Errors & rate limits">Erreurs & limites</h2>
+      <p data-en="The API uses standard HTTP status codes. Errors return a JSON body with a code and a human message. You get 1,000 requests per minute per key.">
+        L'API utilise les codes HTTP standards. Les erreurs renvoient un corps JSON avec un code et un message lisible. Vous avez 1 000 requêtes par minute par clé.
+      </p>
+      <table class="tbl">
+        <thead><tr><th>Code</th><th data-en="Meaning">Signification</th></tr></thead>
+        <tbody>
+          <tr><td><span class="mono">200 / 201</span></td><td data-en="Success">Succès</td></tr>
+          <tr><td><span class="mono">401</span></td><td data-en="Missing or invalid token">Jeton manquant ou invalide</td></tr>
+          <tr><td><span class="mono">403</span></td><td data-en="Token lacks permission">Le jeton n'a pas la permission</td></tr>
+          <tr><td><span class="mono">404</span></td><td data-en="Resource not found">Ressource introuvable</td></tr>
+          <tr><td><span class="mono">429</span></td><td data-en="Rate limit exceeded">Limite de débit dépassée</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="assets" data-en="Assets">Équipements</h2>
+      <div class="endpoint"><span class="method get">GET</span><span>/v1/equipements</span></div>
+      <p data-en="List all assets. Supports pagination with">Liste tous les équipements. Supporte la pagination avec <code class="inline">?page</code> <span data-en="and">et</span> <code class="inline">?par_page</code>.</p>
+      <div class="code-head"><span data-en="Response">Réponse</span> · 200</div>
+      <pre class="code"><span class="tok-punc">{</span>
+  <span class="tok-key">"data"</span><span class="tok-punc">:</span> <span class="tok-punc">[</span>
+    <span class="tok-punc">{</span>
+      <span class="tok-key">"id"</span><span class="tok-punc">:</span> <span class="tok-str">"eqp_2418"</span><span class="tok-punc">,</span>
+      <span class="tok-key">"code"</span><span class="tok-punc">:</span> <span class="tok-str">"PAT-2"</span><span class="tok-punc">,</span>
+      <span class="tok-key">"nom"</span><span class="tok-punc">:</span> <span class="tok-str">"Presse à pâte"</span><span class="tok-punc">,</span>
+      <span class="tok-key">"etat"</span><span class="tok-punc">:</span> <span class="tok-str">"en_panne"</span><span class="tok-punc">,</span>
+      <span class="tok-key">"site"</span><span class="tok-punc">:</span> <span class="tok-str">"Plateau"</span><span class="tok-punc">,</span>
+      <span class="tok-key">"disponibilite"</span><span class="tok-punc">:</span> <span class="tok-num">0.87</span>
+    <span class="tok-punc">}</span>
+  <span class="tok-punc">],</span>
+  <span class="tok-key">"page"</span><span class="tok-punc">:</span> <span class="tok-num">1</span><span class="tok-punc">,</span> <span class="tok-key">"total"</span><span class="tok-punc">:</span> <span class="tok-num">142</span>
+<span class="tok-punc">}</span></pre>
+      <div class="endpoint"><span class="method get">GET</span><span>/v1/equipements/{id}</span></div>
+      <p data-en="Retrieve one asset with its full history, parts and documents.">Récupère un équipement avec son historique complet, ses pièces et documents.</p>
+
+      <h2 id="workorders" data-en="Work orders">Ordres de travail</h2>
+      <div class="endpoint"><span class="method post">POST</span><span>/v1/ordres</span></div>
+      <p data-en="Create a work order. Only">Crée un ordre de travail. Seuls <code class="inline">titre</code> <span data-en="and">et</span> <code class="inline">equipement_id</code> <span data-en="are required.">sont requis.</span></p>
+      <div class="code-head"><span data-en="Request body">Corps de requête</span></div>
+      <pre class="code"><span class="tok-punc">{</span>
+  <span class="tok-key">"titre"</span><span class="tok-punc">:</span> <span class="tok-str">"Fuite hydraulique — presse à pâte"</span><span class="tok-punc">,</span>
+  <span class="tok-key">"equipement_id"</span><span class="tok-punc">:</span> <span class="tok-str">"eqp_2418"</span><span class="tok-punc">,</span>
+  <span class="tok-key">"priorite"</span><span class="tok-punc">:</span> <span class="tok-str">"urgent"</span><span class="tok-punc">,</span>
+  <span class="tok-key">"assigne_a"</span><span class="tok-punc">:</span> <span class="tok-str">"usr_mathieu"</span><span class="tok-punc">,</span>
+  <span class="tok-key">"taches"</span><span class="tok-punc">:</span> <span class="tok-punc">[</span><span class="tok-str">"Cadenasser"</span><span class="tok-punc">,</span> <span class="tok-str">"Remplacer joint 41-227"</span><span class="tok-punc">]</span>
+<span class="tok-punc">}</span></pre>
+      <div class="endpoint"><span class="method get">GET</span><span>/v1/ordres</span></div>
+      <div class="endpoint"><span class="method put">PUT</span><span>/v1/ordres/{id}</span></div>
+      <div class="endpoint"><span class="method del">DEL</span><span>/v1/ordres/{id}</span></div>
+
+      <h2 id="parts" data-en="Parts">Pièces</h2>
+      <div class="endpoint"><span class="method get">GET</span><span>/v1/pieces</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span>/v1/pieces/{id}/ajustement</span></div>
+      <p data-en="Adjust stock levels (receipts, counts, consumption). Returns the new quantity on hand.">Ajuste les niveaux de stock (réceptions, comptages, consommation). Renvoie la nouvelle quantité en main.</p>
+
+      <h2 id="webhooks">Webhooks</h2>
+      <p data-en="Subscribe to events and Korvia will POST a JSON payload to your URL. Useful to notify Slack, update an ERP, or trigger your own automations.">
+        Abonnez-vous à des événements et Korvia enverra une charge JSON en POST à votre URL. Utile pour notifier Slack, mettre à jour un ERP, ou déclencher vos automatisations.
+      </p>
+      <table class="tbl">
+        <thead><tr><th data-en="Event">Événement</th><th data-en="Fires when">Se déclenche quand</th></tr></thead>
+        <tbody>
+          <tr><td><span class="mono">ordre.cree</span></td><td data-en="A work order is created">Un ordre est créé</td></tr>
+          <tr><td><span class="mono">ordre.termine</span></td><td data-en="A work order is completed">Un ordre est terminé</td></tr>
+          <tr><td><span class="mono">equipement.en_panne</span></td><td data-en="An asset is marked down">Un actif est marqué en panne</td></tr>
+          <tr><td><span class="mono">piece.sous_seuil</span></td><td data-en="A part drops below its reorder point">Une pièce passe sous son point de commande</td></tr>
+        </tbody>
+      </table>
+
+      <div class="card" style="margin:48px 0 16px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap">
+        <div>
+          <h3 style="font-size:20px" data-en="Need an API key?">Besoin d'une clé API?</h3>
+          <p style="font-size:15px;color:var(--ink-2);margin-top:4px" data-en="API access is included on the Usine plan.">L'accès API est inclus sur le forfait Usine.</p>
+        </div>
+        <a class="btn btn-primary" href="contact.html" data-en="Talk to us">Nous parler</a>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-mount"></div>
+  <script src="site.js"></script>
+</body>
+</html>

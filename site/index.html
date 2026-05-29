@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Korvia — La GMAO pensée pour les PME du Québec</title>
+  <meta name="description" content="Korvia est le logiciel de gestion de maintenance (GMAO) conçu pour les PME du Québec. Moins de pannes, plus de production." />
+  <link rel="stylesheet" href="site.css" />
+</head>
+<body data-page="">
+  <div id="nav-mount"></div>
+
+  <!-- ░░ HERO ░░ -->
+  <section class="hero">
+    <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center">
+      <div>
+        <span class="badge"><span class="dot"></span><span data-en="Built in Quebec, for Quebec">Conçu au Québec, pour le Québec</span></span>
+        <h1 style="margin-top:22px">
+          <span data-en="The maintenance software <em class=&quot;acc&quot;>made</em> for Quebec SMBs.">La GMAO pensée pour les <em class="acc">PME</em> du Québec.</span>
+        </h1>
+        <p class="hero-sub" data-en="Track work orders, prevent breakdowns and keep your equipment running — without the spreadsheet chaos or the enterprise price tag.">
+          Suivez vos ordres de travail, prévenez les pannes et gardez vos équipements en marche — sans le chaos des feuilles Excel ni le prix d'un logiciel d'entreprise.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="contact.html" data-en="Start free — 30 days">Essai gratuit — 30 jours</a>
+          <a class="btn btn-ghost btn-lg" href="fonctionnalites.html" data-en="See how it works">Voir comment ça marche</a>
+        </div>
+        <div class="hero-note">
+          <span style="color:var(--accent)">✦</span>
+          <span data-en="No credit card · Set up in an afternoon · Support in French">Sans carte de crédit · En place en un après-midi · Soutien en français</span>
+        </div>
+      </div>
+
+      <!-- product mock -->
+      <div class="mock" aria-hidden="true">
+        <div class="mock-bar">
+          <span class="mock-dot" style="background:#e0897b"></span>
+          <span class="mock-dot" style="background:#e3b760"></span>
+          <span class="mock-dot" style="background:#8fb789"></span>
+          <span class="mock-url">app.korvia.ca/tableau-de-bord</span>
+        </div>
+        <div class="mock-body" style="background:var(--bg)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+            <div style="font-family:var(--serif);font-size:19px;font-weight:500">Bonjour, Mathieu</div>
+            <span class="pill"><span style="width:6px;height:6px;border-radius:50%;background:var(--ok);display:inline-block"></span>Boul. Plateau</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+            <div class="card" style="padding:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)">Ouverts</div><div style="font-family:var(--serif);font-size:28px;font-weight:500;line-height:1.1">12</div></div>
+            <div class="card" style="padding:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)">En retard</div><div style="font-family:var(--serif);font-size:28px;font-weight:500;line-height:1.1;color:var(--accent)">3</div></div>
+            <div class="card" style="padding:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)">Dispo.</div><div style="font-family:var(--serif);font-size:28px;font-weight:500;line-height:1.1">94<small style="font-size:14px;color:var(--ink-3)">%</small></div></div>
+          </div>
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--divider);font-size:12px;font-weight:600;color:var(--ink-2)">Ordres d'aujourd'hui</div>
+            <div style="display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--divider)">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--crit)"></span>
+                <span style="font-size:13px;flex:1">Fuite hydraulique — presse à pâte</span>
+                <span class="mono" style="font-size:11px;color:var(--ink-3)">14:00</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--divider)">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--warn)"></span>
+                <span style="font-size:13px;flex:1">Calibration capteur four #3</span>
+                <span class="mono" style="font-size:11px;color:var(--ink-3)">16:30</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px">
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--ink-3)"></span>
+                <span style="font-size:13px;flex:1">Inspection compresseur</span>
+                <span class="mono" style="font-size:11px;color:var(--ink-3)">demain</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ LOGOS ░░ -->
+  <section class="section-pad-sm">
+    <div class="wrap center">
+      <p class="muted" style="font-size:14px;margin-bottom:28px" data-en="Trusted by SMBs across Quebec — manufacturing, food, buildings and transport">
+        La confiance de PME partout au Québec — manufacturier, agroalimentaire, bâtiment et transport
+      </p>
+      <div class="logos">
+        <span class="logo-item"><span class="glyph">B</span>Boulangerie Plateau</span>
+        <span class="logo-item"><span class="glyph">F</span>Fonderie Drummond</span>
+        <span class="logo-item"><span class="glyph">V</span>Vergers Rougemont</span>
+        <span class="logo-item"><span class="glyph">T</span>Transport Beauce</span>
+        <span class="logo-item"><span class="glyph">M</span>Métal Saguenay</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ BENEFIT ░░ -->
+  <section class="section-pad" style="background:var(--bg-2)">
+    <div class="wrap-narrow center">
+      <span class="eyebrow" data-en="Why Korvia">Pourquoi Korvia</span>
+      <h2 style="font-size:clamp(30px,4vw,44px);margin-top:16px;line-height:1.1" data-en="Maintenance shouldn't live in a binder and three Excel files.">
+        La maintenance ne devrait pas vivre dans un cartable et trois fichiers Excel.
+      </h2>
+      <p style="font-size:19px;color:var(--ink-2);margin-top:20px" data-en="A breakdown nobody saw coming. A part that was never ordered. A preventive task forgotten for six months. Korvia brings it all into one place your whole team actually wants to use.">
+        Une panne que personne n'a vue venir. Une pièce jamais commandée. Un entretien préventif oublié depuis six mois. Korvia rassemble tout ça dans un seul endroit que toute votre équipe a envie d'utiliser.
+      </p>
+    </div>
+
+    <div class="wrap" style="margin-top:56px">
+      <div class="grid-3">
+        <div class="card">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2"/></svg></div>
+          <h3 style="font-size:21px" data-en="Less downtime">Moins de temps d'arrêt</h3>
+          <p style="font-size:15.5px;margin-top:8px" data-en="Catch problems early with preventive plans and live equipment health.">Détectez les problèmes tôt grâce au préventif et à la santé des équipements en temps réel.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 011 1v1h3a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h3V5a1 1 0 011-1zM8 13l2.5 2.5L16 10"/></svg></div>
+          <h3 style="font-size:21px" data-en="One source of truth">Une seule source de vérité</h3>
+          <p style="font-size:15.5px;margin-top:8px" data-en="Every work order, part and document attached to the right machine.">Chaque ordre, pièce et document rattaché à la bonne machine.</p>
+        </div>
+        <div class="card">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6z"/></svg></div>
+          <h3 style="font-size:21px" data-en="Your team, on board">Votre équipe, à bord</h3>
+          <p style="font-size:15.5px;margin-top:8px" data-en="Technicians log work from their phone — by photo or voice, even offline.">Les techniciens consignent le travail depuis leur téléphone — par photo ou par voix, même hors-ligne.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ FEATURE TOUR ░░ -->
+  <section class="section-pad">
+    <div class="wrap" style="display:flex;flex-direction:column;gap:96px">
+
+      <!-- F1 -->
+      <div class="feature-row">
+        <div class="feature-text">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 011 1v1h3a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h3V5a1 1 0 011-1z"/></svg></div>
+          <h3 data-en="Work orders that move at your pace">Des ordres de travail à votre rythme</h3>
+          <p data-en="Create, assign and track every job from request to sign-off. Priorities, checklists, parts and hours — all in one tidy place.">
+            Créez, assignez et suivez chaque intervention, de la demande à la signature. Priorités, listes de tâches, pièces et heures — le tout au même endroit, bien rangé.
+          </p>
+          <ul class="feature-list">
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Drag-and-drop priorities and statuses">Priorités et statuts en glisser-déposer</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Checklists with photos and voice notes">Listes de tâches avec photos et notes vocales</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Parts pulled straight from inventory">Pièces tirées directement de l'inventaire</span></li>
+          </ul>
+          <a class="btn-link" href="fonctionnalites.html" style="margin-top:20px"><span data-en="Learn more">En savoir plus</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="mock">
+          <div class="mock-bar"><span class="mock-dot" style="background:#e0897b"></span><span class="mock-dot" style="background:#e3b760"></span><span class="mock-dot" style="background:#8fb789"></span><span class="mock-url">app.korvia.ca/ordres</span></div>
+          <div class="mock-body" style="background:var(--bg);padding:0">
+            <div style="display:flex;gap:6px;padding:14px 16px;border-bottom:1px solid var(--divider)">
+              <span class="pill" style="background:var(--ink);color:var(--surface);border-color:var(--ink)">Tous · 12</span>
+              <span class="pill">À moi · 3</span>
+              <span class="pill">Urgents · 2</span>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tbody>
+                <tr style="border-bottom:1px solid var(--divider)"><td style="padding:11px 16px"><span class="mono" style="color:var(--ink-3);font-size:11px">OT-2418</span><div style="font-weight:500;margin-top:2px">Remplacement courroie convoyeur</div></td><td style="padding:11px 16px"><span class="pill" style="background:oklch(92% .04 25);color:var(--crit);border:0">Urgent</span></td></tr>
+                <tr style="border-bottom:1px solid var(--divider)"><td style="padding:11px 16px"><span class="mono" style="color:var(--ink-3);font-size:11px">OT-2417</span><div style="font-weight:500;margin-top:2px">Calibration capteur four #3</div></td><td style="padding:11px 16px"><span class="pill" style="background:oklch(93% .05 80);color:var(--warn);border:0">Haute</span></td></tr>
+                <tr><td style="padding:11px 16px"><span class="mono" style="color:var(--ink-3);font-size:11px">OT-2416</span><div style="font-weight:500;margin-top:2px">Inspection compresseur d'air</div></td><td style="padding:11px 16px"><span class="pill">Normale</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- F2 -->
+      <div class="feature-row flip">
+        <div class="feature-text">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18M5 4h14a2 2 0 012 2v13a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zM8 2v4M16 2v4"/></svg></div>
+          <h3 data-en="Preventive maintenance that runs itself">Le préventif qui se gère tout seul</h3>
+          <p data-en="Set a schedule once — by date, run hours or cycles — and Korvia creates the work orders, reminds the right person, and keeps the paper trail for your audits.">
+            Définissez un calendrier une fois — par date, heures de marche ou cycles — et Korvia crée les ordres, rappelle la bonne personne et conserve la trace pour vos audits.
+          </p>
+          <ul class="feature-list">
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Triggers by time, usage or meter reading">Déclencheurs par temps, usage ou relevé</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="HACCP & CSA-ready records">Registres prêts pour HACCP et CSA</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Never miss a compliance task again">Plus jamais d'entretien de conformité oublié</span></li>
+          </ul>
+          <a class="btn-link" href="fonctionnalites.html" style="margin-top:20px"><span data-en="Learn more">En savoir plus</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="mock">
+          <div class="mock-bar"><span class="mock-dot" style="background:#e0897b"></span><span class="mock-dot" style="background:#e3b760"></span><span class="mock-dot" style="background:#8fb789"></span><span class="mock-url">app.korvia.ca/preventif</span></div>
+          <div class="mock-body" style="background:var(--bg)">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="card" style="padding:14px;display:flex;gap:12px;align-items:center">
+                <div style="text-align:center;border-right:1px solid var(--divider);padding-right:12px"><div style="font-family:var(--serif);font-size:22px;font-weight:500;line-height:1">22</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)">MAI</div></div>
+                <div style="flex:1"><div style="font-weight:500;font-size:14px">Lubrification roulements pétrin</div><div style="font-size:12px;color:var(--ink-3);margin-top:2px"><span class="mono">PET-1</span> · 45 min</div></div>
+                <span class="pill" style="background:var(--accent-wash);color:var(--accent-2);border:0">Auto</span>
+              </div>
+              <div class="card" style="padding:14px;display:flex;gap:12px;align-items:center">
+                <div style="text-align:center;border-right:1px solid var(--divider);padding-right:12px"><div style="font-family:var(--serif);font-size:22px;font-weight:500;line-height:1">23</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)">MAI</div></div>
+                <div style="flex:1"><div style="font-weight:500;font-size:14px">Inspection HACCP four #3</div><div style="font-size:12px;color:var(--ink-3);margin-top:2px"><span class="mono">FOUR-3</span> · 1 h 30</div></div>
+                <span class="pill" style="background:var(--accent-wash);color:var(--accent-2);border:0">Auto</span>
+              </div>
+              <div class="card" style="padding:14px;display:flex;gap:12px;align-items:center;opacity:.65">
+                <div style="text-align:center;border-right:1px solid var(--divider);padding-right:12px"><div style="font-family:var(--serif);font-size:22px;font-weight:500;line-height:1">27</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)">MAI</div></div>
+                <div style="flex:1"><div style="font-weight:500;font-size:14px">Vidange compresseur</div><div style="font-size:12px;color:var(--ink-3);margin-top:2px"><span class="mono">CMP-01</span> · 2 h</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F3 mobile -->
+      <div class="feature-row" id="mobile">
+        <div class="feature-text">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+          <h3 data-en="Made for the floor, not just the office">Pensé pour le plancher, pas juste le bureau</h3>
+          <p data-en="Your technicians scan a QR code on the machine, see its full history, and log work by photo or voice — even in the basement with no signal. It syncs when they're back online.">
+            Vos techniciens scannent un code QR sur la machine, voient tout son historique et consignent le travail par photo ou par voix — même au sous-sol sans réseau. Tout se synchronise au retour en ligne.
+          </p>
+          <ul class="feature-list">
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="QR scan to the right asset in one tap">Scan QR vers le bon actif en un geste</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Voice-to-work-order capture">Création d'ordre par note vocale</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Works offline, syncs later">Fonctionne hors-ligne, synchronise plus tard</span></li>
+          </ul>
+          <a class="btn-link" href="fonctionnalites.html#mobile" style="margin-top:20px"><span data-en="Learn more">En savoir plus</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        </div>
+        <div style="display:flex;justify-content:center">
+          <div style="width:248px;border-radius:34px;background:var(--ink-dark);padding:10px;box-shadow:var(--shadow-lg)">
+            <div style="border-radius:26px;overflow:hidden;background:var(--bg)">
+              <div style="height:28px;background:var(--surface);display:flex;align-items:center;justify-content:center"><div style="width:70px;height:7px;border-radius:4px;background:var(--ink-dark)"></div></div>
+              <div style="padding:16px">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3)">Lundi · 20 mai</div>
+                <div style="font-family:var(--serif);font-size:20px;font-weight:500;line-height:1.1;margin-top:4px">Bonjour, Mathieu.</div>
+                <div class="card" style="padding:12px;margin-top:14px;background:var(--accent-wash);border:0">
+                  <div style="display:flex;gap:6px;align-items:center"><span class="pill" style="background:oklch(92% .04 25);color:var(--crit);border:0;font-size:10px">Urgent</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--accent-2)">OT-2415</span></div>
+                  <div style="font-family:var(--serif);font-size:15px;font-weight:500;margin-top:8px;line-height:1.2">Fuite hydraulique — presse à pâte</div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:10px"><span class="mono" style="font-size:18px;font-weight:500">23:14</span><span style="margin-left:auto;background:var(--accent);color:#fff;font-size:11px;font-weight:500;padding:7px 12px;border-radius:6px">Reprendre</span></div>
+                </div>
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);margin-top:14px">À suivre</div>
+                <div class="card" style="padding:10px 12px;margin-top:8px"><div style="font-size:12px;font-weight:500">Calibration capteur four #3</div><div style="font-size:10px;color:var(--ink-3);margin-top:2px">FOUR-3 · 16:30</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ░░ HOW IT WORKS ░░ -->
+  <section class="section-pad" style="background:var(--bg-2)">
+    <div class="wrap">
+      <div class="center" style="margin-bottom:56px">
+        <span class="eyebrow" data-en="Up and running fast">En place rapidement</span>
+        <h2 style="font-size:clamp(28px,4vw,40px);margin-top:14px" data-en="From box of binders to live in three steps">Du cartable au tableau de bord en trois étapes</h2>
+      </div>
+      <div class="grid-3">
+        <div>
+          <div style="font-family:var(--serif);font-size:40px;font-weight:500;color:var(--accent)">1</div>
+          <h3 style="font-size:21px;margin-top:8px" data-en="Add your equipment">Ajoutez vos équipements</h3>
+          <p style="font-size:15.5px;color:var(--ink-2);margin-top:8px" data-en="Import from a spreadsheet or snap a QR code per machine. We help you migrate.">Importez d'un fichier ou collez un code QR par machine. On vous aide à migrer.</p>
+        </div>
+        <div>
+          <div style="font-family:var(--serif);font-size:40px;font-weight:500;color:var(--accent)">2</div>
+          <h3 style="font-size:21px;margin-top:8px" data-en="Invite your team">Invitez votre équipe</h3>
+          <p style="font-size:15.5px;color:var(--ink-2);margin-top:8px" data-en="Managers on desktop, technicians on mobile. Roles take thirty seconds.">Gestionnaires sur ordinateur, techniciens sur mobile. Les rôles prennent trente secondes.</p>
+        </div>
+        <div>
+          <div style="font-family:var(--serif);font-size:40px;font-weight:500;color:var(--accent)">3</div>
+          <h3 style="font-size:21px;margin-top:8px" data-en="Start logging work">Commencez à consigner</h3>
+          <p style="font-size:15.5px;color:var(--ink-2);margin-top:8px" data-en="Your first preventive plan and history start building from day one.">Votre premier plan préventif et l'historique se construisent dès le premier jour.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ STATS ░░ -->
+  <section class="section-pad">
+    <div class="wrap">
+      <div class="stats">
+        <div><div class="stat-num">−38<span style="font-size:28px">%</span></div><div class="stat-lbl" data-en="unplanned downtime, first year">de temps d'arrêt non planifié, 1ʳᵉ année</div></div>
+        <div><div class="stat-num">2×</div><div class="stat-lbl" data-en="more preventive tasks completed">d'entretiens préventifs complétés</div></div>
+        <div><div class="stat-num">15<span style="font-size:28px">h</span></div><div class="stat-lbl" data-en="saved per month on paperwork">économisées par mois en paperasse</div></div>
+        <div><div class="stat-num">94<span style="font-size:28px">%</span></div><div class="stat-lbl" data-en="of technicians log work daily">des techniciens consignent chaque jour</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ TESTIMONIAL ░░ -->
+  <section class="section-pad" style="background:var(--bg-2)">
+    <div class="wrap-narrow center">
+      <span style="font-family:var(--serif);font-size:56px;color:var(--accent);line-height:0;display:inline-block;height:30px">“</span>
+      <p class="quote quote-big" data-en="Before Korvia, our maintenance lived in Mathieu's head and a binder by the press. Now when someone retires, the knowledge stays. That alone paid for it.">
+        Avant Korvia, notre maintenance vivait dans la tête de Mathieu et dans un cartable à côté de la presse. Maintenant, quand quelqu'un part à la retraite, le savoir reste. Juste ça, ça l'a payé.
+      </p>
+      <div class="quote-by" style="justify-content:center">
+        <div class="avatar">S</div>
+        <div style="text-align:left">
+          <div style="font-weight:600">Sophie Lemieux</div>
+          <div class="muted" style="font-size:14px" data-en="Operations director, Boulangerie Plateau">Directrice des opérations, Boulangerie Plateau</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ PRICING TEASER ░░ -->
+  <section class="section-pad">
+    <div class="wrap">
+      <div class="center" style="margin-bottom:48px">
+        <span class="eyebrow" data-en="Simple pricing">Tarification simple</span>
+        <h2 style="font-size:clamp(28px,4vw,40px);margin-top:14px" data-en="One price. No surprises. Cancel anytime.">Un prix. Aucune surprise. Annulable en tout temps.</h2>
+      </div>
+      <div class="price-grid">
+        <div class="price-card">
+          <div class="price-name">Solo</div>
+          <p class="muted" style="font-size:14px;margin-top:4px" data-en="For one site, one person in charge">Pour un site, une personne responsable</p>
+          <div class="price-amount">39 $<small> /mois</small></div>
+          <ul class="price-features">
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Up to 50 assets">Jusqu'à 50 équipements</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="2 users">2 utilisateurs</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Work orders & preventive">Ordres & préventif</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Mobile app">Application mobile</span></li>
+          </ul>
+          <a class="btn btn-soft" href="tarifs.html" data-en="Choose Solo">Choisir Solo</a>
+        </div>
+        <div class="price-card featured">
+          <div style="display:flex;align-items:center;gap:8px"><div class="price-name">Équipe</div><span class="badge" style="font-size:11px;padding:3px 9px" data-en="Most popular">Le plus choisi</span></div>
+          <p class="muted" style="font-size:14px;margin-top:4px" data-en="For a maintenance crew that's growing">Pour une équipe de maintenance qui grandit</p>
+          <div class="price-amount">119 $<small> /mois</small></div>
+          <ul class="price-features">
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Up to 300 assets">Jusqu'à 300 équipements</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="10 users included">10 utilisateurs inclus</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Inventory & purchase orders">Inventaire & bons d'achat</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Reports & KPIs">Rapports & KPIs</span></li>
+          </ul>
+          <a class="btn btn-primary" href="tarifs.html" data-en="Choose Team">Choisir Équipe</a>
+        </div>
+        <div class="price-card">
+          <div class="price-name">Usine</div>
+          <p class="muted" style="font-size:14px;margin-top:4px" data-en="For multi-site operations">Pour les opérations multi-sites</p>
+          <div class="price-amount" data-en="Custom">Sur devis</div>
+          <ul class="price-features">
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Unlimited assets & sites">Équipements & sites illimités</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="SSO & advanced roles">SSO & rôles avancés</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="API & integrations">API & intégrations</span></li>
+            <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span data-en="Dedicated onboarding">Implantation dédiée</span></li>
+          </ul>
+          <a class="btn btn-soft" href="contact.html" data-en="Talk to us">Nous parler</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ DARK CTA ░░ -->
+  <section class="band-dark section-pad">
+    <div class="wrap-narrow center">
+      <h2 style="font-size:clamp(30px,4.5vw,46px);line-height:1.08" data-en="Give your maintenance the tool it deserves.">Donnez à votre maintenance l'outil qu'elle mérite.</h2>
+      <p style="font-size:19px;margin-top:18px;max-width:520px;margin-left:auto;margin-right:auto" data-en="Try Korvia free for 30 days. We'll even help you bring your data over.">
+        Essayez Korvia gratuitement pendant 30 jours. On vous aide même à transférer vos données.
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:30px;flex-wrap:wrap">
+        <a class="btn btn-primary btn-lg" href="contact.html" data-en="Start free trial">Démarrer l'essai gratuit</a>
+        <a class="btn btn-lg" style="background:transparent;color:oklch(94% .012 80);border:1px solid oklch(50% .02 60)" href="contact.html" data-en="Book a demo">Demander une démo</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-mount"></div>
+
+  <script src="site.js"></script>
+</body>
+</html>

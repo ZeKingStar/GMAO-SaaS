@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Korvia — Programme Fondateurs · Bâtissons-la ensemble</title>
+  <meta name="description" content="Rejoignez les 50 premières PME fondatrices de Korvia : 6 mois gratuits, prix bloqué à vie et une vraie voix sur la feuille de route. En échange, partagez votre expérience." />
+  <link rel="stylesheet" href="site.css" />
+  <style>
+    /* ── Spécifique à la page Fondateurs ───────────────────────── */
+    .fnd-hero { padding: 80px 0 64px; }
+    .seats {
+      display: flex; flex-direction: column; gap: 12px;
+      background: var(--surface); border: 1px solid var(--divider);
+      border-radius: var(--radius-lg); padding: 22px 24px; box-shadow: var(--shadow-sm);
+    }
+    .seats-bar { height: 10px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+    .seats-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+    .seats-row { display: flex; align-items: baseline; gap: 8px; }
+    .seats-num { font-family: var(--serif); font-size: 34px; font-weight: 500; line-height: 1; }
+
+    /* offre / perks */
+    .offer-hero {
+      border: 1px solid var(--accent); border-radius: var(--radius-lg);
+      background: var(--accent-wash); padding: 34px 36px; box-shadow: 0 0 0 1px var(--accent);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .offer-hero .big { font-family: var(--serif); font-size: clamp(40px,6vw,60px); font-weight: 500; line-height: 1; letter-spacing: -0.03em; color: var(--accent-2); }
+    .perk { display: flex; gap: 14px; align-items: flex-start; }
+    .perk .pi { width: 40px; height: 40px; border-radius: 10px; background: var(--accent-wash); color: var(--accent-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .perk h3 { font-size: 19px; }
+    .perk p { font-size: 15px; color: var(--ink-2); margin-top: 4px; }
+
+    /* réciprocité */
+    .give-card { display: flex; gap: 14px; align-items: flex-start; padding: 22px; }
+    .give-card .num { font-family: var(--serif); font-size: 28px; font-weight: 500; color: var(--accent); line-height: 1; flex-shrink: 0; }
+
+    /* timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-step { display: grid; grid-template-columns: 56px 1fr; gap: 18px; padding-bottom: 30px; position: relative; }
+    .tl-step:not(:last-child)::before { content: ""; position: absolute; left: 27px; top: 44px; bottom: 0; width: 2px; background: var(--divider); }
+    .tl-dot { width: 44px; height: 44px; border-radius: 50%; background: var(--surface); border: 1px solid var(--divider-2); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--accent); }
+
+    /* founders wall */
+    .wall { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .wall .seat { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-style: italic; font-size: 15px; }
+    .wall .taken { background: var(--surface-3); color: var(--ink-2); }
+    .wall .open { background: transparent; border: 1.5px dashed var(--divider-2); color: var(--ink-3); font-style: normal; font-size: 18px; }
+
+    /* ── Forum ─────────────────────────────────────────────────── */
+    .forum-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+    .forum-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ftab { padding: 7px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 500; background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--divider); cursor: default; }
+    .ftab.active { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+    .forum-sort { margin-left: auto; font-size: 13.5px; color: var(--ink-3); display: flex; align-items: center; gap: 7px; }
+
+    .idea { display: grid; grid-template-columns: 64px 1fr auto; gap: 18px; align-items: start; padding: 20px 22px; }
+    .idea + .idea { border-top: 1px solid var(--divider); }
+    .vote { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1px solid var(--divider); border-radius: var(--radius); padding: 8px 0; width: 56px; }
+    .vote button { border: 0; background: none; padding: 2px; color: var(--ink-3); cursor: default; display: flex; }
+    .vote .up.on { color: var(--accent); }
+    .vote .count { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); line-height: 1.1; }
+    .idea-title { font-family: var(--serif); font-size: 19px; font-weight: 500; letter-spacing: -0.01em; }
+    .idea-desc { font-size: 14.5px; color: var(--ink-2); margin-top: 4px; max-width: 560px; }
+    .idea-meta { display: flex; align-items: center; gap: 14px; margin-top: 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-3); }
+    .idea-meta .who { display: flex; align-items: center; gap: 7px; }
+    .idea-meta .who .av { width: 22px; height: 22px; border-radius: 50%; background: var(--surface-3); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-style: italic; font-size: 11px; color: var(--ink-2); }
+    .tag { font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--divider); }
+
+    .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
+    .status .d { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .status.etude    { background: var(--surface-2); color: var(--ink-3); }
+    .status.planifie { background: oklch(93% .05 80); color: var(--warn); }
+    .status.encours  { background: var(--accent-wash); color: var(--accent-2); }
+    .status.livre    { background: var(--ok-wash); color: var(--ok); }
+
+    @media (max-width: 760px) {
+      .idea { grid-template-columns: 56px 1fr; }
+      .idea .status { grid-column: 2; justify-self: start; margin-top: 4px; }
+    }
+  </style>
+</head>
+<body data-page="fondateurs">
+  <div id="nav-mount"></div>
+
+  <!-- ░░ HERO ░░ -->
+  <section class="fnd-hero">
+    <div class="wrap" style="display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center">
+      <div>
+        <span class="badge"><span class="dot"></span>Programme Fondateurs · 50 places</span>
+        <h1 style="margin-top:22px;font-size:clamp(38px,5.4vw,62px);line-height:1.05;letter-spacing:-0.028em">
+          Bâtissons la GMAO du Québec, <em class="acc">ensemble</em>.
+        </h1>
+        <p class="hero-sub">
+          On cherche 50 PME prêtes à embarquer tôt. Vous nous aidez à façonner Korvia avec votre vrai vécu d'atelier ; on vous donne <strong style="color:var(--ink);font-weight:600">6 mois gratuits</strong>, un prix bloqué à vie et une vraie voix sur la feuille de route.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="contact.html">Réserver ma place</a>
+          <a class="btn btn-ghost btn-lg" href="#forum">Voir la feuille de route</a>
+        </div>
+        <div class="hero-note">
+          <span style="color:var(--accent)">✦</span>
+          <span>Aucune carte de crédit · On migre vos données · Vous gardez la main</span>
+        </div>
+      </div>
+
+      <!-- compteur de places -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="seats">
+          <div class="seats-row">
+            <span class="seats-num">19</span>
+            <span style="color:var(--ink-3);font-size:15px">/ 50 places réservées</span>
+          </div>
+          <div class="seats-bar"><i style="width:38%"></i></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-2)">
+            <span style="display:inline-flex;width:8px;height:8px;border-radius:50%;background:var(--ok)"></span>
+            <strong style="color:var(--ink);font-weight:600">31 places</strong> encore ouvertes — cohorte de juin 2026
+          </div>
+        </div>
+        <div class="wall" style="justify-content:flex-start">
+          <span class="seat taken">SL</span><span class="seat taken">MD</span><span class="seat taken">JR</span>
+          <span class="seat taken">AB</span><span class="seat taken">PG</span><span class="seat taken">CL</span>
+          <span class="seat taken">MT</span><span class="seat taken">FN</span><span class="seat taken">VR</span>
+          <span class="seat open">+</span><span class="seat open">+</span><span class="seat open">+</span>
+        </div>
+        <p class="muted" style="font-size:13.5px">
+          Déjà à bord : Boulangerie Plateau, Fonderie Drummond, Vergers Rougemont et 16 autres ateliers québécois.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ L'OFFRE ░░ -->
+  <section class="section-pad" style="background:var(--bg-2)">
+    <div class="wrap">
+      <div class="center" style="margin-bottom:48px">
+        <span class="eyebrow">L'entente fondateur</span>
+        <h2 style="font-size:clamp(28px,4vw,42px);margin-top:14px">Un échange, pas juste un rabais.</h2>
+      </div>
+
+      <div style="display:grid;grid-template-columns:.85fr 1.15fr;gap:36px;align-items:stretch">
+        <!-- ce que vous recevez : offre vedette -->
+        <div class="offer-hero">
+          <span style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--accent-2)">Vous recevez</span>
+          <div class="big">6 mois<br>gratuits</div>
+          <p style="font-size:16px;color:var(--accent-2);margin-top:6px;max-width:340px">
+            Une demi-année complète pour installer Korvia dans vos habitudes, sans payer un sou — puis votre prix reste bloqué à vie.
+          </p>
+        </div>
+
+        <!-- les perks -->
+        <div class="grid-2" style="gap:24px">
+          <div class="card perk">
+            <div class="pi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+            <div><h3>Prix bloqué à vie</h3><p>Le tarif fondateur ne bougera jamais, peu importe nos hausses futures.</p></div>
+          </div>
+          <div class="card perk">
+            <div class="pi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
+            <div><h3>Voix sur la feuille de route</h3><p>Vos votes pèsent double. Ce qu'on bâtit, on le bâtit avec vous.</p></div>
+          </div>
+          <div class="card perk">
+            <div class="pi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+            <div><h3>Ligne directe à l'équipe</h3><p>Un canal privé avec les personnes qui codent Korvia. Pas de billet, pas d'attente.</p></div>
+          </div>
+          <div class="card perk">
+            <div class="pi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6-6.3 4.6L8 13.8 2 9.4h7.6z"/></svg></div>
+            <div><h3>Badge fondateur</h3><p>Reconnu à vie dans l'app et sur notre site. Vous étiez là au début.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ce qu'on demande en retour -->
+      <div style="margin-top:48px">
+        <div class="center" style="margin-bottom:24px">
+          <span class="eyebrow">En retour</span>
+          <h3 style="font-family:var(--serif);font-size:26px;font-weight:500;margin-top:10px">Ce qu'on vous demande</h3>
+          <p class="muted" style="font-size:15.5px;max-width:560px;margin:8px auto 0">Rien de lourd — juste votre honnêteté et un peu de votre temps, quand ça vous convient.</p>
+        </div>
+        <div class="grid-3">
+          <div class="card give-card">
+            <span class="num">1</span>
+            <div><h3 style="font-size:18px;font-family:var(--serif);font-weight:500">Votre vrai vécu</h3><p style="font-size:14.5px;color:var(--ink-2);margin-top:4px">Un appel de 30 min par mois pour nous dire ce qui marche, ce qui accroche.</p></div>
+          </div>
+          <div class="card give-card">
+            <span class="num">2</span>
+            <div><h3 style="font-size:18px;font-family:var(--serif);font-weight:500">Un témoignage</h3><p style="font-size:14.5px;color:var(--ink-2);margin-top:4px">Une fois à l'aise, partagez votre histoire — étude de cas ou simple citation.</p></div>
+          </div>
+          <div class="card give-card">
+            <span class="num">3</span>
+            <div><h3 style="font-size:18px;font-family:var(--serif);font-weight:500">Vos idées</h3><p style="font-size:14.5px;color:var(--ink-2);margin-top:4px">Votez et proposez sur la feuille de route publique, plus bas sur cette page.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ COMMENT ÇA MARCHE ░░ -->
+  <section class="section-pad">
+    <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center">
+      <div>
+        <span class="eyebrow">Comment on embarque</span>
+        <h2 style="font-size:clamp(28px,4vw,40px);margin-top:14px;line-height:1.1">Quatre étapes, et c'est parti.</h2>
+        <p style="font-size:17px;color:var(--ink-2);margin-top:16px;max-width:440px">Pas de longue paperasse ni d'engagement de douze mois. On va à votre rythme, en français, avec une vraie personne au bout du fil.</p>
+        <a class="btn btn-primary btn-lg" href="contact.html" style="margin-top:26px">Réserver ma place</a>
+      </div>
+      <div class="timeline">
+        <div class="tl-step">
+          <div class="tl-dot">1</div>
+          <div><h3 style="font-family:var(--serif);font-size:21px;font-weight:500">On jase 20 minutes</h3><p style="color:var(--ink-2);font-size:15.5px;margin-top:4px">On regarde ensemble si Korvia colle à votre réalité. Zéro pression de vente.</p></div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-dot">2</div>
+          <div><h3 style="font-family:var(--serif);font-size:21px;font-weight:500">On migre vos données</h3><p style="color:var(--ink-2);font-size:15.5px;margin-top:4px">Cartable, Excel, ancienne GMAO — on transfère vos équipements et votre historique pour vous.</p></div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-dot">3</div>
+          <div><h3 style="font-family:var(--serif);font-size:21px;font-weight:500">Votre équipe embarque</h3><p style="color:var(--ink-2);font-size:15.5px;margin-top:4px">Une formation courte pour les gestionnaires et les techniciens. En place en un après-midi.</p></div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-dot">4</div>
+          <div><h3 style="font-family:var(--serif);font-size:21px;font-weight:500">On bâtit ensemble</h3><p style="color:var(--ink-2);font-size:15.5px;margin-top:4px">Pendant 6 mois gratuits, vous nous nourrissez et on livre. Votre nom reste fondateur à vie.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ FORUM / FEUILLE DE ROUTE ░░ -->
+  <section class="section-pad" id="forum" style="background:var(--bg-2)">
+    <div class="wrap">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:40px">
+        <div>
+          <span class="eyebrow">La feuille de route, à voix haute</span>
+          <h2 style="font-size:clamp(28px,4vw,42px);margin-top:14px;line-height:1.1">Vous votez. On bâtit.</h2>
+          <p style="font-size:17px;color:var(--ink-2);margin-top:14px;max-width:580px">
+            Chaque fonctionnalité de Korvia vient d'un atelier réel. Proposez vos idées, montez celles qui comptent, descendez celles qui peuvent attendre. Les fondateurs ont le vote prioritaire.
+          </p>
+        </div>
+        <a class="btn btn-primary" href="contact.html">＋ Proposer une idée</a>
+      </div>
+
+      <!-- légende des statuts -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px">
+        <span class="status etude"><span class="d"></span>À l'étude</span>
+        <span class="status planifie"><span class="d"></span>Planifié</span>
+        <span class="status encours"><span class="d"></span>En cours</span>
+        <span class="status livre"><span class="d"></span>Livré</span>
+      </div>
+
+      <!-- barre d'outils -->
+      <div class="forum-toolbar">
+        <div class="forum-tabs">
+          <span class="ftab active">Toutes · 41</span>
+          <span class="ftab">Mobile</span>
+          <span class="ftab">Rapports</span>
+          <span class="ftab">Inventaire</span>
+          <span class="ftab">Intégrations</span>
+          <span class="ftab">Ordres de travail</span>
+        </div>
+        <span class="forum-sort">
+          Trier par
+          <strong style="color:var(--ink);font-weight:600">Plus votées</strong>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </span>
+      </div>
+
+      <!-- liste des idées -->
+      <div class="card" style="padding:0;overflow:hidden">
+
+        <article class="idea">
+          <div class="vote">
+            <button class="up on" aria-label="Voter pour"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
+            <span class="count">142</span>
+            <button class="down" aria-label="Voter contre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          </div>
+          <div>
+            <div class="idea-title">Mode hors-ligne plus robuste sur iOS</div>
+            <p class="idea-desc">Au sous-sol près de la presse, le réseau coupe. On veut consigner photos et notes vocales sans interruption, avec une synchro impeccable au retour.</p>
+            <div class="idea-meta">
+              <span class="tag">Mobile</span>
+              <span class="who"><span class="av">MT</span>Mathieu T. · Boulangerie Plateau</span>
+              <span>💬 18 commentaires</span>
+            </div>
+          </div>
+          <span class="status encours"><span class="d"></span>En cours</span>
+        </article>
+
+        <article class="idea">
+          <div class="vote">
+            <button class="up on" aria-label="Voter pour"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
+            <span class="count">98</span>
+            <button class="down" aria-label="Voter contre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          </div>
+          <div>
+            <div class="idea-title">Tableau de bord personnalisable par widgets</div>
+            <p class="idea-desc">Chaque site a ses priorités. Laissez-nous glisser-déposer les indicateurs qui comptent pour nous : retards, disponibilité, heures par technicien.</p>
+            <div class="idea-meta">
+              <span class="tag">Rapports</span>
+              <span class="who"><span class="av">SL</span>Sophie L. · Fonderie Drummond</span>
+              <span>💬 12 commentaires</span>
+            </div>
+          </div>
+          <span class="status planifie"><span class="d"></span>Planifié</span>
+        </article>
+
+        <article class="idea">
+          <div class="vote">
+            <button class="up on" aria-label="Voter pour"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
+            <span class="count">89</span>
+            <button class="down" aria-label="Voter contre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          </div>
+          <div>
+            <div class="idea-title">Notifications SMS aux techniciens</div>
+            <p class="idea-desc">Tous nos gars ne consultent pas leurs courriels. Un texto pour les ordres urgents changerait tout les soirs de bris.</p>
+            <div class="idea-meta">
+              <span class="tag">Mobile</span>
+              <span class="who"><span class="av">JR</span>Julie R. · Transport Beauce</span>
+              <span>💬 9 commentaires</span>
+            </div>
+          </div>
+          <span class="status livre"><span class="d"></span>Livré</span>
+        </article>
+
+        <article class="idea">
+          <div class="vote">
+            <button class="up" aria-label="Voter pour"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
+            <span class="count">76</span>
+            <button class="down" aria-label="Voter contre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          </div>
+          <div>
+            <div class="idea-title">Lecture de codes-barres pour l'inventaire</div>
+            <p class="idea-desc">Scanner une pièce avec la caméra du téléphone pour la sortir du stock, au lieu de la chercher dans une liste de 400 items.</p>
+            <div class="idea-meta">
+              <span class="tag">Inventaire</span>
+              <span class="who"><span class="av">PG</span>Pierre G. · Métal Saguenay</span>
+              <span>💬 7 commentaires</span>
+            </div>
+          </div>
+          <span class="status etude"><span class="d"></span>À l'étude</span>
+        </article>
+
+        <article class="idea">
+          <div class="vote">
+            <button class="up" aria-label="Voter pour"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
+            <span class="count">64</span>
+            <button class="down" aria-label="Voter contre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          </div>
+          <div>
+            <div class="idea-title">Intégration avec Acomba et Sage 50</div>
+            <p class="idea-desc">Pour que les bons d'achat de pièces se rendent à notre comptabilité sans double saisie. C'est du temps perdu chaque fin de mois.</p>
+            <div class="idea-meta">
+              <span class="tag">Intégrations</span>
+              <span class="who"><span class="av">CL</span>Carl L. · Vergers Rougemont</span>
+              <span>💬 11 commentaires</span>
+            </div>
+          </div>
+          <span class="status etude"><span class="d"></span>À l'étude</span>
+        </article>
+
+        <article class="idea">
+          <div class="vote">
+            <button class="up" aria-label="Voter pour"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
+            <span class="count">51</span>
+            <button class="down" aria-label="Voter contre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          </div>
+          <div>
+            <div class="idea-title">Signature électronique des bons de travail</div>
+            <p class="idea-desc">Faire signer le contremaître directement sur la tablette à la fin de l'intervention, pour clore l'ordre avec une preuve.</p>
+            <div class="idea-meta">
+              <span class="tag">Ordres de travail</span>
+              <span class="who"><span class="av">AB</span>Annie B. · Fonderie Drummond</span>
+              <span>💬 5 commentaires</span>
+            </div>
+          </div>
+          <span class="status planifie"><span class="d"></span>Planifié</span>
+        </article>
+
+        <article class="idea">
+          <div class="vote">
+            <button class="up" aria-label="Voter pour"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
+            <span class="count">33</span>
+            <button class="down" aria-label="Voter contre"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          </div>
+          <div>
+            <div class="idea-title">Suivi des garanties d'équipement</div>
+            <p class="idea-desc">Une alerte avant la fin de garantie d'une machine, pour ne pas payer une réparation qui aurait été couverte.</p>
+            <div class="idea-meta">
+              <span class="tag">Équipements</span>
+              <span class="who"><span class="av">FN</span>François N. · Transport Beauce</span>
+              <span>💬 4 commentaires</span>
+            </div>
+          </div>
+          <span class="status etude"><span class="d"></span>À l'étude</span>
+        </article>
+
+      </div>
+
+      <p class="center muted" style="font-size:14px;margin-top:24px">
+        41 idées · 1 280 votes des fondateurs depuis janvier. <a class="btn-link" href="contact.html" style="display:inline-flex">Rejoindre la conversation <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ░░ TÉMOIGNAGE FONDATEUR ░░ -->
+  <section class="section-pad">
+    <div class="wrap-narrow center">
+      <span style="font-family:var(--serif);font-size:56px;color:var(--accent);line-height:0;display:inline-block;height:30px">“</span>
+      <p class="quote quote-big">
+        On a demandé le mode hors-ligne un mardi. Deux semaines plus tard, c'était dans l'app, avec un petit mot de l'équipe. T'as pas ça avec un gros logiciel américain.
+      </p>
+      <div class="quote-by" style="justify-content:center">
+        <div class="avatar">M</div>
+        <div style="text-align:left">
+          <div style="font-weight:600">Mathieu Tremblay <span class="badge" style="font-size:10px;padding:2px 8px;vertical-align:middle">Fondateur #03</span></div>
+          <div class="muted" style="font-size:14px">Responsable maintenance, Boulangerie Plateau</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ CTA SOMBRE ░░ -->
+  <section class="band-dark section-pad">
+    <div class="wrap-narrow center">
+      <span class="eyebrow">Il reste 31 places</span>
+      <h2 style="font-size:clamp(30px,4.5vw,46px);line-height:1.08;margin-top:14px">Embarquez pendant qu'il reste de la place.</h2>
+      <p style="font-size:19px;margin-top:18px;max-width:540px;margin-left:auto;margin-right:auto">
+        La cohorte de juin se remplit. 6 mois gratuits, prix bloqué à vie et votre nom inscrit comme fondateur — il suffit d'une conversation pour commencer.
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:30px;flex-wrap:wrap">
+        <a class="btn btn-primary btn-lg" href="contact.html">Réserver ma place</a>
+        <a class="btn btn-lg" style="background:transparent;color:oklch(94% .012 80);border:1px solid oklch(50% .02 60)" href="#forum">Explorer la feuille de route</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-mount"></div>
+
+  <script src="site.js"></script>
+</body>
+</html>
