@@ -10,7 +10,7 @@ Un technicien de maintenance peut créer un bon de travail, scanner un actif QR 
 
 ## Requirements
 
-### Validated
+### Validated (v1.0)
 
 - ✓ Authentification multi-organisation via Clerk — Phase 1 (existant)
 - ✓ Gestion des actifs (équipements) avec catégories et sites — Phase 1 (existant)
@@ -23,19 +23,24 @@ Un technicien de maintenance peut créer un bon de travail, scanner un actif QR 
 - ✓ Abonnements Stripe avec 3 tiers (Démarrage/Croissance/Entreprise) — Phase 2 (existant)
 - ✓ PWA avec support hors-ligne — Phase 2 (existant)
 - ✓ Onboarding organisation multi-étapes — Phase 1 (existant)
-- ✓ Feature gating selon tier d'abonnement Stripe — Validé en Phase 2 : requirePlan(), UpgradeGate, sidebar lock icons, dashboard widget
-- ✓ Codes de panne Problème/Cause/Remède à la clôture des BTs — Validé en Phase 7 (faultProblem, faultCause, faultRemedy)
-- ✓ Rapports de fiabilité analytique (FIAB-01 à FIAB-04) — Validé en Phase 7 : Top pannes récurrentes, MTTR par actif, Coût par actif, Planifié vs Réel avec 3 sous-onglets
-- ✓ Sélecteur de période pour les rapports (Ce mois / 3 mois / 6 mois / Cette année) — Validé en Phase 7
+- ✓ Rebrand complet Korvia : logo SVG, landing page dark navy, identité visuelle — v1.0 Phase 1
+- ✓ Feature gating selon tier d'abonnement Stripe (requirePlan, UpgradeGate) — v1.0 Phase 2
+- ✓ Notifications email automatiques via Resend (BT assigné, maintenance due, stock bas) — v1.0 Phase 3
+- ✓ API REST publique avec documentation OpenAPI/Scalar et gestion clés API — v1.0 Phase 4
+- ✓ Portail de demandes public par site (URL → BT sans compte) — v1.0 Phase 5
+- ✓ Intégrité données terrain : codes panne P/C/R, minuterie, calcul coûts — v1.0 Phase 6
+- ✓ Analytique de fiabilité : MTTR, top pannes, coût/actif, planifié vs réel — v1.0 Phase 7
+- ✓ Productivité technicien : job plans, checklists PM, escalade BT urgents — v1.0 Phase 8
+- ✓ Maintenance conditionnelle : compteurs d'actifs + cron déclencheur BT auto — v1.0 Phase 9
 
-### Active
+### Active (v2.0 — Croissance multi-marchés)
 
-- [ ] Rebrand complet vers Korvia (nom, logo SVG, couleurs de marque)
-- [ ] Landing page distinctive avec identité visuelle Korvia
-- [ ] Logo SVG dans l'interface et les emails
-- [ ] API publique avec documentation
-- [ ] Notifications email (bons de travail assignés, maintenance due)
-- [ ] Multi-langue (FR/EN)
+- [ ] Multi-langue FR/EN-CA (I18N-01, I18N-02, I18N-03)
+- [ ] Export CSV/Excel des BTs et actifs (INT-02)
+- [ ] Import assisté IA depuis Excel/ancien GMAO (INT-03 + backlog 999.1)
+- [ ] Notifications push PWA pour BTs assignés (MOB-01)
+- [ ] Mode hors-ligne complet pour BTs en cours (MOB-02)
+- [ ] Webhooks sortants configurables (INT-01)
 
 ### Out of Scope
 
@@ -86,4 +91,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-26 — Phase 07 (Analytique de fiabilité) complete*
+*Last updated: 2026-05-29 — v1.0 milestone complete (9 phases, 32 plans)*

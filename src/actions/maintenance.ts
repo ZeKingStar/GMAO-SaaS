@@ -47,6 +47,9 @@ export async function createMaintenancePlan(data: {
       organizationId,
       ...rest,
       nextDueAt: nextDueAt ? new Date(nextDueAt) : undefined,
+      nextMeterValue: data.triggerType === 'meter_based' && data.meterThreshold
+        ? data.meterThreshold
+        : undefined,
       tasks: tasks?.length
         ? {
             create: tasks.map((description, order) => ({ description, order })),
