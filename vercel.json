@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/urgent-escalation",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/meter-threshold-check",
+      "schedule": "0 * * * *"
     }
   ]
 }
