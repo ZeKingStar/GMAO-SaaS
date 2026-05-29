@@ -113,7 +113,7 @@ export function AssetFormDialog({ asset, categories, sites, parentId, children }
     <>
       {trigger}
       <Dialog open={open} onOpenChange={handleOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{asset ? 'Modifier l\'actif' : parentId ? 'Ajouter un sous-composant' : 'Nouvel actif'}</DialogTitle>
           </DialogHeader>
