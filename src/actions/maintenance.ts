@@ -133,9 +133,12 @@ export async function deleteMaintenanceTask(taskId: string) {
   revalidatePath('/maintenance')
 }
 
-export async function generateWorkOrderFromPlan(planId: string) {
-  const { organizationId } = await getOrgAndMembership()
-
+/**
+ * Pure business logic — creates a work order from a maintenance plan.
+ * No auth() dependency: organizationId is passed explicitly.
+ * Intended for use by cron jobs and server-side contexts without a session.
+ */
+export async function generateWorkOrderFromPlanInternal(planId: string, organizationId: string) {
   const plan = await db.maintenancePlan.findFirst({
     where: { id: planId, organizationId },
     include: {
@@ -185,6 +188,12 @@ export async function generateWorkOrderFromPlan(planId: string) {
     data: { lastGeneratedAt: new Date() },
   })
 
+  return wo
+}
+
+export async function generateWorkOrderFromPlan(planId: string) {
+  const { organizationId } = await getOrgAndMembership()
+  const wo = await generateWorkOrderFromPlanInternal(planId, organizationId)
   revalidatePath('/bons-de-travail')
   revalidatePath('/maintenance')
   return wo
