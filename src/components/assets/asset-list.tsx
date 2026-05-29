@@ -8,10 +8,12 @@ import { toast } from 'sonner'
 import { deleteAsset } from '@/actions/assets'
 import { AssetFormDialog } from './asset-form-dialog'
 import { AssetQrDialog } from './asset-qr-dialog'
+import { AssetMeterSection } from './asset-meter-section'
 
 type Category = { id: string; name: string; icon: string | null }
 type Location = { id: string; name: string; parentId: string | null }
 type Site = { id: string; name: string; locations: Location[] }
+type Meter = { id: string; name: string; unit: string; value: number }
 type Asset = {
   id: string; name: string; description: string | null; serialNumber: string | null
   model: string | null; manufacturer: string | null; isActive: boolean; qrCode: string | null
@@ -19,6 +21,7 @@ type Asset = {
   category: Category | null
   site: Site | null
   location: { id: string; name: string } | null
+  meters: Meter[]
 }
 
 type Props = { assets: Asset[]; categories: Category[]; sites: Site[] }
@@ -81,6 +84,11 @@ export function AssetList({ assets, categories, sites }: Props) {
                   <div className="font-medium">{asset.name}</div>
                   {asset.model && <div className="text-xs text-muted-foreground">{asset.manufacturer ? `${asset.manufacturer} · ` : ''}{asset.model}</div>}
                   {asset.parentId && <div className="text-xs text-muted-foreground/60 italic">sous-composant</div>}
+                  {asset.meters.length > 0 && (
+                    <div className="mt-2">
+                      <AssetMeterSection assetId={asset.id} meters={asset.meters} />
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell">
                   {asset.category ? (

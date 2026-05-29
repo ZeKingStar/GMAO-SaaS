@@ -19,6 +19,7 @@ export default async function ActifsPage() {
         category: true,
         site: { include: { locations: true } },
         location: true,
+        meters: true,
       },
       orderBy: [{ parentId: 'asc' }, { name: 'asc' }],
     }),
