@@ -24,6 +24,7 @@ export async function createAsset(data: {
   manufacturer?: string
   purchaseDate?: string
   warrantyExpiry?: string
+  meter?: { name: string; unit: string }
 }) {
   const organizationId = await getOrganizationId()
   await db.asset.create({
@@ -40,6 +41,7 @@ export async function createAsset(data: {
       manufacturer: data.manufacturer || null,
       purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : null,
       warrantyExpiry: data.warrantyExpiry ? new Date(data.warrantyExpiry) : null,
+      meters: data.meter ? { create: [{ name: data.meter.name, unit: data.meter.unit }] } : undefined,
     },
   })
   revalidatePath('/actifs')
@@ -58,6 +60,7 @@ export async function updateAsset(id: string, data: {
   purchaseDate?: string
   warrantyExpiry?: string
   isActive?: boolean
+  meter?: { id?: string; name: string; unit: string } | null
 }) {
   const organizationId = await getOrganizationId()
   await db.asset.update({
@@ -77,6 +80,19 @@ export async function updateAsset(id: string, data: {
       isActive: data.isActive ?? true,
     },
   })
+  if (data.meter !== undefined) {
+    if (data.meter === null) {
+      await db.assetMeter.deleteMany({ where: { assetId: id } })
+    } else if (data.meter.id) {
+      await db.assetMeter.update({
+        where: { id: data.meter.id },
+        data: { name: data.meter.name, unit: data.meter.unit },
+      })
+    } else {
+      await db.assetMeter.deleteMany({ where: { assetId: id } })
+      await db.assetMeter.create({ data: { assetId: id, name: data.meter.name, unit: data.meter.unit } })
+    }
+  }
   revalidatePath('/actifs')
 }
 

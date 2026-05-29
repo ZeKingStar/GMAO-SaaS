@@ -121,7 +121,7 @@ export function AssetList({ assets, categories, sites }: Props) {
                         <QrCode className="h-3.5 w-3.5" />
                       </Button>
                     </AssetQrDialog>
-                    <AssetFormDialog asset={asset} categories={categories} sites={sites}>
+                    <AssetFormDialog asset={{ ...asset, meters: asset.meters }} categories={categories} sites={sites}>
                       <Button variant="ghost" size="icon-sm"><Pencil className="h-3.5 w-3.5" /></Button>
                     </AssetFormDialog>
                     <Button variant="ghost" size="icon-sm" onClick={() => handleDelete(asset)}>

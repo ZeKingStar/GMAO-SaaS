@@ -15,6 +15,7 @@ type Asset = {
   model: string | null; manufacturer: string | null; categoryId: string | null
   siteId: string | null; locationId: string | null; parentId: string | null
   isActive: boolean
+  meters?: { id: string; name: string; unit: string }[]
 }
 
 type Props = {
@@ -28,6 +29,7 @@ type Props = {
 export function AssetFormDialog({ asset, categories, sites, parentId, children }: Props) {
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
+  const existingMeter = asset?.meters?.[0] ?? null
   const [form, setForm] = useState({
     name: asset?.name ?? '',
     description: asset?.description ?? '',
@@ -38,18 +40,25 @@ export function AssetFormDialog({ asset, categories, sites, parentId, children }
     siteId: asset?.siteId ?? '',
     locationId: asset?.locationId ?? '',
   })
+  const [hasMeter, setHasMeter] = useState(!!existingMeter)
+  const [meter, setMeter] = useState({ name: existingMeter?.name ?? '', unit: existingMeter?.unit ?? '' })
 
   function handleOpen(isOpen: boolean) {
-    if (isOpen) setForm({
-      name: asset?.name ?? '',
-      description: asset?.description ?? '',
-      serialNumber: asset?.serialNumber ?? '',
-      model: asset?.model ?? '',
-      manufacturer: asset?.manufacturer ?? '',
-      categoryId: asset?.categoryId ?? '',
-      siteId: asset?.siteId ?? '',
-      locationId: asset?.locationId ?? '',
-    })
+    if (isOpen) {
+      const m = asset?.meters?.[0] ?? null
+      setForm({
+        name: asset?.name ?? '',
+        description: asset?.description ?? '',
+        serialNumber: asset?.serialNumber ?? '',
+        model: asset?.model ?? '',
+        manufacturer: asset?.manufacturer ?? '',
+        categoryId: asset?.categoryId ?? '',
+        siteId: asset?.siteId ?? '',
+        locationId: asset?.locationId ?? '',
+      })
+      setHasMeter(!!m)
+      setMeter({ name: m?.name ?? '', unit: m?.unit ?? '' })
+    }
     setOpen(isOpen)
   }
 
@@ -73,8 +82,11 @@ export function AssetFormDialog({ asset, categories, sites, parentId, children }
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.name.trim()) { toast.error('Le nom est requis'); return }
+    if (hasMeter && !meter.name.trim()) { toast.error('Le nom du compteur est requis'); return }
+    if (hasMeter && !meter.unit.trim()) { toast.error("L'unité du compteur est requise"); return }
     startTransition(async () => {
       try {
+        const meterData = hasMeter ? { id: existingMeter?.id, name: meter.name.trim(), unit: meter.unit.trim() } : null
         const data = {
           name: form.name.trim(),
           description: form.description.trim() || undefined,
@@ -86,7 +98,11 @@ export function AssetFormDialog({ asset, categories, sites, parentId, children }
           locationId: form.locationId || undefined,
           parentId: parentId || asset?.parentId || undefined,
         }
-        asset ? await updateAsset(asset.id, data) : await createAsset(data)
+        if (asset) {
+          await updateAsset(asset.id, { ...data, meter: meterData })
+        } else {
+          await createAsset({ ...data, meter: meterData ?? undefined })
+        }
         toast.success(asset ? 'Actif mis à jour' : 'Actif créé')
         setOpen(false)
       } catch { toast.error("Une erreur s'est produite") }
@@ -161,6 +177,24 @@ export function AssetFormDialog({ asset, categories, sites, parentId, children }
                 <Label htmlFor="a-desc">Description</Label>
                 <Input id="a-desc" value={form.description} onChange={e => set('description', e.target.value)} placeholder="Description optionnelle" />
               </div>
+              <div className="col-span-2 pt-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-sm">
+                  <input type="checkbox" checked={hasMeter} onChange={e => setHasMeter(e.target.checked)} className="h-4 w-4 rounded border-input accent-primary" />
+                  Cet actif a un compteur (heures, km, cycles…)
+                </label>
+              </div>
+              {hasMeter && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="a-meter-name">Nom du compteur</Label>
+                    <Input id="a-meter-name" value={meter.name} onChange={e => setMeter(m => ({ ...m, name: e.target.value }))} placeholder="Ex : Heures moteur" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="a-meter-unit">Unité</Label>
+                    <Input id="a-meter-unit" value={meter.unit} onChange={e => setMeter(m => ({ ...m, unit: e.target.value }))} placeholder="Ex : h, km, cycles" />
+                  </div>
+                </>
+              )}
             </div>
             <DialogFooter>
               <Button type="submit" disabled={pending} className="w-full sm:w-auto">
