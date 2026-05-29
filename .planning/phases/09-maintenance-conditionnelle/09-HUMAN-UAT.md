@@ -27,12 +27,18 @@ result: [pending]
 expected: PM meter_based avec nextMeterValue=1000 sur actif avec value=1500 → GET /api/cron/meter-threshold-check avec Bearer CRON_SECRET → triggered=1, BT créé, nextMeterValue=2000. Second appel → triggered=0 (idempotence)
 result: [pending]
 
+### 4. Test PWA via ngrok (mobile terrain)
+
+expected: App accessible via URL ngrok HTTPS → installable comme PWA sur iOS/Android → navigation actifs + saisie relevé compteur fonctionne sans erreur → manifest et service worker servis correctement (vérifier DevTools > Application)
+result: [pending]
+notes: Lancer ngrok avec `ngrok http 3000`, ouvrir l'URL sur mobile, tester Add to Home Screen
+
 ## Summary
 
-total: 3
+total: 4
 passed: 0
 issues: 0
-pending: 3
+pending: 4
 skipped: 0
 blocked: 0
 
