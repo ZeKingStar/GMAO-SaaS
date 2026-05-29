@@ -16,6 +16,7 @@ const isPublicRoute = createRouteMatcher([
   "/portail(.*)",
   "/api/portal(.*)",
   "/api/cron(.*)",
+  "/manifest.webmanifest",
 ])
 
 export const proxy = clerkMiddleware(async (auth, req) => {
