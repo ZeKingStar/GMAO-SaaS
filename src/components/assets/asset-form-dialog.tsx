@@ -113,11 +113,11 @@ export function AssetFormDialog({ asset, categories, sites, parentId, children }
     <>
       {trigger}
       <Dialog open={open} onOpenChange={handleOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90dvh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{asset ? 'Modifier l\'actif' : parentId ? 'Ajouter un sous-composant' : 'Nouvel actif'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto max-h-[calc(90dvh-8rem)] pr-0.5">
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2 space-y-2">
                 <Label htmlFor="a-name">Nom *</Label>
@@ -173,28 +173,28 @@ export function AssetFormDialog({ asset, categories, sites, parentId, children }
                   </select>
                 </div>
               )}
+              <div className="col-span-2 pt-1 border rounded-lg p-3 space-y-3 bg-muted/30">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-sm font-medium">
+                  <input type="checkbox" checked={hasMeter} onChange={e => setHasMeter(e.target.checked)} className="h-4 w-4 rounded border-input accent-primary" />
+                  Cet actif a un compteur (heures, km, cycles…)
+                </label>
+                {hasMeter && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="a-meter-name">Nom du compteur</Label>
+                      <Input id="a-meter-name" value={meter.name} onChange={e => setMeter(m => ({ ...m, name: e.target.value }))} placeholder="Ex : Heures moteur" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="a-meter-unit">Unité</Label>
+                      <Input id="a-meter-unit" value={meter.unit} onChange={e => setMeter(m => ({ ...m, unit: e.target.value }))} placeholder="Ex : h, km, cycles" />
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="col-span-2 space-y-2">
                 <Label htmlFor="a-desc">Description</Label>
                 <Input id="a-desc" value={form.description} onChange={e => set('description', e.target.value)} placeholder="Description optionnelle" />
               </div>
-              <div className="col-span-2 pt-1">
-                <label className="flex items-center gap-2 cursor-pointer select-none text-sm">
-                  <input type="checkbox" checked={hasMeter} onChange={e => setHasMeter(e.target.checked)} className="h-4 w-4 rounded border-input accent-primary" />
-                  Cet actif a un compteur (heures, km, cycles…)
-                </label>
-              </div>
-              {hasMeter && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="a-meter-name">Nom du compteur</Label>
-                    <Input id="a-meter-name" value={meter.name} onChange={e => setMeter(m => ({ ...m, name: e.target.value }))} placeholder="Ex : Heures moteur" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="a-meter-unit">Unité</Label>
-                    <Input id="a-meter-unit" value={meter.unit} onChange={e => setMeter(m => ({ ...m, unit: e.target.value }))} placeholder="Ex : h, km, cycles" />
-                  </div>
-                </>
-              )}
             </div>
             <DialogFooter>
               <Button type="submit" disabled={pending} className="w-full sm:w-auto">
