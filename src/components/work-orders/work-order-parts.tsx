@@ -21,12 +21,14 @@ type Props = {
   workOrderId: string
   parts: WOPart[]
   spareParts: SparePartLite[]
+  status: string
 }
 
 const SELECT_CLASS = 'h-9 rounded-lg border border-input bg-background px-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
 const INPUT_CLASS = 'h-9 rounded-lg border border-input bg-background px-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
 
-export function WorkOrderParts({ workOrderId, parts, spareParts }: Props) {
+export function WorkOrderParts({ workOrderId, parts, spareParts, status }: Props) {
+  const isLocked = status === 'closed' || status === 'resolved'
   const [, startTransition] = useTransition()
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
@@ -88,9 +90,11 @@ export function WorkOrderParts({ workOrderId, parts, spareParts }: Props) {
     <div className="rounded-xl border bg-card p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold">Pièces utilisées ({parts.length})</h2>
-        <Button variant="outline" size="sm" onClick={() => { setShowForm(v => !v); if (showForm) resetForm() }}>
-          <Plus className="h-4 w-4 mr-1.5" />Ajouter
-        </Button>
+        {!isLocked && (
+          <Button variant="outline" size="sm" onClick={() => { setShowForm(v => !v); if (showForm) resetForm() }}>
+            <Plus className="h-4 w-4 mr-1.5" />Ajouter
+          </Button>
+        )}
       </div>
 
       {showForm && (
@@ -168,12 +172,14 @@ export function WorkOrderParts({ workOrderId, parts, spareParts }: Props) {
                 {p.unitCost !== null && (
                   <span className="text-muted-foreground">— {(p.quantity * p.unitCost).toFixed(2)} $</span>
                 )}
-                <button onClick={() => handleEdit(p)} className="text-muted-foreground hover:text-foreground">
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={() => handleDelete(p.id)} className="text-muted-foreground hover:text-destructive">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                {!isLocked && <>
+                  <button onClick={() => handleEdit(p)} className="text-muted-foreground hover:text-foreground">
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={() => handleDelete(p.id)} className="text-muted-foreground hover:text-destructive">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </>}
               </div>
             </div>
           ))}

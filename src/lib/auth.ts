@@ -2,6 +2,14 @@ import { auth, currentUser } from "@clerk/nextjs/server"
 import { db } from "@/lib/db"
 import type { MemberRole, SubscriptionPlan } from "@/generated/prisma/enums"
 
+// Gate: ENABLE_GOD_MODE=true in .env.local + never active in production
+// REMOVE BEFORE PUBLIC LAUNCH — tracked in .planning/todos/pending/god-mode-removal.md
+const GOD_MODE = process.env.ENABLE_GOD_MODE === 'true' && process.env.NODE_ENV !== 'production'
+
+export function isGodMode() {
+  return GOD_MODE
+}
+
 export async function getOrganizationMembership() {
   const { userId, orgId } = await auth()
   if (!userId || !orgId) return null
@@ -20,7 +28,7 @@ export async function requireOrgAccess() {
 
 export async function requireRole(roles: MemberRole[]) {
   const membership = await requireOrgAccess()
-  if (!roles.includes(membership.role)) throw new Error("Forbidden")
+  if (!GOD_MODE && !roles.includes(membership.role)) throw new Error("Forbidden")
   return membership
 }
 
@@ -40,8 +48,8 @@ export async function requirePlan(plans: SubscriptionPlan[]) {
   return {
     membership,
     subscription: sub,
-    effectivePlan,
-    hasAccess: plans.includes(effectivePlan),
+    effectivePlan: GOD_MODE ? 'enterprise' as SubscriptionPlan : effectivePlan,
+    hasAccess: GOD_MODE || plans.includes(effectivePlan),
   }
 }
 
