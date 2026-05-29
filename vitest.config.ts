@@ -2,6 +2,9 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 
+const WORKTREE = resolve(__dirname)
+const MAIN_REPO = resolve('/home/deploy/gmao-saas')
+
 export default defineConfig({
   plugins: [react()],
   test: {
@@ -13,8 +16,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
-      'server-only': resolve(__dirname, './src/__mocks__/server-only.ts'),
+      '@': resolve(WORKTREE, './src'),
+      'server-only': resolve(MAIN_REPO, './src/__mocks__/server-only.ts'),
     },
   },
 })
