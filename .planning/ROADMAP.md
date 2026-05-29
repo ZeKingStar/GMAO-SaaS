@@ -213,8 +213,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — COND-01 : helper updateMeterAndPlans + Server Action recordMeterReadingOnAsset + composant AssetMeterSection sur page /actifs (Wave 1)
-- [ ] 09-02-PLAN.md — COND-02 : refactor generateWorkOrderFromPlanInternal + cron meter-threshold-check (guard idempotence) + vercel.json (Wave 2)
+- [x] 09-01-PLAN.md — COND-01 : helper updateMeterAndPlans + Server Action recordMeterReadingOnAsset + composant AssetMeterSection sur page /actifs (Wave 1)
+- [x] 09-02-PLAN.md — COND-02 : refactor generateWorkOrderFromPlanInternal + cron meter-threshold-check (guard idempotence) + vercel.json (Wave 2)
 
 ---
 
@@ -225,3 +225,16 @@ Plans:
 - Mode hors-ligne complet (PWA)
 - Notifications push PWA
 - Webhooks sortants configurables
+
+---
+
+## Backlog
+
+### Phase 999.1: Import assisté IA (BACKLOG)
+
+**Goal:** Macro + AI pour aider le client à transformer ses données existantes (Excel maison, ancien GMAO) vers le template d'import Korvia. Suggestion de mapping colonnes, détection de doublons, rapport d'import.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
