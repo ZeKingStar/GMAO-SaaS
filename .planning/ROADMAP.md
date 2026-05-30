@@ -58,3 +58,12 @@
 
 Plans:
 - [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
+
+### Phase 999.2 : Invitation membres depuis l'app (BACKLOG)
+
+**Goal:** Permettre aux admins/gestionnaires d'inviter des membres directement depuis `/parametres/organisation` sans passer par le dashboard Clerk. Choix du rôle à l'invitation, liste des invitations en attente, révocation possible.
+**Requirements:** API Clerk Organizations (`createOrganizationInvitation`), affichage des invitations pendantes dans la section Équipe.
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
