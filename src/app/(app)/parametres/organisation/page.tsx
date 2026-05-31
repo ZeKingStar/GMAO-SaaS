@@ -4,14 +4,11 @@ import { db } from '@/lib/db'
 import { OrgSettingsForm } from '@/components/settings/org-settings-form'
 import { TeamTable } from '@/components/settings/team-table'
 import { BillingSection } from '@/components/settings/billing-section'
-import { ApiKeysSection } from '@/components/settings/api-keys-section'
-import { PortalSitesSection, type PortalSiteRow } from '@/components/settings/portal-sites-section'
-import { listApiKeys } from '@/actions/api-keys'
-import { ClosureRequirementsSection } from '@/components/settings/closure-requirements-section'
-import { parseClosureRequirements } from '@/lib/closure-requirements'
-import { EscalationConfigSection } from '@/components/settings/escalation-config-section'
-import { parseEscalationConfig } from '@/lib/escalation-config'
-import { Building2, Users, CreditCard, KeyRound, Globe, ClipboardCheck, Bell } from 'lucide-react'
+import { InviteDialog } from '@/components/settings/invite-dialog'
+import { PendingInvitationsSection } from '@/components/settings/pending-invitations-section'
+import { listPendingInvitations } from '@/actions/settings'
+import { Building2, Users, CreditCard } from 'lucide-react'
+import type { MemberRole } from '@/generated/prisma/enums'
 
 export default async function ParametresPage() {
   const { orgId, userId } = await auth()
@@ -19,7 +16,7 @@ export default async function ParametresPage() {
 
   const org = await db.organization.findUnique({
     where: { clerkId: orgId },
-    select: { id: true, name: true, industry: true, size: true, closureRequirements: true, escalationConfig: true },
+    select: { id: true, name: true, industry: true, size: true },
   })
   if (!org) redirect('/onboarding')
 
@@ -30,37 +27,20 @@ export default async function ParametresPage() {
     }),
     db.subscription.findUnique({
       where: { organizationId: org.id },
-      select: { plan: true, status: true, trialEndsAt: true, currentPeriodEnd: true, stripeCustomerId: true },
+      select: { plan: true, status: true, trialEndsAt: true, currentPeriodEnd: true },
     }),
   ])
 
   const currentMembership = members.find(m => m.clerkUserId === userId)
-  const closureReq = parseClosureRequirements(org.closureRequirements)
-  const escalationCfg = parseEscalationConfig(org.escalationConfig)
-  const canManageEscalation = currentMembership && ['admin', 'manager'].includes(currentMembership.role)
+  const canManageTeam = !!currentMembership && ['admin', 'manager'].includes(currentMembership.role)
 
-  // API Keys section — admin/manager role + Croissance or Entreprise plan
-  const isActivePlan = subscription && ['active', 'trialing'].includes(subscription.status)
-  const hasApiAccess = isActivePlan && ['growth', 'enterprise'].includes(subscription.plan)
-  const canManageApiKeys =
-    hasApiAccess && currentMembership && ['admin', 'manager'].includes(currentMembership.role)
-  const apiKeys = canManageApiKeys ? await listApiKeys() : []
-
-  // Portal section — admin/manager role only (no plan gating)
-  const canManagePortals =
-    currentMembership && ['admin', 'manager'].includes(currentMembership.role)
-
-  const portalSites: PortalSiteRow[] = canManagePortals
-    ? await db.site.findMany({
-        where: { organizationId: org.id },
-        orderBy: { name: 'asc' },
-        select: {
-          id: true,
-          name: true,
-          portalToken: true,
-          portalEnabled: true,
-        },
-      })
+  const pendingInvitations = canManageTeam
+    ? (await listPendingInvitations()).map(inv => ({
+        id: inv.id,
+        emailAddress: inv.emailAddress,
+        role: (inv.role.startsWith('org:') ? inv.role.slice(4) : inv.role) as MemberRole,
+        createdAt: inv.createdAt,
+      }))
     : []
 
   return (
@@ -88,7 +68,7 @@ export default async function ParametresPage() {
           <h2 className="font-semibold">Abonnement</h2>
         </div>
         <div className="border rounded-lg p-5 bg-card">
-          <BillingSection subscription={subscription} hasStripeCustomer={!!subscription?.stripeCustomerId} />
+          <BillingSection subscription={subscription} />
         </div>
       </section>
 
@@ -99,67 +79,22 @@ export default async function ParametresPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
             <h2 className="font-semibold">Équipe</h2>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {members.length} membre{members.length !== 1 ? 's' : ''}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">
+              {members.length} membre{members.length !== 1 ? 's' : ''}
+            </span>
+            {canManageTeam && (
+              <InviteDialog currentRole={currentMembership!.role as MemberRole} />
+            )}
+          </div>
         </div>
         <TeamTable
           members={members}
           currentMembershipId={currentMembership?.id ?? ''}
           currentRole={currentMembership?.role ?? 'viewer'}
         />
-        <p className="text-xs text-muted-foreground">
-          Pour inviter des membres, utilisez le tableau de bord Clerk de votre organisation.
-        </p>
+        <PendingInvitationsSection invitations={pendingInvitations} />
       </section>
-
-      {/* Exigences de clôture — admin/manager only */}
-      {currentMembership && ['admin', 'manager'].includes(currentMembership.role) && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
-            <h2 className="font-semibold">Exigences de clôture des bons de travail</h2>
-          </div>
-          <div className="border rounded-lg p-5 bg-card">
-            <ClosureRequirementsSection initial={closureReq} />
-          </div>
-        </section>
-      )}
-
-      {/* Escalade des bons urgents — admin/manager only */}
-      {canManageEscalation && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">Escalade des bons urgents</h2>
-          </div>
-          <div className="border rounded-lg p-5 bg-card">
-            <EscalationConfigSection initial={escalationCfg} />
-          </div>
-        </section>
-      )}
-
-      {/* Clés API — admin/manager only */}
-      {canManageApiKeys && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <KeyRound className="h-4 w-4 text-muted-foreground" />
-            <h2 className="font-semibold">API</h2>
-          </div>
-          <ApiKeysSection initialKeys={apiKeys} />
-        </section>
-      )}
-
-      {/* Portails publics — admin/manager only */}
-      {canManagePortals && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">Portails publics</h2>
-          </div>
-          <PortalSitesSection initialSites={portalSites} />
-        </section>
-      )}
     </div>
   )
 }
