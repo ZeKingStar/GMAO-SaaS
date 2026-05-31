@@ -3,12 +3,12 @@
 import { useTransition } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { updateMemberRole, updateMemberHourlyRate } from '@/actions/settings'
+import { updateMemberRole } from '@/actions/settings'
 import type { MemberRole } from '@/generated/prisma/enums'
 
 const SELECT_CLASS = 'h-8 rounded-md border border-input bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring/50'
 
-const ROLE_LABELS: Record<MemberRole, string> = {
+export const ROLE_LABELS: Record<MemberRole, string> = {
   admin: 'Admin',
   manager: 'Gestionnaire',
   technician: 'Technicien',
@@ -16,7 +16,7 @@ const ROLE_LABELS: Record<MemberRole, string> = {
   viewer: 'Lecteur',
 }
 
-const ROLE_VARIANTS: Record<MemberRole, 'default' | 'secondary' | 'outline'> = {
+export const ROLE_VARIANTS: Record<MemberRole, 'default' | 'secondary' | 'outline'> = {
   admin: 'default',
   manager: 'default',
   technician: 'secondary',
@@ -31,7 +31,6 @@ type Member = {
   lastName: string | null
   avatarUrl: string | null
   role: MemberRole
-  hourlyRate: number | null
   createdAt: Date
 }
 
@@ -56,26 +55,6 @@ export function TeamTable({ members, currentMembershipId, currentRole }: Props) 
     })
   }
 
-  function handleRateBlur(membershipId: string, raw: string) {
-    const trimmed = raw.trim()
-    if (trimmed === '') {
-      startTransition(async () => {
-        try { await updateMemberHourlyRate(membershipId, null); toast.success('Taux retiré') }
-        catch (e) { toast.error(e instanceof Error ? e.message : 'Erreur') }
-      })
-      return
-    }
-    const value = parseFloat(trimmed)
-    if (!Number.isFinite(value) || value < 0 || value > 10000) {
-      toast.error('Taux invalide (0 à 10 000 $/h)')
-      return
-    }
-    startTransition(async () => {
-      try { await updateMemberHourlyRate(membershipId, value); toast.success('Taux mis à jour') }
-      catch (e) { toast.error(e instanceof Error ? e.message : 'Erreur') }
-    })
-  }
-
   return (
     <div className="border rounded-lg overflow-hidden">
       <table className="w-full text-sm">
@@ -84,7 +63,6 @@ export function TeamTable({ members, currentMembershipId, currentRole }: Props) 
             <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Membre</th>
             <th className="text-left px-4 py-2.5 font-medium text-muted-foreground hidden md:table-cell">Courriel</th>
             <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Rôle</th>
-            <th className="text-left px-4 py-2.5 font-medium text-muted-foreground hidden md:table-cell">Taux horaire</th>
             <th className="text-left px-4 py-2.5 font-medium text-muted-foreground hidden lg:table-cell">Depuis</th>
           </tr>
         </thead>
@@ -130,27 +108,6 @@ export function TeamTable({ members, currentMembershipId, currentRole }: Props) 
                     <Badge variant={ROLE_VARIANTS[member.role]} className="text-xs">
                       {ROLE_LABELS[member.role]}
                     </Badge>
-                  )}
-                </td>
-                <td className="px-4 py-3 hidden md:table-cell">
-                  {canManage ? (
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        max="10000"
-                        defaultValue={member.hourlyRate ?? ''}
-                        placeholder="—"
-                        onBlur={e => handleRateBlur(member.id, e.target.value)}
-                        className="h-8 w-24 rounded-md border border-input bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring/50"
-                      />
-                      <span className="text-xs text-muted-foreground">$/h</span>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">
-                      {member.hourlyRate != null ? `${member.hourlyRate.toFixed(2)} $/h` : '—'}
-                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3 hidden lg:table-cell text-xs text-muted-foreground">
