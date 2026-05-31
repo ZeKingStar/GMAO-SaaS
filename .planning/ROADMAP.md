@@ -68,3 +68,12 @@ Plans:
 Plans:
 - [x] 999.2-01-PLAN.md — Server actions (inviteMember/revokeInvitation/listPendingInvitations) + utilitaire scoping de rôles + tests TDD
 - [x] 999.2-02-PLAN.md — UI : InviteDialog + PendingInvitationsSection + intégration page organisation
+
+### Phase 999.3 : Role-switcher dev panel (BACKLOG)
+
+**Goal:** Panel flottant visible uniquement pour cybersag@gmail.com hors production — dropdown permettant de simuler n'importe quel rôle UI (admin/manager/technician/requester/viewer) via cookie. N'affecte pas les server actions (le vrai rôle Clerk reste intact).
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
