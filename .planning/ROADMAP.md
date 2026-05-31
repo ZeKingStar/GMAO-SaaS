@@ -63,8 +63,8 @@ Plans:
 
 **Goal:** Permettre aux admins/gestionnaires d'inviter des membres directement depuis `/parametres/organisation` sans passer par le dashboard Clerk. Choix du rôle à l'invitation (scopé par rang, D-06), liste des invitations en attente, révocation possible.
 **Requirements:** D-01..D-07 (CONTEXT.md). Clerk Organizations Backend API (`createOrganizationInvitation`, `getOrganizationInvitationList`, `revokeOrganizationInvitation`). Enforcement serveur du scoping de rôles + validation email.
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 999.2-01-PLAN.md — Server actions (inviteMember/revokeInvitation/listPendingInvitations) + utilitaire scoping de rôles + tests TDD
+- [x] 999.2-01-PLAN.md — Server actions (inviteMember/revokeInvitation/listPendingInvitations) + utilitaire scoping de rôles + tests TDD
 - [ ] 999.2-02-PLAN.md — UI : InviteDialog + PendingInvitationsSection + intégration page organisation
