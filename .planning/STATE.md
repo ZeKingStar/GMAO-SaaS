@@ -37,13 +37,17 @@ See: .planning/PROJECT.md (updated 2026-05-19)
 
 ## Last Action
 
-Phase 08 complète — UAT 23/23 tests passés (May 28). Phase 09 initialisée : recherche faite, plans 09-01 (COND-01 enregistrement compteur actif) et 09-02 (COND-02 déclenchement automatique cron) créés et committé.
+Phase 999.2 exécutée — 2 plans complets, 135/135 tests verts, UAT 8/8 approuvé par cybersag@gmail.com. VERIFICATION.md créé (12/12 must-haves). Phase en attente de clôture finale (Assumption A1).
 
 ## Next Step
 
-`/gsd-execute-phase 9` — Exécuter la Phase 9: Maintenance Conditionnelle
+**⚠ PREMIÈRE QUESTION à poser au redémarrage :**
+> "Peux-tu vérifier le format de rôle dans ton Clerk Dashboard → Organization Members → colonne Role d'un membre existant ? Est-ce `org:technician` (avec préfixe) ou `technician` (sans préfixe) ?"
+> Une fois confirmé → lancer `node gsd-tools.cjs phase complete 999.2` pour fermer la phase.
+
+Ensuite : `/gsd-execute-phase 9` — Exécuter la Phase 9: Maintenance Conditionnelle
 
 ## Session Continuity
 
-Last session: 2026-05-30T12:48:09.818Z
-Stopped at: Phase 999.2 context gathered
+Last session: 2026-05-31T19:50:00Z
+Stopped at: Phase 999.2 exécutée — en attente confirmation Assumption A1 (format rôle Clerk)
