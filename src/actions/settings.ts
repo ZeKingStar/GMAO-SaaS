@@ -1,13 +1,14 @@
 'use server'
 
-import { auth } from '@clerk/nextjs/server'
+import { auth, clerkClient } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import type { MemberRole } from '@/generated/prisma/enums'
 import { type ClosureRequirements } from '@/lib/closure-requirements'
 import { type EscalationConfig } from '@/lib/escalation-config'
+import { canInviteWithRole, toClerkRole } from '@/lib/invitation-roles'
 
-async function getAdminOrg() {
+async function getAdminContext() {
   const { orgId, userId } = await auth()
   if (!orgId || !userId) throw new Error('Non autorisé')
 
@@ -22,7 +23,11 @@ async function getAdminOrg() {
     throw new Error('Accès refusé')
   }
 
-  return org.id
+  return { organizationId: org.id, orgId, userId, role: membership.role as MemberRole }
+}
+
+async function getAdminOrg() {
+  return (await getAdminContext()).organizationId
 }
 
 export async function updateOrganization(data: {
@@ -102,4 +107,44 @@ export async function updateEscalationConfig(cfg: EscalationConfig) {
     data: { escalationConfig: sanitized },
   })
   revalidatePath('/parametres/organisation')
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export async function inviteMember(emailAddress: string, role: MemberRole) {
+  const { orgId, userId, role: currentRole } = await getAdminContext()
+  const email = emailAddress.trim().toLowerCase()
+  if (!email || !EMAIL_RE.test(email)) throw new Error('Adresse e-mail invalide')
+  if (!canInviteWithRole(currentRole, role)) {
+    throw new Error('Vous ne pouvez pas attribuer un rôle supérieur au vôtre')
+  }
+  const client = await clerkClient()
+  await client.organizations.createOrganizationInvitation({
+    organizationId: orgId,
+    emailAddress: email,
+    role: toClerkRole(role),
+    inviterUserId: userId,
+  })
+  revalidatePath('/parametres/organisation')
+}
+
+export async function revokeInvitation(invitationId: string) {
+  const { orgId, userId } = await getAdminContext()
+  const client = await clerkClient()
+  await client.organizations.revokeOrganizationInvitation({
+    organizationId: orgId,
+    invitationId,
+    requestingUserId: userId,
+  })
+  revalidatePath('/parametres/organisation')
+}
+
+export async function listPendingInvitations() {
+  const { orgId } = await getAdminContext()
+  const client = await clerkClient()
+  const { data } = await client.organizations.getOrganizationInvitationList({
+    organizationId: orgId,
+    status: ['pending'],
+  })
+  return data
 }
