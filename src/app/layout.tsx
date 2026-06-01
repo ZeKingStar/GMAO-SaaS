@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next"
 import { IBM_Plex_Sans, IBM_Plex_Mono, Newsreader } from "next/font/google"
-import { ClerkProvider } from "@clerk/nextjs"
-import { frFR } from "@clerk/localizations"
 import { Toaster } from "sonner"
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register"
 import "./globals.css"
@@ -48,14 +46,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider localization={frFR} afterSignOutUrl="/sign-in">
-      <html lang="fr" className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${newsreader.variable} h-full antialiased`}>
-        <body className="min-h-full bg-background text-foreground">
-          {children}
-          <Toaster richColors position="top-right" />
-          <ServiceWorkerRegister />
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="fr" className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${newsreader.variable} h-full antialiased`}>
+      <body className="min-h-full bg-background text-foreground">
+        {children}
+        <Toaster richColors position="top-right" />
+        <ServiceWorkerRegister />
+      </body>
+    </html>
   )
 }

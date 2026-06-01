@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { sendLowStockAlertEmail } from '@/lib/email'
@@ -14,14 +14,9 @@ async function getOrgAdminEmails(organizationId: string): Promise<string[]> {
 }
 
 async function getOrganizationId() {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) throw new Error('Non autorisé')
-  const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
-    select: { id: true, name: true },
-  })
-  if (!org) throw new Error('Organisation introuvable')
-  return { organizationId: org.id, organizationName: org.name }
+  return orgId
 }
 
 export async function createSparePart(data: {

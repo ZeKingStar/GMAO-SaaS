@@ -69,11 +69,75 @@ enum MaintenanceFrequency {
   custom
 }
 
+// ─── Better Auth ─────────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+
+  sessions    Session[]
+  accounts    Account[]
+  memberships Membership[]
+}
+
+model Session {
+  id                   String   @id
+  expiresAt            DateTime
+  token                String   @unique
+  createdAt            DateTime
+  updatedAt            DateTime
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  activeOrganizationId String?
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [activeOrganizationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@index([identifier])
+}
+
 // ─── Organization (tenant) ───────────────────────────────────────────────────
 
 model Organization {
   id                  String   @id @default(cuid())
-  clerkId             String   @unique
   name                String
   industry            String?
   size                String?
@@ -83,6 +147,7 @@ model Organization {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
+  sessions         Session[]
   members          Membership[]
   sites            Site[]
   assetCategories  AssetCategory[]
@@ -92,8 +157,6 @@ model Organization {
   spareParts       SparePart[]
   subscription     Subscription?
   apiKeys          ApiKey[]
-
-  @@index([clerkId])
 }
 
 // ─── Membership ───────────────────────────────────────────────────────────────
@@ -101,7 +164,7 @@ model Organization {
 model Membership {
   id             String     @id @default(cuid())
   organizationId String
-  clerkUserId    String
+  userId         String
   email          String
   firstName      String?
   lastName       String?
@@ -112,14 +175,15 @@ model Membership {
 
   hourlyRate Float?
 
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   assignedOrders WorkOrderAssignee[]
   timeLogs       WorkOrderTimeLog[]
   comments       WorkOrderComment[]
 
-  @@unique([organizationId, clerkUserId])
+  @@unique([organizationId, userId])
   @@index([organizationId])
-  @@index([clerkUserId])
+  @@index([userId])
 }
 
 // ─── Subscription ─────────────────────────────────────────────────────────────

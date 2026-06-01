@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { OrgSettingsForm } from '@/components/settings/org-settings-form'
@@ -11,11 +11,11 @@ import { Building2, Users, CreditCard } from 'lucide-react'
 import type { MemberRole } from '@/generated/prisma/enums'
 
 export default async function ParametresPage() {
-  const { orgId, userId } = await auth()
+  const { orgId, userId } = await getAuth()
   if (!orgId || !userId) redirect('/sign-in')
 
   const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
+    where: { id: orgId },
     select: { id: true, name: true, industry: true, size: true },
   })
   if (!org) redirect('/onboarding')

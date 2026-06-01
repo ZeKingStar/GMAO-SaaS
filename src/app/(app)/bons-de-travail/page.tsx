@@ -1,14 +1,14 @@
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { WorkOrderList } from '@/components/work-orders/work-order-list'
 
 export default async function WorkOrdersPage() {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) redirect('/sign-in')
 
   const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
+    where: { id: orgId },
     select: { id: true },
   })
   if (!org) redirect('/onboarding')

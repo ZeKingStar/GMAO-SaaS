@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useOrganizationList } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -28,39 +27,35 @@ const SIZES = [
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const { createOrganization, setActive } = useOrganizationList()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState({
-    name: "",
-    industry: "",
-    size: "",
-  })
+  const [form, setForm] = useState({ name: "", industry: "", size: "" })
 
   async function handleCreate() {
     if (!form.name.trim()) {
       toast.error("Le nom de l'organisation est requis")
       return
     }
-    if (!createOrganization || !setActive) return
 
     setLoading(true)
     try {
-      const org = await createOrganization({ name: form.name })
-      await setActive({ organization: org.id })
-
-      await fetch("/api/organizations", {
+      const res = await fetch("/api/organizations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clerkId: org.id,
-          name: form.name,
-          industry: form.industry,
-          size: form.size,
+          name: form.name.trim(),
+          industry: form.industry || undefined,
+          size: form.size || undefined,
         }),
       })
 
+      if (!res.ok) {
+        toast.error("Une erreur s'est produite. Veuillez réessayer.")
+        return
+      }
+
       router.push("/dashboard")
+      router.refresh()
     } catch {
       toast.error("Une erreur s'est produite. Veuillez réessayer.")
     } finally {
@@ -93,7 +88,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Secteur d'activité</Label>
+                <Label>Secteur d&apos;activité</Label>
                 <div className="grid grid-cols-1 gap-2">
                   {INDUSTRIES.map((ind) => (
                     <button
@@ -148,12 +143,8 @@ export default function OnboardingPage() {
                 <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
                   Retour
                 </Button>
-                <Button
-                  className="flex-1"
-                  onClick={handleCreate}
-                  disabled={loading}
-                >
-                  {loading ? "Création..." : "Créer mon organisation"}
+                <Button className="flex-1" onClick={handleCreate} disabled={loading}>
+                  {loading ? "Création…" : "Créer mon organisation"}
                 </Button>
               </div>
             </div>

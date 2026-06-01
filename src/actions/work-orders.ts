@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import type { WorkOrderType, WorkOrderStatus, WorkOrderPriority } from '@/generated/prisma/enums'
@@ -9,17 +9,11 @@ import { validateClosure, parseClosureRequirements } from '@/lib/closure-require
 import { updateMeterAndPlans } from '@/lib/meter-utils'
 
 async function getOrgAndMembership() {
-  const { orgId, userId } = await auth()
+  const { orgId, userId } = await getAuth()
   if (!orgId || !userId) throw new Error('Non autorisé')
 
-  const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
-    select: { id: true, name: true },
-  })
-  if (!org) throw new Error('Organisation introuvable')
-
   const membership = await db.membership.findFirst({
-    where: { clerkUserId: userId, organizationId: org.id },
+    where: { userId, organizationId: orgId },
     select: { id: true },
   })
   if (!membership) throw new Error('Membre introuvable')

@@ -25,11 +25,112 @@ export default async function RapportsPage({ searchParams }: { searchParams: Sea
   const { membership, hasAccess } = await requirePlan(['growth', 'enterprise'])
   const orgId = membership.organization.id
 
-  const sp = await searchParams
-  const tab: TabValue = isTab(sp.tab) ? sp.tab : 'overview'
-  const period: Period = isPeriod(sp.period) ? sp.period : DEFAULT_PERIOD
-  const DEFAULT_SUBTAB: SubTab = 'by-wo'
-  const subtab: SubTab = isSubTab(sp.subtab) ? sp.subtab : DEFAULT_SUBTAB
+const priorityColor: Record<string, string> = {
+  low: 'bg-blue-400',
+  medium: 'bg-yellow-500',
+  high: 'bg-orange-500',
+  urgent: 'bg-red-500',
+}
+
+const statusOrder = ['open', 'in_progress', 'on_hold', 'resolved', 'closed']
+const priorityOrder = ['urgent', 'high', 'medium', 'low']
+
+export default async function RapportsPage() {
+  const { orgId } = await getAuth()
+  if (!orgId) redirect('/sign-in')
+
+  const now = new Date()
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+  const [
+    workOrdersByStatus,
+    workOrdersByPriority,
+    workOrdersThisMonth,
+    completedThisMonth,
+    totalTimeLogs,
+    maintenancePlansTotal,
+    activePlansCount,
+    spareParts,
+    topAssetGroups,
+  ] = await Promise.all([
+    db.workOrder.groupBy({
+      by: ['status'],
+      where: { organizationId: orgId },
+      _count: { _all: true },
+    }),
+    db.workOrder.groupBy({
+      by: ['priority'],
+      where: { organizationId: orgId },
+      _count: { _all: true },
+    }),
+    db.workOrder.count({
+      where: { organizationId: orgId, createdAt: { gte: startOfMonth } },
+    }),
+    db.workOrder.count({
+      where: {
+        organizationId: orgId,
+        status: { in: ['resolved', 'closed'] },
+        updatedAt: { gte: startOfMonth },
+      },
+    }),
+    db.workOrderTimeLog.aggregate({
+      where: { workOrder: { organizationId: orgId } },
+      _sum: { minutes: true },
+    }),
+    db.maintenancePlan.count({ where: { organizationId: orgId } }),
+    db.maintenancePlan.count({ where: { organizationId: orgId, isActive: true } }),
+    db.sparePart.findMany({
+      where: { organizationId: orgId, quantityMin: { not: null } },
+      select: {
+        id: true,
+        name: true,
+        partNumber: true,
+        quantityOnHand: true,
+        quantityMin: true,
+        unit: true,
+      },
+    }),
+    db.workOrder.groupBy({
+      by: ['assetId'],
+      where: { organizationId: orgId, assetId: { not: null } },
+      _count: { _all: true },
+      orderBy: { _count: { assetId: 'desc' } },
+      take: 5,
+    }),
+  ])
+
+  const assetIds = topAssetGroups.map(g => g.assetId).filter(Boolean) as string[]
+  const assetNames = assetIds.length
+    ? await db.asset.findMany({
+        where: { id: { in: assetIds } },
+        select: { id: true, name: true },
+      })
+    : []
+
+  const topAssets = topAssetGroups.map(g => ({
+    name: assetNames.find(a => a.id === g.assetId)?.name ?? 'Inconnu',
+    count: g._count._all,
+  }))
+
+  const activeWorkOrders = workOrdersByStatus
+    .filter(s => ['open', 'in_progress', 'on_hold'].includes(s.status))
+    .reduce((sum, s) => sum + s._count._all, 0)
+
+  const totalWorkOrders = workOrdersByStatus.reduce((sum, s) => sum + s._count._all, 0)
+  const resolutionRate =
+    workOrdersThisMonth > 0 ? Math.round((completedThisMonth / workOrdersThisMonth) * 100) : 0
+  const totalHours = Math.round((totalTimeLogs._sum.minutes ?? 0) / 60)
+  const lowStockParts = spareParts.filter(p => p.quantityOnHand < (p.quantityMin ?? Infinity))
+
+  const maxStatusCount = Math.max(...workOrdersByStatus.map(s => s._count._all), 1)
+  const maxPriorityCount = Math.max(...workOrdersByPriority.map(p => p._count._all), 1)
+
+  const sortedStatuses = [...workOrdersByStatus].sort(
+    (a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status),
+  )
+  const sortedPriorities = [...workOrdersByPriority].sort(
+    (a, b) => priorityOrder.indexOf(a.priority) - priorityOrder.indexOf(b.priority),
+  )
 
   return (
     <UpgradeGate hasAccess={hasAccess} requiredPlan="growth">
