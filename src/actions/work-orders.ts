@@ -14,11 +14,11 @@ async function getOrgAndMembership() {
 
   const membership = await db.membership.findFirst({
     where: { userId, organizationId: orgId },
-    select: { id: true },
+    select: { id: true, organization: { select: { name: true } } },
   })
   if (!membership) throw new Error('Membre introuvable')
 
-  return { organizationId: org.id, membershipId: membership.id, organizationName: org.name }
+  return { organizationId: orgId, membershipId: membership.id, organizationName: membership.organization.name }
 }
 
 export async function createWorkOrder(data: {
