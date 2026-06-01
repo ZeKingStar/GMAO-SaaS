@@ -1,6 +1,6 @@
 'use server'
 
-import { auth, clerkClient } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import type { MemberRole } from '@/generated/prisma/enums'
@@ -9,21 +9,18 @@ import { type EscalationConfig } from '@/lib/escalation-config'
 import { canInviteWithRole, toClerkRole } from '@/lib/invitation-roles'
 
 async function getAdminContext() {
-  const { orgId, userId } = await auth()
+  const { orgId, userId } = await getAuth()
   if (!orgId || !userId) throw new Error('Non autorisé')
 
-  const org = await db.organization.findUnique({ where: { clerkId: orgId }, select: { id: true } })
-  if (!org) throw new Error('Organisation introuvable')
-
   const membership = await db.membership.findFirst({
-    where: { clerkUserId: userId, organizationId: org.id },
+    where: { userId, organizationId: orgId },
     select: { role: true },
   })
   if (!membership || (membership.role !== 'admin' && membership.role !== 'manager')) {
     throw new Error('Accès refusé')
   }
 
-  return { organizationId: org.id, orgId, userId, role: membership.role as MemberRole }
+  return { organizationId: orgId, orgId, userId, role: membership.role as MemberRole }
 }
 
 async function getAdminOrg() {
@@ -35,11 +32,11 @@ export async function updateOrganization(data: {
   industry?: string
   size?: string
 }) {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) throw new Error('Non autorisé')
 
   await db.organization.update({
-    where: { clerkId: orgId },
+    where: { id: orgId },
     data: {
       name: data.name.trim(),
       industry: data.industry?.trim() || null,

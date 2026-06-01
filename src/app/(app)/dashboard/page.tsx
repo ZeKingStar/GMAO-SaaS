@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { auth } from "@clerk/nextjs/server"
+import { getAuth } from '@/lib/auth'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ClipboardList, Cpu, AlertTriangle, Clock, Calendar } from "lucide-react"
@@ -53,22 +53,12 @@ function formatRenewalDate(date: Date): string {
 }
 
 export default async function DashboardPage() {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) redirect("/sign-in")
 
   const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
-    select: {
-      id: true,
-      subscription: {
-        select: {
-          plan: true,
-          status: true,
-          currentPeriodEnd: true,
-          trialEndsAt: true,
-        },
-      },
-    },
+    where: { id: orgId },
+    select: { id: true },
   })
   if (!org) redirect("/onboarding")
 

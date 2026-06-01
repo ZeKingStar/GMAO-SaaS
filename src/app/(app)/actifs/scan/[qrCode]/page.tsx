@@ -1,6 +1,5 @@
-import { requirePlan } from '@/lib/auth'
-import { UpgradeGate } from '@/components/upgrade-gate/upgrade-gate'
-import { notFound } from 'next/navigation'
+import { getAuth } from '@/lib/auth'
+import { redirect, notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
@@ -11,14 +10,14 @@ export default async function ScanPage({
 }: {
   params: Promise<{ qrCode: string }>
 }) {
-  const { membership, hasAccess } = await requirePlan(['growth', 'enterprise'])
+  const { orgId } = await getAuth()
+  if (!orgId) redirect('/sign-in')
 
   const { qrCode } = await params
 
   const asset = await db.asset.findUnique({
     where: { qrCode },
     include: {
-      organization: { select: { id: true, name: true } },
       category: { select: { name: true, icon: true } },
       site: { select: { name: true } },
       location: { select: { name: true } },
@@ -30,8 +29,8 @@ export default async function ScanPage({
 
   if (!asset) notFound()
 
-  // Ensure user belongs to this asset's org (cross-org isolation)
-  if (asset.organization.id !== membership.organization.id) notFound()
+  // Ensure user belongs to this asset's org
+  if (asset.organizationId !== orgId) notFound()
 
   return (
     <UpgradeGate hasAccess={hasAccess} requiredPlan="growth">

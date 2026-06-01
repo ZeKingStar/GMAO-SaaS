@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { redirect, notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { parseClosureRequirements } from '@/lib/closure-requirements'
@@ -6,18 +6,12 @@ import { WorkOrderDetail } from '@/components/work-orders/work-order-detail'
 
 export default async function WorkOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { orgId, userId } = await auth()
+  const { orgId, userId } = await getAuth()
   if (!orgId || !userId) redirect('/sign-in')
 
-  const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
-    select: { id: true },
-  })
-  if (!org) redirect('/onboarding')
-
-  const [workOrder, allSites, allAssets, allMembers, currentMembership, orgConfig, spareParts] = await Promise.all([
+  const [workOrder, allSites, allAssets, allMembers, currentMembership] = await Promise.all([
     db.workOrder.findFirst({
-      where: { id, organizationId: org.id },
+      where: { id, organizationId: orgId },
       include: {
         asset: { select: { id: true, name: true, meters: { select: { id: true, name: true, unit: true, value: true } } } },
         site: { select: { id: true, name: true } },
@@ -52,25 +46,16 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ id: 
         },
       },
     }),
-    db.site.findMany({ where: { organizationId: org.id }, select: { id: true, name: true } }),
-    db.asset.findMany({ where: { organizationId: org.id }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    db.site.findMany({ where: { organizationId: orgId }, select: { id: true, name: true } }),
+    db.asset.findMany({ where: { organizationId: orgId }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
     db.membership.findMany({
-      where: { organizationId: org.id },
+      where: { organizationId: orgId },
       select: { id: true, firstName: true, lastName: true, email: true },
       orderBy: { firstName: 'asc' },
     }),
     db.membership.findFirst({
-      where: { organizationId: org.id, clerkUserId: userId },
-      select: { id: true, role: true },
-    }),
-    db.organization.findUnique({
-      where: { id: org.id },
-      select: { closureRequirements: true },
-    }),
-    db.sparePart.findMany({
-      where: { organizationId: org.id },
-      select: { id: true, name: true, partNumber: true, quantityOnHand: true, unitCost: true },
-      orderBy: { name: 'asc' },
+      where: { organizationId: orgId, userId },
+      select: { id: true },
     }),
   ])
 

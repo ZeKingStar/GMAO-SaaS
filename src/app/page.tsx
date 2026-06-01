@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server"
+import { getAuth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import {
@@ -13,7 +13,7 @@ import {
 import { KorviaLogo } from "@/components/brand/korvia-logo"
 
 export default async function Home() {
-  const { userId, orgId } = await auth()
+  const { userId, orgId } = await getAuth()
 
   if (userId && orgId) {
     redirect("/dashboard")
