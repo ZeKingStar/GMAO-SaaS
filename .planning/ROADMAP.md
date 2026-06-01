@@ -46,6 +46,60 @@
 | 14 | Webhooks sortants | Intégrations avec systèmes tiers | Basse |
 | 15 | Mode hors-ligne complet | Saisie BTs sans connexion internet | Basse |
 
+### Phase 10 : Multi-langue FR/EN (PLANIFIÉ)
+
+**Goal:** Rendre l'interface Korvia disponible en anglais canadien pour ouvrir les marchés anglophones. Toutes les pages de l'application, les emails, et les messages d'erreur doivent être disponibles dans les deux langues. Le choix de langue est persisté par utilisateur.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+### Phase 11 : Export CSV/Excel (PLANIFIÉ)
+
+**Goal:** Permettre aux utilisateurs d'exporter les bons de travail et les actifs en CSV/Excel pour rapports externes et intégration avec d'autres outils.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+### Phase 12 : Import assisté IA (PLANIFIÉ)
+
+**Goal:** Faciliter la migration des données depuis Excel/ancien GMAO vers Korvia avec assistance IA pour le mapping de colonnes et la détection de doublons.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+### Phase 13 : Notifications push PWA (PLANIFIÉ)
+
+**Goal:** Envoyer des alertes mobiles aux techniciens pour les BTs assignés via les notifications push PWA.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+### Phase 14 : Webhooks sortants (PLANIFIÉ)
+
+**Goal:** Permettre l'intégration avec des systèmes tiers via webhooks sortants configurables par les admins.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+### Phase 15 : Mode hors-ligne complet (PLANIFIÉ)
+
+**Goal:** Permettre la saisie de bons de travail sans connexion internet avec synchronisation différée.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
 ---
 
 ## Backlog
@@ -72,6 +126,15 @@ Plans:
 ### Phase 999.3 : Role-switcher dev panel (BACKLOG)
 
 **Goal:** Panel flottant visible uniquement pour cybersag@gmail.com hors production — dropdown permettant de simuler n'importe quel rôle UI (admin/manager/technician/requester/viewer) via cookie. N'affecte pas les server actions (le vrai rôle Clerk reste intact).
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
+
+### Phase 999.4 : Finaliser migration Clerk→Better Auth (BACKLOG)
+
+**Goal:** Corriger les ~20 erreurs TypeScript qui bloquent le build après la migration Clerk→Better Auth. Fichiers affectés : inventaire/page.tsx (getAuth/redirect/membership manquants), layout.tsx (prop userPlan sur Header), bons-de-travail/[id]/page.tsx (spareParts/role/orgConfig), actifs/scan/[qrCode]/page.tsx (UpgradeGate/hasAccess), parametres/organisation/page.tsx (hasStripeCustomer), dashboard/page.tsx (subscription sur org query), rapports/page.tsx (subtab undefined), auth.test.ts (import Clerk), settings.test.ts (mock Clerk + fonctions supprimées), .next/dev cache (routes Clerk supprimées).
 **Requirements:** TBD
 **Plans:** 0 plans
 
