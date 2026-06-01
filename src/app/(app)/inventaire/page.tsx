@@ -1,14 +1,14 @@
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { SparePartList } from '@/components/inventory/spare-part-list'
 
 export default async function InventairePage() {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) redirect('/sign-in')
 
   const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
+    where: { id: orgId },
     select: { id: true },
   })
   if (!org) redirect('/onboarding')

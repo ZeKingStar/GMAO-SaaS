@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { auth } from "@clerk/nextjs/server"
+import { getAuth } from '@/lib/auth'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ClipboardList, Cpu, AlertTriangle, Clock, Calendar } from "lucide-react"
 import { db } from "@/lib/db"
@@ -29,11 +29,11 @@ const FREQUENCY_LABELS: Record<MaintenanceFrequency, string> = {
 }
 
 export default async function DashboardPage() {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) redirect("/sign-in")
 
   const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
+    where: { id: orgId },
     select: { id: true },
   })
   if (!org) redirect("/onboarding")

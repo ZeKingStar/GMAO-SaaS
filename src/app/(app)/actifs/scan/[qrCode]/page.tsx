@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { redirect, notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import Link from 'next/link'
@@ -10,7 +10,7 @@ export default async function ScanPage({
 }: {
   params: Promise<{ qrCode: string }>
 }) {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) redirect('/sign-in')
 
   const { qrCode } = await params
@@ -18,7 +18,6 @@ export default async function ScanPage({
   const asset = await db.asset.findUnique({
     where: { qrCode },
     include: {
-      organization: { select: { clerkId: true, name: true } },
       category: { select: { name: true, icon: true } },
       site: { select: { name: true } },
       location: { select: { name: true } },
@@ -31,7 +30,7 @@ export default async function ScanPage({
   if (!asset) notFound()
 
   // Ensure user belongs to this asset's org
-  if (asset.organization.clerkId !== orgId) notFound()
+  if (asset.organizationId !== orgId) notFound()
 
   return (
     <div className="p-6 max-w-lg mx-auto">

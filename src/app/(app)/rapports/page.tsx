@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -42,14 +42,8 @@ const statusOrder = ['open', 'in_progress', 'on_hold', 'resolved', 'closed']
 const priorityOrder = ['urgent', 'high', 'medium', 'low']
 
 export default async function RapportsPage() {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) redirect('/sign-in')
-
-  const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
-    select: { id: true },
-  })
-  if (!org) redirect('/onboarding')
 
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -67,32 +61,32 @@ export default async function RapportsPage() {
   ] = await Promise.all([
     db.workOrder.groupBy({
       by: ['status'],
-      where: { organizationId: org.id },
+      where: { organizationId: orgId },
       _count: { _all: true },
     }),
     db.workOrder.groupBy({
       by: ['priority'],
-      where: { organizationId: org.id },
+      where: { organizationId: orgId },
       _count: { _all: true },
     }),
     db.workOrder.count({
-      where: { organizationId: org.id, createdAt: { gte: startOfMonth } },
+      where: { organizationId: orgId, createdAt: { gte: startOfMonth } },
     }),
     db.workOrder.count({
       where: {
-        organizationId: org.id,
+        organizationId: orgId,
         status: { in: ['resolved', 'closed'] },
         updatedAt: { gte: startOfMonth },
       },
     }),
     db.workOrderTimeLog.aggregate({
-      where: { workOrder: { organizationId: org.id } },
+      where: { workOrder: { organizationId: orgId } },
       _sum: { minutes: true },
     }),
-    db.maintenancePlan.count({ where: { organizationId: org.id } }),
-    db.maintenancePlan.count({ where: { organizationId: org.id, isActive: true } }),
+    db.maintenancePlan.count({ where: { organizationId: orgId } }),
+    db.maintenancePlan.count({ where: { organizationId: orgId, isActive: true } }),
     db.sparePart.findMany({
-      where: { organizationId: org.id, quantityMin: { not: null } },
+      where: { organizationId: orgId, quantityMin: { not: null } },
       select: {
         id: true,
         name: true,
@@ -104,7 +98,7 @@ export default async function RapportsPage() {
     }),
     db.workOrder.groupBy({
       by: ['assetId'],
-      where: { organizationId: org.id, assetId: { not: null } },
+      where: { organizationId: orgId, assetId: { not: null } },
       _count: { _all: true },
       orderBy: { _count: { assetId: 'desc' } },
       take: 5,

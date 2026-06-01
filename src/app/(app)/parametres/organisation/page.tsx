@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { OrgSettingsForm } from '@/components/settings/org-settings-form'
@@ -7,11 +7,11 @@ import { BillingSection } from '@/components/settings/billing-section'
 import { Building2, Users, CreditCard } from 'lucide-react'
 
 export default async function ParametresPage() {
-  const { orgId, userId } = await auth()
+  const { orgId, userId } = await getAuth()
   if (!orgId || !userId) redirect('/sign-in')
 
   const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
+    where: { id: orgId },
     select: { id: true, name: true, industry: true, size: true },
   })
   if (!org) redirect('/onboarding')
@@ -27,7 +27,7 @@ export default async function ParametresPage() {
     }),
   ])
 
-  const currentMembership = members.find(m => m.clerkUserId === userId)
+  const currentMembership = members.find(m => m.userId === userId)
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-8">

@@ -1,27 +1,21 @@
 'use server'
 
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import type { WorkOrderType, WorkOrderStatus, WorkOrderPriority } from '@/generated/prisma/enums'
 
 async function getOrgAndMembership() {
-  const { orgId, userId } = await auth()
+  const { orgId, userId } = await getAuth()
   if (!orgId || !userId) throw new Error('Non autorisé')
 
-  const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
-    select: { id: true },
-  })
-  if (!org) throw new Error('Organisation introuvable')
-
   const membership = await db.membership.findFirst({
-    where: { clerkUserId: userId, organizationId: org.id },
+    where: { userId, organizationId: orgId },
     select: { id: true },
   })
   if (!membership) throw new Error('Membre introuvable')
 
-  return { organizationId: org.id, membershipId: membership.id }
+  return { organizationId: orgId, membershipId: membership.id }
 }
 
 export async function createWorkOrder(data: {

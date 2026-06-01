@@ -1,13 +1,36 @@
-import { auth, currentUser } from "@clerk/nextjs/server"
+import { headers } from "next/headers"
+import { auth, type AuthSession } from "@/lib/better-auth"
 import { db } from "@/lib/db"
-import type { MemberRole } from "@/generated/prisma/enums"
+import { MemberRole } from "@/generated/prisma/enums"
+
+async function getSession(): Promise<AuthSession> {
+  return auth.api.getSession({ headers: await headers() }) as unknown as AuthSession
+}
+
+// Drop-in pour l'ancien auth() de Clerk.
+// orgId = Organization.id directement — plus de lookup clerkId nécessaire.
+export async function getAuth() {
+  const session = await getSession()
+  return {
+    userId: session?.user.id ?? null,
+    orgId: session?.session.activeOrganizationId ?? null,
+  }
+}
+
+// Met à jour l'organisation active dans la session DB.
+export async function setActiveOrganization(sessionId: string, orgId: string) {
+  await db.session.update({
+    where: { id: sessionId },
+    data: { activeOrganizationId: orgId },
+  })
+}
 
 export async function getOrganizationMembership() {
-  const { userId, orgId } = await auth()
+  const { userId, orgId } = await getAuth()
   if (!userId || !orgId) return null
 
   return db.membership.findFirst({
-    where: { clerkUserId: userId, organization: { clerkId: orgId } },
+    where: { userId, organizationId: orgId },
     include: { organization: { include: { subscription: true } } },
   })
 }
@@ -25,32 +48,28 @@ export async function requireRole(roles: MemberRole[]) {
 }
 
 export async function syncUserToDb() {
-  const user = await currentUser()
-  if (!user) return null
+  const session = await getSession()
+  if (!session?.user) return null
 
-  const { orgId } = await auth()
+  const orgId = session.session.activeOrganizationId ?? null
   if (!orgId) return null
 
   return db.membership.upsert({
-    where: {
-      organizationId_clerkUserId: {
-        organizationId: orgId,
-        clerkUserId: user.id,
-      },
-    },
+    where: { organizationId_userId: { organizationId: orgId, userId: session.user.id } },
     update: {
-      email: user.emailAddresses[0]?.emailAddress ?? "",
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatarUrl: user.imageUrl,
+      email: session.user.email,
+      firstName: session.user.name?.split(" ")[0] ?? null,
+      lastName: session.user.name?.split(" ").slice(1).join(" ") || null,
+      avatarUrl: session.user.image ?? null,
     },
     create: {
-      clerkUserId: user.id,
-      email: user.emailAddresses[0]?.emailAddress ?? "",
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatarUrl: user.imageUrl,
-      organization: { connect: { clerkId: orgId } },
+      userId: session.user.id,
+      organizationId: orgId,
+      email: session.user.email,
+      firstName: session.user.name?.split(" ")[0] ?? null,
+      lastName: session.user.name?.split(" ").slice(1).join(" ") || null,
+      avatarUrl: session.user.image ?? null,
+      role: MemberRole.admin,
     },
   })
 }

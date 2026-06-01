@@ -1,20 +1,19 @@
 import type { Metadata } from 'next'
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { AssetList } from '@/components/assets/asset-list'
 
 export const metadata: Metadata = { title: 'Actifs' }
 
 export default async function ActifsPage() {
-  const { orgId } = await auth()
+  const { orgId } = await getAuth()
   if (!orgId) return null
 
-  const org = await db.organization.findUnique({ where: { clerkId: orgId }, select: { id: true } })
-  if (!org) return null
+
 
   const [assets, categories, sites] = await Promise.all([
     db.asset.findMany({
-      where: { organizationId: org.id },
+      where: { organizationId: orgId },
       include: {
         category: true,
         site: { include: { locations: true } },
@@ -22,9 +21,9 @@ export default async function ActifsPage() {
       },
       orderBy: [{ parentId: 'asc' }, { name: 'asc' }],
     }),
-    db.assetCategory.findMany({ where: { organizationId: org.id }, orderBy: { name: 'asc' } }),
+    db.assetCategory.findMany({ where: { organizationId: orgId }, orderBy: { name: 'asc' } }),
     db.site.findMany({
-      where: { organizationId: org.id },
+      where: { organizationId: orgId },
       include: { locations: { orderBy: { name: 'asc' } } },
       orderBy: { name: 'asc' },
     }),
