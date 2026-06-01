@@ -1,54 +1,26 @@
-"use client"
+import { getAuth } from "@/lib/auth"
+import { db } from "@/lib/db"
+import { HeaderClient } from "./header-client"
 
-import { usePathname } from "next/navigation"
-import { UserButton, OrganizationSwitcher } from "@clerk/nextjs"
-import { SidebarSheet } from "./sidebar-sheet"
+export async function Header() {
+  const { userId, orgId } = await getAuth()
 
-const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Tableau de bord",
-  "/bons-de-travail": "Bons de travail",
-  "/actifs": "Actifs",
-  "/maintenance": "Maintenance préventive",
-  "/inventaire": "Inventaire",
-  "/rapports": "Rapports",
-  "/parametres/organisation": "Paramètres — Organisation",
-  "/parametres/utilisateurs": "Paramètres — Utilisateurs",
-  "/parametres/facturation": "Paramètres — Facturation",
-}
+  const [user, currentOrg, memberships] = await Promise.all([
+    userId
+      ? db.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, image: true } })
+      : null,
+    orgId
+      ? db.organization.findUnique({ where: { id: orgId }, select: { id: true, name: true } })
+      : null,
+    userId
+      ? db.membership.findMany({
+          where: { userId },
+          select: { organization: { select: { id: true, name: true } } },
+        })
+      : [],
+  ])
 
-function getTitle(pathname: string): string {
-  for (const [path, title] of Object.entries(PAGE_TITLES)) {
-    if (pathname === path || pathname.startsWith(path + "/")) return title
-  }
-  return "GMAO"
-}
+  const orgs = memberships.map((m) => m.organization)
 
-export function Header() {
-  const pathname = usePathname()
-
-  return (
-    <header className="h-14 border-b bg-card flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
-      <div className="flex items-center gap-3">
-        <SidebarSheet />
-        <h1 className="font-semibold text-sm hidden sm:block">
-          {getTitle(pathname)}
-        </h1>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <OrganizationSwitcher
-          hidePersonal
-          afterCreateOrganizationUrl="/onboarding"
-          afterSelectOrganizationUrl="/dashboard"
-          appearance={{
-            elements: {
-              rootBox: "text-sm",
-              organizationSwitcherTrigger: "py-1.5 px-2 rounded-md hover:bg-muted",
-            },
-          }}
-        />
-        <UserButton />
-      </div>
-    </header>
-  )
+  return <HeaderClient user={user} currentOrg={currentOrg} orgs={orgs} />
 }
