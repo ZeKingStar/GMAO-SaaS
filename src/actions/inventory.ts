@@ -16,7 +16,8 @@ async function getOrgAdminEmails(organizationId: string): Promise<string[]> {
 async function getOrganizationId() {
   const { orgId } = await getAuth()
   if (!orgId) throw new Error('Non autorisé')
-  return orgId
+  const org = await db.organization.findUnique({ where: { id: orgId }, select: { name: true } })
+  return { organizationId: orgId, organizationName: org?.name ?? '' }
 }
 
 export async function createSparePart(data: {

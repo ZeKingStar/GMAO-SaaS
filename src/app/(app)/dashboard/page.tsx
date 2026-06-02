@@ -58,7 +58,12 @@ export default async function DashboardPage() {
 
   const org = await db.organization.findUnique({
     where: { id: orgId },
-    select: { id: true },
+    select: {
+      id: true,
+      subscription: {
+        select: { plan: true, status: true, trialEndsAt: true, currentPeriodEnd: true },
+      },
+    },
   })
   if (!org) redirect("/onboarding")
 

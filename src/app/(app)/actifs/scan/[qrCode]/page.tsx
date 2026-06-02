@@ -1,8 +1,9 @@
-import { getAuth } from '@/lib/auth'
-import { redirect, notFound } from 'next/navigation'
+import { requirePlan } from '@/lib/auth'
+import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
+import { UpgradeGate } from '@/components/upgrade-gate/upgrade-gate'
 import { MapPin, Tag, Cpu, ClipboardList, Calendar } from 'lucide-react'
 
 export default async function ScanPage({
@@ -10,8 +11,8 @@ export default async function ScanPage({
 }: {
   params: Promise<{ qrCode: string }>
 }) {
-  const { orgId } = await getAuth()
-  if (!orgId) redirect('/sign-in')
+  const { membership, hasAccess } = await requirePlan(['growth', 'enterprise'])
+  const orgId = membership.organization.id
 
   const { qrCode } = await params
 

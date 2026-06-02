@@ -4,14 +4,7 @@ import { db } from '@/lib/db'
 import { SparePartList } from '@/components/inventory/spare-part-list'
 
 export default async function InventairePage() {
-  const { orgId } = await getAuth()
-  if (!orgId) redirect('/sign-in')
-
-  const org = await db.organization.findUnique({
-    where: { id: orgId },
-    select: { id: true },
-  })
-  if (!org) redirect('/onboarding')
+  const { membership, hasAccess } = await requirePlan(['growth', 'enterprise'])
 
   const parts = await db.sparePart.findMany({
     where: { organizationId: membership.organization.id },

@@ -66,10 +66,10 @@ export async function deleteLocation(id: string) {
 }
 
 async function requireAdminOrManager(organizationId: string) {
-  const { userId } = await auth()
+  const { userId } = await getAuth()
   if (!userId) throw new Error('Non autorisé')
   const membership = await db.membership.findFirst({
-    where: { organizationId, clerkUserId: userId },
+    where: { organizationId, userId },
     select: { role: true },
   })
   if (!membership || !['admin', 'manager'].includes(membership.role)) {

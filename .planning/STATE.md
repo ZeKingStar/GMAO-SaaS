@@ -2,14 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: v1.0 milestone complete
-stopped_at: Phase 999.2 context gathered
-last_updated: "2026-05-30T12:48:09.822Z"
+status: Ready to plan
+stopped_at: Phase 999.2 exécutée — en attente confirmation Assumption A1 (format rôle Clerk)
+last_updated: "2026-06-01T17:17:37.481Z"
 progress:
-  total_phases: 2
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 3
+  completed_phases: 1
+  total_plans: 2
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State: Korvia

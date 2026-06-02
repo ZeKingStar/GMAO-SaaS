@@ -23,7 +23,7 @@ export default async function ParametresPage() {
     }),
     db.subscription.findUnique({
       where: { organizationId: org.id },
-      select: { plan: true, status: true, trialEndsAt: true, currentPeriodEnd: true },
+      select: { plan: true, status: true, trialEndsAt: true, currentPeriodEnd: true, stripeCustomerId: true },
     }),
   ])
 
@@ -54,7 +54,7 @@ export default async function ParametresPage() {
           <h2 className="font-semibold">Abonnement</h2>
         </div>
         <div className="border rounded-lg p-5 bg-card">
-          <BillingSection subscription={subscription} />
+          <BillingSection subscription={subscription} hasStripeCustomer={!!subscription?.stripeCustomerId} />
         </div>
       </section>
 

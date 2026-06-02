@@ -9,7 +9,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ id: 
   const { orgId, userId } = await getAuth()
   if (!orgId || !userId) redirect('/sign-in')
 
-  const [workOrder, allSites, allAssets, allMembers, currentMembership] = await Promise.all([
+  const [workOrder, allSites, allAssets, allMembers, currentMembership, spareParts, orgConfig] = await Promise.all([
     db.workOrder.findFirst({
       where: { id, organizationId: orgId },
       include: {
@@ -55,7 +55,16 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ id: 
     }),
     db.membership.findFirst({
       where: { organizationId: orgId, userId },
-      select: { id: true },
+      select: { id: true, role: true },
+    }),
+    db.sparePart.findMany({
+      where: { organizationId: orgId },
+      select: { id: true, name: true, partNumber: true, quantityOnHand: true, unitCost: true },
+      orderBy: { name: 'asc' },
+    }),
+    db.organization.findUnique({
+      where: { id: orgId },
+      select: { closureRequirements: true },
     }),
   ])
 

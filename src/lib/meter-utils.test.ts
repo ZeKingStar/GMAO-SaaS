@@ -26,7 +26,7 @@ vi.mock('@/lib/db', () => ({
 
 import { db } from '@/lib/db'
 
-const mockDb = db as {
+const mockDb = db as unknown as {
   assetMeter: {
     findFirst: ReturnType<typeof vi.fn>
     update: ReturnType<typeof vi.fn>

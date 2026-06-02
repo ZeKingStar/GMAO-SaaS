@@ -2,7 +2,7 @@
  * Unit tests for requirePlan() — Phase 2 GATE-01
  *
  * Tests the effective-plan derivation logic by mocking at the dependency level:
- * - @clerk/nextjs/server auth() → controls authentication state
+ * - @/lib/better-auth auth.api.getSession → controls authentication state
  * - @/lib/db db.membership.findFirst → controls what subscription data is returned
  *
  * This approach works in ESM: mocking the exported getOrganizationMembership
@@ -10,16 +10,28 @@
  * Mocking the lower-level deps lets the full call chain run.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/better-auth'
 import { db } from '@/lib/db'
 import { requirePlan } from '@/lib/auth'
 
+vi.mock('next/headers', () => ({
+  headers: vi.fn(async () => new Headers()),
+}))
+
+vi.mock('@/lib/better-auth', () => ({
+  auth: { api: { getSession: vi.fn() } },
+}))
+
+const mockSession = (userId: string | null, orgId: string | null) =>
+  userId
+    ? { user: { id: userId }, session: { activeOrganizationId: orgId } }
+    : null
+
 const mockMembership = (plan: string, status: string | null) => ({
   id: 'mem-1',
-  clerkUserId: 'user-1',
+  userId: 'user-1',
   organization: {
     id: 'org-1',
-    clerkId: 'clerk-org-1',
     subscription: status === null
       ? null
       : {
@@ -35,8 +47,8 @@ const mockMembership = (plan: string, status: string | null) => ({
 
 beforeEach(() => {
   vi.clearAllMocks()
-  // Default: authenticated user with a valid org
-  vi.mocked(auth).mockResolvedValue({ userId: 'user-1', orgId: 'org-1' } as any)
+  // Default: authenticated user with a valid active organization
+  vi.mocked(auth.api.getSession).mockResolvedValue(mockSession('user-1', 'org-1') as any)
 })
 
 describe('requirePlan()', () => {
@@ -90,7 +102,7 @@ describe('requirePlan()', () => {
   })
 
   it('throws Unauthorized when getOrganizationMembership returns null (unauthenticated)', async () => {
-    vi.mocked(auth).mockResolvedValue({ userId: null, orgId: null } as any)
+    vi.mocked(auth.api.getSession).mockResolvedValue(mockSession(null, null) as any)
     await expect(requirePlan(['growth', 'enterprise'])).rejects.toThrow('Unauthorized')
   })
 

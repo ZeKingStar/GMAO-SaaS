@@ -1,7 +1,8 @@
 import { headers } from "next/headers"
 import { auth, type AuthSession } from "@/lib/better-auth"
 import { db } from "@/lib/db"
-import type { MemberRole, SubscriptionPlan } from "@/generated/prisma/enums"
+import { MemberRole } from "@/generated/prisma/enums"
+import type { SubscriptionPlan } from "@/generated/prisma/enums"
 
 // Gate: ENABLE_GOD_MODE=true in .env.local + never active in production
 // REMOVE BEFORE PUBLIC LAUNCH — tracked in .planning/todos/pending/god-mode-removal.md

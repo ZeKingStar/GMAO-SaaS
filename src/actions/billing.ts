@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { stripe } from '@/lib/stripe'
 
@@ -16,11 +16,11 @@ function getPriceId(plan: 'starter' | 'growth' | 'enterprise'): string {
 }
 
 async function getOrg() {
-  const { orgId, userId } = await auth()
+  const { orgId, userId } = await getAuth()
   if (!orgId || !userId) throw new Error('Non autorisé')
 
   const org = await db.organization.findUnique({
-    where: { clerkId: orgId },
+    where: { id: orgId },
     select: { id: true, name: true },
   })
   if (!org) throw new Error('Organisation introuvable')
@@ -46,7 +46,6 @@ export async function createCheckoutSession(
       name: org.name,
       metadata: {
         organizationId: org.id,
-        clerkOrgId: orgId,
       },
     })
     stripeCustomerId = customer.id

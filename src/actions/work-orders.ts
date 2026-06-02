@@ -238,18 +238,16 @@ export async function stopTimer(timeLogId: string) {
 }
 
 export async function closeActiveTimer(timeLogId: string) {
-  const { orgId, userId } = await auth()
+  const { orgId, userId } = await getAuth()
   if (!orgId || !userId) throw new Error('Non autorisé')
-  const org = await db.organization.findUnique({ where: { clerkId: orgId }, select: { id: true } })
-  if (!org) throw new Error('Organisation introuvable')
   const me = await db.membership.findFirst({
-    where: { clerkUserId: userId, organizationId: org.id },
+    where: { userId, organizationId: orgId },
     select: { role: true },
   })
   if (!me || (me.role !== 'admin' && me.role !== 'manager')) throw new Error('Accès refusé')
 
   const log = await db.workOrderTimeLog.findFirst({
-    where: { id: timeLogId, endedAt: null, workOrder: { organizationId: org.id } },
+    where: { id: timeLogId, endedAt: null, workOrder: { organizationId: orgId } },
     select: { id: true, workOrderId: true, startedAt: true },
   })
   if (!log) throw new Error('Session active introuvable')
