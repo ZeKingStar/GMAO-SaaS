@@ -19,6 +19,7 @@ const PUBLIC_PATHS = [
   "/api/portal",
   "/api/cron",
   "/manifest.webmanifest",
+  "/sw.js",
 ]
 
 function isPublicPath(pathname: string) {

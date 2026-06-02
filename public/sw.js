@@ -1,68 +1,28 @@
-const CACHE = 'gmao-v1'
+// Self-destruct service worker.
+//
+// A previous version (cache 'gmao-v1') served /_next/static/ bundles cache-first
+// under a fixed, never-invalidated cache name. On installed PWAs (e.g. iOS
+// home-screen) this pinned stale JS forever, so after server redeploys the old
+// client kept POSTing dead Server Action IDs ("Failed to find Server Action").
+//
+// This version caches nothing, clears all caches, unregisters itself, and
+// reloads open windows so existing installs self-heal on next launch.
+// The browser always revalidates /sw.js from network, so this WILL be picked up.
 
-// Static shell to pre-cache on install
-const PRECACHE = [
-  '/dashboard',
-  '/actifs',
-  '/bons-de-travail',
-  '/maintenance',
-]
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting())
-  )
+self.addEventListener('install', () => {
+  self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim())
+    (async () => {
+      const keys = await caches.keys()
+      await Promise.all(keys.map((key) => caches.delete(key)))
+      await self.registration.unregister()
+      const clients = await self.clients.matchAll({ type: 'window' })
+      clients.forEach((client) => client.navigate(client.url))
+    })()
   )
 })
 
-self.addEventListener('fetch', (event) => {
-  const { request } = event
-  const url = new URL(request.url)
-
-  // Only handle GET from same origin
-  if (request.method !== 'GET' || url.origin !== self.location.origin) return
-
-  // Skip Clerk auth, Next.js internals
-  if (url.pathname.startsWith('/sign-') || url.pathname.startsWith('/_next/webpack-hmr')) return
-
-  // Cache-first for static assets (JS, CSS, fonts, images)
-  if (url.pathname.startsWith('/_next/static/') || url.pathname.startsWith('/api/qr/')) {
-    event.respondWith(
-      caches.match(request).then(
-        (cached) =>
-          cached ||
-          fetch(request).then((response) => {
-            if (response.ok) {
-              const clone = response.clone()
-              caches.open(CACHE).then((c) => c.put(request, clone))
-            }
-            return response
-          })
-      )
-    )
-    return
-  }
-
-  // Skip other API routes — always network
-  if (url.pathname.startsWith('/api/')) return
-
-  // Network-first for navigation: fall back to cached page or /dashboard
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const clone = response.clone()
-          caches.open(CACHE).then((c) => c.put(request, clone))
-          return response
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/dashboard')))
-    )
-  }
-})
+// No fetch handler: all requests go straight to the network.
