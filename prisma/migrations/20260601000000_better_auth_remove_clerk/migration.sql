@@ -99,6 +99,9 @@ ALTER TABLE "Membership" ADD CONSTRAINT "Membership_organizationId_userId_key"
 
 CREATE INDEX "Membership_userId_idx" ON "Membership"("userId");
 
+-- Purger les entrées Clerk (userId = anciens clerkUserId, incompatibles avec Better Auth User)
+DELETE FROM "Membership";
+
 -- Ajouter la clé étrangère vers User
 ALTER TABLE "Membership" ADD CONSTRAINT "Membership_userId_fkey"
     FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
