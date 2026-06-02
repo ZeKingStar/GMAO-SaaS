@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
+status: Milestone complete
 stopped_at: Phase 999.2 exécutée — en attente confirmation Assumption A1 (format rôle Clerk)
-last_updated: "2026-06-01T17:17:37.481Z"
+last_updated: "2026-06-02T12:51:05.252Z"
 progress:
-  total_phases: 3
+  total_phases: 10
   completed_phases: 1
   total_plans: 2
   completed_plans: 2

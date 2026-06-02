@@ -136,7 +136,7 @@ Plans:
 
 **Goal:** Corriger les ~20 erreurs TypeScript qui bloquent le build après la migration Clerk→Better Auth. Fichiers affectés : inventaire/page.tsx (getAuth/redirect/membership manquants), layout.tsx (prop userPlan sur Header), bons-de-travail/[id]/page.tsx (spareParts/role/orgConfig), actifs/scan/[qrCode]/page.tsx (UpgradeGate/hasAccess), parametres/organisation/page.tsx (hasStripeCustomer), dashboard/page.tsx (subscription sur org query), rapports/page.tsx (subtab undefined), auth.test.ts (import Clerk), settings.test.ts (mock Clerk + fonctions supprimées), .next/dev cache (routes Clerk supprimées).
 **Requirements:** TBD
-**Plans:** 0 plans
+**Plans:** 0/0 plans complete
 
 Plans:
 - [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
