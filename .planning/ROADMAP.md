@@ -104,39 +104,20 @@ Plans:
 
 ## Backlog
 
-### Phase 999.1 : Import assisté IA (BACKLOG)
+### Phase 999.2 : Invitation membres depuis l'app (BACKLOG)
 
-**Goal:** Macro + AI pour aider le client à transformer ses données existantes (Excel maison, ancien GMAO) vers le template d'import Korvia. Suggestion de mapping colonnes, détection de doublons, rapport d'import.
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
-
-### Phase 999.2 : Invitation membres depuis l'app (PLANIFIÉ)
-
-**Goal:** Permettre aux admins/gestionnaires d'inviter des membres directement depuis `/parametres/organisation` sans passer par le dashboard Clerk. Choix du rôle à l'invitation (scopé par rang, D-06), liste des invitations en attente, révocation possible.
-**Requirements:** D-01..D-07 (CONTEXT.md). Clerk Organizations Backend API (`createOrganizationInvitation`, `getOrganizationInvitationList`, `revokeOrganizationInvitation`). Enforcement serveur du scoping de rôles + validation email.
-**Plans:** 2/2 plans complete
+**Goal:** Permettre aux admins/gestionnaires d'inviter des membres directement depuis `/parametres/organisation`. Choix du rôle à l'invitation (scopé par rang), liste des invitations en attente, révocation possible.
+**Requirements:** À réimplémenter avec Better Auth APIs (les plans originaux utilisaient Clerk — désactivé depuis migration). CONTEXT.md disponible (D-01..D-07).
+**Plans:** 0 plans actifs (anciens plans Clerk archivés)
 
 Plans:
-- [x] 999.2-01-PLAN.md — Server actions (inviteMember/revokeInvitation/listPendingInvitations) + utilitaire scoping de rôles + tests TDD
-- [x] 999.2-02-PLAN.md — UI : InviteDialog + PendingInvitationsSection + intégration page organisation
+- [ ] TBD — réimplémenter avec Better Auth
 
 ### Phase 999.3 : Role-switcher dev panel (BACKLOG)
 
-**Goal:** Panel flottant visible uniquement pour cybersag@gmail.com hors production — dropdown permettant de simuler n'importe quel rôle UI (admin/manager/technician/requester/viewer) via cookie. N'affecte pas les server actions (le vrai rôle Clerk reste intact).
+**Goal:** Panel flottant visible uniquement pour cybersag@gmail.com hors production — dropdown permettant de simuler n'importe quel rôle UI (admin/manager/technician/requester/viewer) via cookie. N'affecte pas les server actions (le vrai rôle Better Auth reste intact).
 **Requirements:** TBD
 **Plans:** 0 plans
-
-Plans:
-- [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
-
-### Phase 999.4 : Finaliser migration Clerk→Better Auth (BACKLOG)
-
-**Goal:** Corriger les ~20 erreurs TypeScript qui bloquent le build après la migration Clerk→Better Auth. Fichiers affectés : inventaire/page.tsx (getAuth/redirect/membership manquants), layout.tsx (prop userPlan sur Header), bons-de-travail/[id]/page.tsx (spareParts/role/orgConfig), actifs/scan/[qrCode]/page.tsx (UpgradeGate/hasAccess), parametres/organisation/page.tsx (hasStripeCustomer), dashboard/page.tsx (subscription sur org query), rapports/page.tsx (subtab undefined), auth.test.ts (import Clerk), settings.test.ts (mock Clerk + fonctions supprimées), .next/dev cache (routes Clerk supprimées).
-**Requirements:** TBD
-**Plans:** 0/0 plans complete
 
 Plans:
 - [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
