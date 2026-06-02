@@ -45,6 +45,7 @@
 | 13 | Notifications push PWA | Alertes mobiles pour BTs assignés | Moyenne |
 | 14 | Webhooks sortants | Intégrations avec systèmes tiers | Basse |
 | 15 | Mode hors-ligne complet | Saisie BTs sans connexion internet | Basse |
+| 16 | **Déploiement Production** | Fly.io (yyz) + Neon CA + domaine + go-live | **Go-Live** |
 
 ### Phase 10 : Multi-langue FR/EN (PLANIFIÉ)
 
@@ -99,6 +100,15 @@ Plans:
 
 Plans:
 - [ ] TBD
+
+### Phase 16 : Déploiement Production (GO-LIVE)
+
+**Goal:** Mettre l'application en production sur infrastructure canadienne. Fly.io Toronto (yyz), Neon Postgres ca-central-1 (Montréal), domaine app.korvia.ca branché, variables d'env configurées, migrations DB exécutées.
+**Requirements:** Fly.io account, Neon account, domaine DNS configuré, tous les secrets prêts (BETTER_AUTH_SECRET ✓, DATABASE_URL, STRIPE_*, RESEND_API_KEY).
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD — faire en dernier, quand toutes les features MVP sont complètes
 
 ---
 
