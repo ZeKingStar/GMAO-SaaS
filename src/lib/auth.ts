@@ -25,11 +25,29 @@ export async function getAuth() {
   // Better Auth doesn't serialize custom session fields — read activeOrganizationId from DB
   const dbSession = await db.session.findFirst({
     where: { userId, expiresAt: { gt: new Date() } },
-    select: { activeOrganizationId: true },
+    select: { id: true, activeOrganizationId: true },
     orderBy: { updatedAt: 'desc' },
   })
 
-  return { userId, orgId: dbSession?.activeOrganizationId ?? null }
+  let orgId = dbSession?.activeOrganizationId ?? null
+
+  // Auto-assign first org on fresh login (session has no activeOrganizationId yet)
+  if (!orgId && dbSession) {
+    const membership = await db.membership.findFirst({
+      where: { userId },
+      select: { organizationId: true },
+      orderBy: { createdAt: 'asc' },
+    })
+    if (membership) {
+      orgId = membership.organizationId
+      await db.session.update({
+        where: { id: dbSession.id },
+        data: { activeOrganizationId: orgId },
+      })
+    }
+  }
+
+  return { userId, orgId }
 }
 
 export async function setActiveOrganization(sessionId: string, orgId: string) {
