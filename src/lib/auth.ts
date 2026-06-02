@@ -18,10 +18,18 @@ async function getSession(): Promise<AuthSession> {
 
 export async function getAuth() {
   const session = await getSession()
-  return {
-    userId: session?.user.id ?? null,
-    orgId: session?.session.activeOrganizationId ?? null,
-  }
+  if (!session?.user.id) return { userId: null, orgId: null }
+
+  const userId = session.user.id
+
+  // Better Auth doesn't serialize custom session fields — read activeOrganizationId from DB
+  const dbSession = await db.session.findFirst({
+    where: { userId, expiresAt: { gt: new Date() } },
+    select: { activeOrganizationId: true },
+    orderBy: { updatedAt: 'desc' },
+  })
+
+  return { userId, orgId: dbSession?.activeOrganizationId ?? null }
 }
 
 export async function setActiveOrganization(sessionId: string, orgId: string) {
@@ -78,7 +86,7 @@ export async function syncUserToDb() {
   const session = await getSession()
   if (!session?.user) return null
 
-  const orgId = session.session.activeOrganizationId ?? null
+  const { orgId } = await getAuth()
   if (!orgId) return null
 
   return db.membership.upsert({
