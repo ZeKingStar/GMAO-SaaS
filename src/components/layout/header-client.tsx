@@ -13,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuLabel,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
 import { SidebarSheet } from "./sidebar-sheet"
 
@@ -93,9 +94,11 @@ export function HeaderClient({ user, currentOrg, orgs }: Props) {
               <ChevronDown className="size-3.5 text-muted-foreground shrink-0" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-                Vos organisations
-              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                  Vos organisations
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               {orgs.map((org) => (
                 <DropdownMenuItem
