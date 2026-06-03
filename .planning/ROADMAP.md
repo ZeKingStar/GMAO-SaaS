@@ -131,3 +131,12 @@ Plans:
 
 Plans:
 - [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
+
+### Phase 999.4 : Scanner QR caméra in-app (PWA mobile) (BACKLOG)
+
+**Goal:** Bouton « Scanner » flottant en bas à droite sur mobile, ouvrant la caméra DANS le PWA (viewfinder + décodage QR) → résout le code → ouvre la fiche actif → « Créer un BT ». Cohabite avec le flux actuel caméra-native + autocollant-URL (l'autocollant encode déjà l'URL via `/api/qr/[code]`).
+**Requirements:** Lib JS de décodage (iOS Safari ne supporte PAS `BarcodeDetector` natif → `html5-qrcode` / `@zxing/browser` / `qr-scanner`). Permission caméra (`getUserMedia`, HTTPS OK). Effort estimé ~½–1 jour. Voir [[project_scan_qr]].
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promouvoir avec /gsd-review-backlog quand prêt)
