@@ -4,7 +4,8 @@
  * Tests validateApiKey() and requireApiPlan() in isolation.
  * Mocking: @/lib/db (apiKey + subscription), next/server (NextRequest constructor).
  *
- * These helpers are Clerk-free — no @clerk mocks needed.
+ * These helpers depend only on the DB layer (API-key hash + subscription) —
+ * no auth-provider mocks needed.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createHash } from 'crypto'

@@ -49,6 +49,8 @@ beforeEach(() => {
   vi.clearAllMocks()
   // Default: authenticated user with a valid active organization
   vi.mocked(auth.api.getSession).mockResolvedValue(mockSession('user-1', 'org-1') as any)
+  // getAuth() resolves the active org from db.session, not the Better Auth session
+  vi.mocked(db.session.findFirst).mockResolvedValue({ id: 'sess-1', activeOrganizationId: 'org-1' } as any)
 })
 
 describe('requirePlan()', () => {
