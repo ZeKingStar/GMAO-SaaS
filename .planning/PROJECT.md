@@ -91,4 +91,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-29 — v1.0 milestone complete (9 phases, 32 plans)*
+*Last updated: 2026-06-04 — v1.0 milestone clôturé et archivé (9 phases, 32 plans ; gaps de vérification acceptés en dette)*

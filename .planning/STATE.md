@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Milestone complete
-stopped_at: Phase 999.2 exécutée — en attente confirmation Assumption A1 (format rôle Clerk)
-last_updated: "2026-06-02T12:51:05.252Z"
+status: Milestone v1.0 clôturé (gaps acceptés en dette) — prêt pour v2.0
+stopped_at: v1.0 clôturé le 2026-06-04 — archives dans .planning/milestones/, prochaine étape /gsd-new-milestone
+last_updated: "2026-06-04T02:00:00Z"
 progress:
-  total_phases: 10
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_phases: 9
+  completed_phases: 9
+  total_plans: 32
+  completed_plans: 32
   percent: 100
 ---
 
@@ -20,35 +20,36 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-19)
 
 **Core value:** Un technicien peut créer un bon de travail, scanner un actif QR et accéder à son historique en moins de 60 secondes.
-**Current focus:** Phase 09 — maintenance-conditionnelle
+**Current focus:** v1.0 clôturé (2026-06-04, gaps acceptés en dette) — démarrage v2.0 « Croissance multi-marchés » via `/gsd-new-milestone`
 
 ## Current Status
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 1 — Identité Korvia | ✓ Complete | 3/3 plans executed |
-| 2 — Feature Gating | ✓ Complete | 3/3 plans executed |
-| 3 — Notifications Email | ✓ Complete | 4/4 plans executed + verified |
-| 4 — API Publique | ✓ Complete | 3/3 plans executed + verified |
-| 5 — Portail de demandes | ✓ Complete | 3/3 plans executed |
-| 6 — Intégrité des données terrain | ✓ Complete | plans executed |
-| 7 — Analytique de fiabilité | ✓ Complete | plans executed |
-| 8 — Productivité Technicien | ✓ Complete | UAT 23/23 passé (May 28) |
-| 9 — Maintenance Conditionnelle | ○ Planned | 2 plans prêts à exécuter |
+| 1 — Identité Korvia | ✓ Complete | 3/3 plans · ⚠ pas de VERIFICATION.md |
+| 2 — Feature Gating | ✓ Complete | 4/4 plans · verif human_needed, UAT en attente |
+| 3 — Notifications Email | ✓ Complete | 4/4 plans · verif human_needed, UAT en attente |
+| 4 — API Publique | ✓ Complete | 3/3 plans · ⚠ pas de VERIFICATION.md, UAT pending |
+| 5 — Portail de demandes | ✓ Complete | 3/3 plans · VERIFICATION passed, UAT 10/10 |
+| 6 — Intégrité des données terrain | ✓ Complete | 3/3 plans · ⚠ pas de VERIFICATION.md, UAT en attente |
+| 7 — Analytique de fiabilité | ✓ Complete | 4/4 plans · VERIFICATION passed, UAT pré-approuvé |
+| 8 — Productivité Technicien | ✓ Complete | 6/6 plans · UAT passé (22+ PASS) |
+| 9 — Maintenance Conditionnelle | ✓ Complete | 2/2 plans · tests verts, UAT en attente |
+
+Migration Clerk → Better Auth mergée (1ᵉʳ juin) ; `tsc --noEmit` = 0 erreur.
 
 ## Last Action
 
-Phase 999.2 exécutée — 2 plans complets, 135/135 tests verts, UAT 8/8 approuvé par cybersag@gmail.com. VERIFICATION.md créé (12/12 must-haves). Phase en attente de clôture finale (Assumption A1).
+Clôture pragmatique du milestone v1.0 (`/gsd-complete-milestone v1.0`) — gaps acceptés en dette de vérification documentée. Audit déplacé dans `milestones/`, MILESTONES.md nettoyé (+ section Known Gaps), RETROSPECTIVE.md créée, tag `v1.0` déjà en place. Archives complètes dans `.planning/milestones/`.
 
 ## Next Step
 
-**⚠ PREMIÈRE QUESTION à poser au redémarrage :**
-> "Peux-tu vérifier le format de rôle dans ton Clerk Dashboard → Organization Members → colonne Role d'un membre existant ? Est-ce `org:technician` (avec préfixe) ou `technician` (sans préfixe) ?"
-> Une fois confirmé → lancer `node gsd-tools.cjs phase complete 999.2` pour fermer la phase.
+Démarrer le milestone v2.0 « Croissance multi-marchés » (Phases 10-16 : multi-langue FR/EN, export CSV/Excel, import IA, push PWA, webhooks, hors-ligne, déploiement Fly.io/Neon CA) :
+- `/clear` puis `/gsd-new-milestone`
 
-Ensuite : `/gsd-execute-phase 9` — Exécuter la Phase 9: Maintenance Conditionnelle
+Dette reportée en v2.0 : `src/lib/api-auth.test.ts` importe encore `@clerk` ; re-vérifier gating/rôles contre Better Auth.
 
 ## Session Continuity
 
-Last session: 2026-05-31T19:50:00Z
-Stopped at: Phase 999.2 exécutée — en attente confirmation Assumption A1 (format rôle Clerk)
+Last session: 2026-06-04T02:00:00Z
+Stopped at: v1.0 clôturé — archives finalisées, prêt pour /gsd-new-milestone
